@@ -1,0 +1,214 @@
+{
+  "categories": [
+    {
+      "id": "matematica",
+      "name": "Matemática",
+      "color": "#116CA8",
+      "description": "Materiais educacionais personalizados para ensino de matemática utilizando impressão 3D"
+    },
+    {
+      "id": "linguas",
+      "name": "Línguas",
+      "color": "#E3423A",
+      "description": "Recursos interativos para aprendizado de idiomas com modelos impressos"
+    },
+    {
+      "id": "ciencias-natureza",
+      "name": "Ciências da Natureza",
+      "color": "#409337",
+      "description": "Modelos tridimensionais para visualização e compreensão de conceitos naturais"
+    },
+    {
+      "id": "ciencias-humanas",
+      "name": "Ciências Humanas",
+      "color": "#F6B22B",
+      "description": "Materiais que trazem história e geografia para a sala de aula em formato tátil"
+    },
+    {
+      "id": "materiais-diversos",
+      "name": "Materiais Diversos",
+      "color": "#8C52FF",
+      "description": "Outros materiais educacionais personalizados para múltiplos fins"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "categoryId": "matematica",
+      "name": "Sólidos Platônicos",
+      "description": "Conjunto educativo com os cinco sólidos platônicos, projetado para o estudo das formas perfeitas da geometria espacial. Cada peça possui cor distinta e acabamento preciso, tornando o aprendizado visual, intuitivo e duradouro. Ideal para escolas, laboratórios e aulas práticas de Matemática e Geometria. Pode ser feito no tamanho normal, ou mini.",
+      "price": "R$ 49,99",
+      "images": [
+        "/images/products/solidos_platonicos1.jpg"
+      ]
+    },
+    {
+      "id": 2,
+      "categoryId": "matematica",
+      "name": "Dominó de Frações",
+      "description": "Peças de dominó com representações visuais e numéricas de frações para facilitar o entendimento e a prática de operações matemáticas envolvendo frações. Cada peça é projetada para ser durável e fácil de manusear, ideal para atividades em sala de aula ou em casa. Promove o aprendizado interativo e lúdico, ajudando os alunos a desenvolverem suas habilidades matemáticas de forma divertida.",
+      "price": "R$ 124,90",
+      "images": [
+        "/images/products/domino_fracoes.jpg"
+      ]
+    },
+        {
+      "id": 3,
+      "categoryId": "matematica",
+      "name": "Representação 3d de Frações",
+      "description": "Representação Visual com escala para percepção tátil e visual de frações matemáticas. Ideal para atividades em sala de aula ou em casa. Promove o aprendizado interativo e lúdico, ajudando os alunos a desenvolverem suas habilidades matemáticas de forma divertida.",
+      "price": "R$ 124,90",
+      "images": [
+        "/images/products/fracoes1.jpg"
+      ]
+    },
+    {
+      "id": 4,
+      "categoryId": "linguas",
+      "name": "Alfabeto 3D Interativo",
+      "description": "Letras em relevo para aprendizado tátil do alfabeto",
+      "price": "R$ 79,90",
+      "images": [
+          "/images/products/alfabeto.jpg"
+      ]
+    },
+    {
+      "id": 5,
+      "categoryId": "linguas",
+      "name": "Estrutura de Frases 3D",
+      "description": "Blocos que representam partes da oração para construir frases de forma lúdica e compreender estruturas gramaticais",
+      "price": "R$ 99,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Frases+1",
+        "https://via.placeholder.com/600x400?text=Frases+2"
+      ]
+    },
+    {
+      "id": 6,
+      "categoryId": "ciencias-natureza",
+      "name": "Modelo do Corpo Humano - Esqueleto",
+      "description": "Réplica do esqueleto humano em escala aumentada com ossos destacáveis para estudo da anatomia",
+      "price": "R$ 199,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Esqueleto+1",
+        "https://via.placeholder.com/600x400?text=Esqueleto+2",
+        "https://via.placeholder.com/600x400?text=Esqueleto+3",
+        "https://via.placeholder.com/600x400?text=Esqueleto+4"
+      ]
+    },
+    {
+      "id": 7,
+      "categoryId": "ciencias-natureza",
+      "name": "Modelo de Célula Animal",
+      "description": "Representação tridimensional das organelas celulares para compreensão da biologia celular",
+      "price": "R$ 149,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Celula+1",
+        "https://via.placeholder.com/600x400?text=Celula+2",
+        "https://via.placeholder.com/600x400?text=Celula+3"
+      ]
+    },
+    {
+      "id": 8,
+      "categoryId": "ciencias-natureza",
+      "name": "Sistema Solar - Modelo em Escala",
+      "description": "Réplica do sistema solar com planetas em escala aproximada para visualizar o cosmos",
+      "price": "R$ 189,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Solar+1",
+        "https://via.placeholder.com/600x400?text=Solar+2",
+        "https://via.placeholder.com/600x400?text=Solar+3"
+      ]
+    },
+    {
+      "id": 9,
+      "categoryId": "ciencias-humanas",
+      "name": "Mapa do Brasil com Estados Destacáveis",
+      "description": "Mapa em relevo com estados que podem ser removidos para facilitar o estudo da geografia brasileira",
+      "price": "R$ 109,90",
+      "images": [
+        "/images/products/mapa_brasil1.jpg",
+        "/images/products/mapa_brasil2.jpg"
+      ]
+    },
+    {
+      "id": 10,
+      "categoryId": "ciencias-humanas",
+      "name": "Linha do Tempo 3D - História do Brasil",
+      "description": "Representação interativa dos principais eventos históricos do Brasil em formato tátil",
+      "price": "R$ 134,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Timeline+1",
+        "https://via.placeholder.com/600x400?text=Timeline+2",
+        "https://via.placeholder.com/600x400?text=Timeline+3"
+      ]
+    },
+    {
+      "id": 11,
+      "categoryId": "materiais-diversos",
+      "name": "Jogo de Engrenagens Educativas",
+      "description": "Conjunto de engrenagens impressas para compreender mecânica e física de forma interativa",
+      "price": "R$ 94,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Engrenagem+1",
+        "https://via.placeholder.com/600x400?text=Engrenagem+2",
+        "https://via.placeholder.com/600x400?text=Engrenagem+3"
+      ]
+    },
+    {
+      "id": 12,
+      "categoryId": "materiais-diversos",
+      "name": "Quebra-Cabeça 3D Customizado",
+      "description": "Quebra-cabeça tridimensional personalizável para diferentes temas educacionais",
+      "price": "R$ 69,90",
+      "images": [
+        "https://via.placeholder.com/600x400?text=Puzzle+1",
+        "https://via.placeholder.com/600x400?text=Puzzle+2"
+      ]
+    },
+    {
+      "id": 13,
+      "categoryId": "matematica",
+      "name": "Tangram",
+      "description": "Quebra-cabeça chinês composto por sete peças geométricas que podem ser rearranjadas para formar diversas figuras. Ideal para desenvolver habilidades de raciocínio espacial, criatividade e resolução de problemas. Perfeito para atividades educacionais em sala de aula ou em casa.",
+      "price": "R$ 69,90",
+      "images": [
+        "/images/products/tangram1.jpg",
+        "/images/products/tangram2.jpg"
+      ]
+    },
+    {
+      "id": 14,
+      "categoryId": "ciencias-humanas",
+      "name": "Mapa do Brasil",
+      "description": "Quebra-cabeça chinês composto por sete peças geométricas que podem ser rearranjadas para formar diversas figuras. Ideal para desenvolver habilidades de raciocínio espacial, criatividade e resolução de problemas. Perfeito para atividades educacionais em sala de aula ou em casa.",
+      "price": "R$ 69,90",
+      "images": [
+        "/images/products/tangram1.jpg",
+        "/images/products/tangram2.jpg"
+      ]
+    },
+        {
+      "id": 15,
+      "categoryId": "matematica",
+      "name": "Ângulos Geométricos",
+      "description": "Material desenvolvido para o ensino de ângulos e posições no círculo trigonométrico. Possui peças coloridas com marcações, permitindo ao professor explorar medições, somas angulares e outros conceitos de forma prática. Torna as aulas mais dinâmicas, visuais e envolventes, facilitando a compreensão dos conteúdos trigonométricos.",
+      "price": "R$ 69,90",
+      "images": [
+        "/images/products/angulos1.jpg"
+      ]
+    },
+    {
+      "id": 16,
+      "categoryId": "matematica",
+      "name": "Quadrado da Soma",
+      "description": "Um recurso didático que transforma a álgebra em algo concreto e intuitivo. Representa de forma tangível a identidade notável (a+b)², permitindo ao estudante visualizar a decomposição e recomposição das áreas do quadrado, tornando o aprendizado mais claro e envolvente.",
+      "price": "R$ 69,90",
+      "images": [
+        "/images/products/quadrado_da_soma2.jpg",
+        "/images/products/quadrado_da_soma1.jpg"
+      ]
+    }
+    
+  ]
+}
