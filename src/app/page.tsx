@@ -1,23 +1,36 @@
 'use client';
 
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const clients = [
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://colegio-rosario.example.com' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'https://colegio-industrial.example.com' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
 ];
 
 export default function Home() {
+  const [isHeroExpanded, setIsHeroExpanded] = useState(false);
+
   return (
     <>
-      <Header />
       <main>
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-8 md:py-12 px-4 md:px-8">
-          <div className="container mx-auto max-w-7xl">
+        <section className="relative overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100 py-8 md:py-12 px-4 md:px-8">
+          <div className="container mx-auto max-w-7xl relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-center">
               {/* Conteúdo */}
               <div>
@@ -30,23 +43,43 @@ export default function Home() {
                 <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
                   Educação em Três Dimensões
                 </h2>
-                <p className="text-base md:text-lg text-gray-700 mb-6 leading-relaxed">
-                  A Formwerk é uma empresa dedicada à criação de materiais educacionais 
-                  em impressão 3D, desenvolvidos para tornar o processo de alfabetização
-                  e aprendizagem mais lúdico, interativo e acessível. Nossos produtos 
-                  são voltados para o ensino de Matemática, Inglês, Geografia e Português,
-                  oferecendo recursos que estimulam a curiosidade, a criatividade e o raciocínio
-                  lógico das crianças.
-                </p>
-                <p className="text-base md:text-lg text-gray-700 mb-6 leading-relaxed">
-                  Nosso compromisso é com a educação de qualidade, unindo tecnologia e inovação pedagógica 
-                  para apoiar professores, escolas e famílias no desenvolvimento integral dos alunos. 
-                  Na Formwerk, acreditamos que aprender pode – e deve – ser uma experiência prazerosa, 
-                  transformadora e inclusiva.
-                </p>
+                <div
+                  id="hero-text"
+                  className={`text-base md:text-lg text-gray-700 leading-relaxed mb-4 md:mb-6 ${
+                    isHeroExpanded
+                      ? 'max-h-none'
+                      : 'max-h-28 overflow-hidden'
+                  } md:max-h-none md:overflow-visible`}
+                >
+                  <p>
+                    A Formwerk é uma empresa dedicada à criação de materiais educacionais 
+                    em impressão 3D, desenvolvidos para tornar o processo de alfabetização
+                    e aprendizagem mais lúdico, interativo e acessível. Nossos produtos 
+                    são voltados para o ensino de Matemática, Inglês, Geografia e Português,
+                    oferecendo recursos que estimulam a curiosidade, a criatividade e o raciocínio
+                    lógico das crianças.
+                  </p>
+                  <p className="mt-6">
+                    Nosso compromisso é com a educação de qualidade, unindo tecnologia e inovação pedagógica 
+                    para apoiar professores, escolas e famílias no desenvolvimento integral dos alunos. 
+                    Na Formwerk, acreditamos que aprender pode – e deve – ser uma experiência prazerosa, 
+                    transformadora e inclusiva.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="md:hidden block text-sm font-semibold mb-6 btn-hover-expand"
+                  style={{ color: '#0D6AA7' }}
+                  aria-expanded={isHeroExpanded}
+                  aria-controls="hero-text"
+                  onClick={() => setIsHeroExpanded((v) => !v)}
+                >
+                  {isHeroExpanded ? 'Ler menos' : 'Ler mais'}
+                </button>
                 <Link
                   href="/categorias"
-                  className="inline-block text-white font-semibold py-3 px-7 rounded-lg hover:opacity-90 transition-opacity"
+                  className="inline-block text-white font-semibold py-3 px-7 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
                   style={{ backgroundColor: '#0D6AA7' }}
                 >
                   Explorar Produtos
@@ -69,8 +102,8 @@ export default function Home() {
         </section>
 
         {/* Diferenciais Section */}
-        <section className="py-16 px-4 bg-white">
-          <div className="container mx-auto max-w-4xl">
+        <section className="relative overflow-hidden py-16 px-4 bg-white">
+          <div className="container mx-auto max-w-4xl relative z-10">
             <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
               <span className="md:whitespace-nowrap">Por que Escolher a</span>
               <Image
@@ -86,7 +119,7 @@ export default function Home() {
               
 
               {/* Card 1 */}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow">
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
                   //style={{ backgroundColor: '#418b3b' }}
@@ -104,7 +137,7 @@ export default function Home() {
               </div>
               
               {/* Card 2 */}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow">
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
                   //style={{ backgroundColor: '#ec373f' }}
@@ -122,7 +155,7 @@ export default function Home() {
               </div>
 
               {/* Card 3 */}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow">
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
                   //style={{ backgroundColor: '#fbbc3c' }}
@@ -135,7 +168,7 @@ export default function Home() {
                 </h3>
                 <p className="text-gray-600">
                   A durabilidade de nossos materiais é muito superior à produtos de mdf ou eva,
-                  longe do sol e da umidaden, é capaz de atingir 10-15 anos.
+                  longe do sol e da umidaden, é capaz de atingir 5-25 anos.
                 </p>
               </div>
             </div>
@@ -143,12 +176,16 @@ export default function Home() {
         </section>
 
         {/* Clientes Section */}
-        <section className="py-12 px-4 bg-gradient-to-r from-blue-50 to-blue-100">
-          <div className="container mx-auto max-w-6xl">
+        <section className="py-12 bg-gradient-to-r from-blue-50 to-blue-100">
+          <div className="container mx-auto max-w-6xl px-4">
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-              Nossos Clientes
+              Nossos Clientes:
             </h2>
-            <div className="overflow-hidden">
+          </div>
+
+          {/* Full-bleed marquee (goes edge-to-edge) */}
+          <div className="relative left-1/2 w-screen -translate-x-1/2">
+            <div className="clients-marquee-mask overflow-hidden">
               <div className="clients-marquee gap-10">
                 {[...clients, ...clients].map((client, index) => (
                   <a
@@ -156,13 +193,14 @@ export default function Home() {
                     href={client.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center"
+                    className="flex items-center justify-center rounded-xl overflow-hidden bg-white ring-1 ring-gray-200"
                   >
                     <Image
                       src={client.src}
                       alt={client.name}
-                      width={160}
+                      width={80}
                       height={80}
+                      className="block"
                     />
                   </a>
                 ))}
@@ -173,18 +211,18 @@ export default function Home() {
         
 
         {/* CTA Section */}
-        <section className="py-16 px-4" style={{ backgroundColor: '#0D6AA7' }}>
-          <div className="container mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold text-white mb-6">
+        <section className="relative overflow-hidden py-16 px-4 bg-white">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h2 className="text-3xl font-bold mb-6" style={{ color: '#000000ff' }}>
               Pronto para Transformar a Educação?
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Conheça nossa coleção completa de produtos educacionais
-              personalizados.
+            <p className="text-xl text-gray-700 mb-8">
+              Conheça os principais produtos para a educação lúdica!
             </p>
             <Link
               href="/categorias"
-              className="inline-block bg-white text-blue-600 font-semibold py-3 px-8 rounded-lg hover:bg-blue-50 transition-colors"
+              className="inline-block text-white font-semibold py-3 px-8 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
+              style={{ backgroundColor: '#0D6AA7' }}
             >
               Ver Todas as Categorias
             </Link>

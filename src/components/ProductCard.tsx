@@ -8,6 +8,7 @@ interface ProductCardProps {
   price: string;
   image: string;
   categoryColor: string;
+  compact?: boolean;
 }
 
 export default function ProductCard({
@@ -17,40 +18,53 @@ export default function ProductCard({
   price,
   image,
   categoryColor,
+  compact = false,
 }: ProductCardProps) {
+  void price;//PREÇO REMOVIDO
+
+  const imageHeightClass = compact ? 'md:h-40' : 'md:h-48';
+  const paddingClass = compact ? 'p-3' : 'p-4';
+  const titleClass = compact ? 'text-base' : 'text-lg';
+  const descriptionClass = compact ? 'text-xs' : 'text-sm';
+  const titleMinHeightClass = compact ? 'min-h-[3rem]' : 'min-h-[3.5rem]';
+  const descriptionMinHeightClass = compact ? 'min-h-[3.25rem]' : 'min-h-[3.75rem]';
+  const buttonPaddingClass = compact ? 'py-2 px-3' : 'py-2 px-4';
+
   return (
-    <Link href={`/products/${id}`}>
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col">
+    <Link href={`/products/${id}`} className="block h-full">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col card-hover-expand group">
         {/* Image Container */}
         <div
-          className="relative h-48 w-full overflow-hidden"
+          className={`relative w-full overflow-hidden aspect-square ${imageHeightClass}`}
           style={{ backgroundColor: categoryColor + '20' }}
         >
           <Image
             src={image}
             alt={name}
             fill
-            className="object-cover hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105 motion-reduce:transition-none"
           />
+          {/*PREÇO REMOVIDO
           <div
             className="absolute top-0 right-0 px-3 py-1 rounded-bl-lg text-white text-sm font-semibold"
             style={{ backgroundColor: categoryColor }}
           >
             {price}
           </div>
+          */}
         </div>
 
         {/* Content Container */}
-        <div className="p-4 flex flex-col flex-grow">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+        <div className={`${paddingClass} flex flex-col flex-grow`}>
+          <h3 className={`${titleClass} font-semibold text-gray-800 mb-2 line-clamp-2 ${titleMinHeightClass}`}>
             {name}
           </h3>
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
+          <p className={`text-gray-600 ${descriptionClass} mb-4 line-clamp-3 ${descriptionMinHeightClass} flex-grow`}>
             {description}
           </p>
           <button
             style={{ backgroundColor: categoryColor }}
-            className="mt-auto text-white font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition-opacity w-full"
+            className={`mt-auto text-white font-semibold ${buttonPaddingClass} rounded-lg hover:opacity-90 transition-opacity w-full`}
           >
             Ver Detalhes
           </button>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ScrollContext from "@/components/ScrollContext";
+import Header from "@/components/Header";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +32,11 @@ export default function RootLayout({
     <html lang="pt-BR" data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <ScrollContext>
-        {children}
-          </ScrollContext>
+        <ScrollContext>
+          <Header />
+          <div className="pt-20">{children}</div>
+          <FloatingWhatsApp />
+        </ScrollContext>
       </body>
     </html>
   );

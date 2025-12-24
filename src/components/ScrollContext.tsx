@@ -6,7 +6,9 @@ import Lenis from "lenis";
 
 type LenisInstance = InstanceType<typeof Lenis> | null;
 
-const SmoothScrollerContext = createContext<LenisInstance>(null);
+type LenisRef = React.MutableRefObject<LenisInstance>;
+
+const SmoothScrollerContext = createContext<LenisRef | null>(null);
 
 export const useSmoothScroller = () => useContext(SmoothScrollerContext);
 
@@ -40,7 +42,7 @@ export default function ScrollContext({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <SmoothScrollerContext.Provider value={lenisRef.current}>
+        <SmoothScrollerContext.Provider value={lenisRef}>
             {children}
         </SmoothScrollerContext.Provider>
     );

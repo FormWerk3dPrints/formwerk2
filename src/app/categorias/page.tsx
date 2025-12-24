@@ -1,9 +1,8 @@
 'use client';
 
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import productsData from '@/data/products.json';
 
 interface Category {
@@ -23,20 +22,9 @@ interface Product {
 }
 
 export default function Categorias() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Carregar dados localmente do JSON
-    setCategories(productsData.categories);
-    setProducts(productsData.products);
-    if (productsData.categories.length > 0) {
-      setSelectedCategory(productsData.categories[0].id);
-    }
-    setLoading(false);
-  }, []);
+  const categories = productsData.categories as Category[];
+  const products = productsData.products as Product[];
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => categories[0]?.id ?? '');
 
   const filteredProducts = products.filter(
     (product) => product.categoryId === selectedCategory
@@ -46,12 +34,11 @@ export default function Categorias() {
     (cat) => cat.id === selectedCategory
   );
 
-  if (loading) {
+  if (!categories.length) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-xl text-gray-600">Carregando...</p>
+          <p className="text-xl text-gray-600">Nenhuma categoria encontrada.</p>
         </div>
         <Footer />
       </>
@@ -60,7 +47,6 @@ export default function Categorias() {
 
   return (
     <>
-      <Header />
       <main className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
           {/* Title */}
@@ -68,8 +54,7 @@ export default function Categorias() {
             Produtos por Categoria
           </h1>
           <p className="text-gray-600 text-center mb-12">
-            Explore nossa coleção completa de materiais educacionais
-            personalizados
+            Explore nossos principais produtos organizados por categoria!
           </p>
 
           {/* Category Tabs */}
@@ -79,7 +64,7 @@ export default function Categorias() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-all text-sm md:text-base ${
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-all text-sm md:text-base btn-hover-expand ${
                     selectedCategory === category.id
                       ? 'text-white shadow-lg'
                       : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300'
