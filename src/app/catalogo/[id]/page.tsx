@@ -1,6 +1,5 @@
 'use client';
 
-import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -35,8 +34,12 @@ function mulberry32(seed: number) {
 export default function ProductDetails() {
   const params = useParams();
   const productIdParam = params?.id;
-  const productId = Array.isArray(productIdParam) ? productIdParam[0] : (productIdParam as string | undefined);
-  const productIdNumber = productId ? Number.parseInt(productId, 10) : Number.NaN;
+  const productId = Array.isArray(productIdParam)
+    ? productIdParam[0]
+    : (productIdParam as string | undefined);
+  const productIdNumber = productId
+    ? Number.parseInt(productId, 10)
+    : Number.NaN;
 
   const product = useMemo(() => {
     return (
@@ -48,15 +51,18 @@ export default function ProductDetails() {
   const category = useMemo(() => {
     if (!product) return null;
     return (
-      productsData.categories.find((c: Category) => c.id === product.categoryId) ||
-      null
+      productsData.categories.find(
+        (c: Category) => c.id === product.categoryId
+      ) || null
     );
   }, [product]);
 
   const suggestedProducts = useMemo(() => {
     if (!product) return [];
 
-    const others = productsData.products.filter((p: Product) => p.id !== product.id);
+    const others = productsData.products.filter(
+      (p: Product) => p.id !== product.id
+    );
 
     const rand = mulberry32(product.id);
 
@@ -91,7 +97,6 @@ export default function ProductDetails() {
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-xl text-gray-600">Produto não encontrado</p>
         </div>
-        <Footer />
       </>
     );
   }
@@ -102,7 +107,6 @@ export default function ProductDetails() {
         <div className="min-h-screen flex items-center justify-center">
           <p className="text-xl text-gray-600">Produto não encontrado</p>
         </div>
-        <Footer />
       </>
     );
   }
@@ -232,7 +236,10 @@ export default function ProductDetails() {
                     (c: Category) => c.id === p.categoryId
                   );
                   return (
-                    <div key={p.id} className="flex-shrink-0 w-64 md:w-auto flex flex-col">
+                    <div
+                      key={p.id}
+                      className="flex-shrink-0 w-64 md:w-auto flex flex-col"
+                    >
                       <ProductCard
                         id={p.id}
                         name={p.name}
@@ -249,19 +256,18 @@ export default function ProductDetails() {
             </div>
           )}
 
-          {/* Voltar ao Início */}
+          {/* Voltar ao Catálogo */}
           <div className="mt-12 text-center">
             <Link
-              href="/categorias"
+              href="/catalogo"
               className="inline-block text-white font-semibold py-3 px-8 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
               style={{ backgroundColor: '#0D6AA7' }}
             >
-              ← Voltar às Categorias
+              ← Voltar ao Catálogo
             </Link>
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

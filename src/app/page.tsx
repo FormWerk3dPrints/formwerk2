@@ -1,6 +1,5 @@
 'use client';
 
-import Footer from '@/components/Footer';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -78,7 +77,7 @@ export default function Home() {
                   {isHeroExpanded ? 'Ler menos' : 'Ler mais'}
                 </button>
                 <Link
-                  href="/categorias"
+                  href="/catalogo"
                   className="inline-block text-white font-semibold py-3 px-7 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
                   style={{ backgroundColor: '#0D6AA7' }}
                 >
@@ -220,7 +219,7 @@ export default function Home() {
               Conheça os principais produtos para a educação lúdica!
             </p>
             <Link
-              href="/categorias"
+              href="/catalogo"
               className="inline-block text-white font-semibold py-3 px-8 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
               style={{ backgroundColor: '#0D6AA7' }}
             >
@@ -229,7 +228,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

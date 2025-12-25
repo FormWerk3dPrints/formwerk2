@@ -4,6 +4,7 @@ import "./globals.css";
 import ScrollContext from "@/components/ScrollContext";
 import Header from "@/components/Header";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
           <Header />
           <div className="pt-20">{children}</div>
           <FloatingWhatsApp />
+          <Footer />
         </ScrollContext>
       </body>
     </html>

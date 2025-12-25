@@ -2,6 +2,7 @@
 
 import { siWhatsapp } from "simple-icons/icons";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type SimpleIconData = {
   title: string;
@@ -34,26 +35,45 @@ const FOOTER_ID = "site-footer";
 
 export default function FloatingWhatsApp() {
   const [isHidden, setIsHidden] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const footer =
-      document.getElementById(FOOTER_ID) ??
-      (document.querySelector("footer") as HTMLElement | null);
+    // O Footer é montado/desmontado ao trocar de rota (ele está dentro das pages),
+    // então precisamos re-ligar o observer sempre que a rota mudar.
+    setIsHidden(false);
 
-    if (!footer) return;
+    let cancelled = false;
+    let observer: IntersectionObserver | null = null;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        setIsHidden(entries.some((entry) => entry.isIntersecting));
-      },
-      {
-        threshold: 0.01,
-      },
-    );
+    const attach = () => {
+      const footer =
+        document.getElementById(FOOTER_ID) ??
+        (document.querySelector("footer") as HTMLElement | null);
 
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
+      if (!footer || cancelled) return;
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          setIsHidden(entries.some((entry) => entry.isIntersecting));
+        },
+        {
+          threshold: 0.01,
+        },
+      );
+
+      observer.observe(footer);
+    };
+
+    // Aguarda o DOM atualizar após navegação.
+    const raf = requestAnimationFrame(attach);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      observer?.disconnect();
+      observer = null;
+    };
+  }, [pathname]);
 
   return (
     <a

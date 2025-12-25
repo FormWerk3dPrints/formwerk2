@@ -31,7 +31,7 @@ export default function ProductCard({
   const buttonPaddingClass = compact ? 'py-2 px-3' : 'py-2 px-4';
 
   return (
-    <Link href={`/products/${id}`} className="block h-full">
+    <Link href={`/catalogo/${id}`} className="block h-full">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col card-hover-expand group">
         {/* Image Container */}
         <div

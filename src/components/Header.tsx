@@ -20,10 +20,10 @@ export default function Header() {
         {/* Navigation Menu */}
         <div className="flex items-center gap-8">
           <Link
-            href="/categorias"
+            href="/catalogo"
             className="text-white hover:text-blue-100 transition-colors font-medium"
           >
-            Categorias
+            Catálogo
           </Link>
           {/* Native anchor so the hash scroll is handled by the browser (works with global smooth scroll). */}
           <a
