@@ -9,6 +9,7 @@ interface ProductCardProps {
   image: string;
   categoryColor: string;
   compact?: boolean;
+  mobileLayout?: 'stack' | 'side';
 }
 
 export default function ProductCard({
@@ -19,23 +20,38 @@ export default function ProductCard({
   image,
   categoryColor,
   compact = false,
+  mobileLayout = 'stack',
 }: ProductCardProps) {
   void price;//PREÇO REMOVIDO
 
+  const isMobileSideLayout = mobileLayout === 'side';
+
   const imageHeightClass = compact ? 'md:h-40' : 'md:h-48';
-  const paddingClass = compact ? 'p-3' : 'p-4';
+  const paddingClass = isMobileSideLayout
+    ? compact
+      ? 'p-3 md:p-3'
+      : 'p-3 md:p-4'
+    : compact
+      ? 'p-3'
+      : 'p-4';
   const titleClass = compact ? 'text-base' : 'text-lg';
   const descriptionClass = compact ? 'text-xs' : 'text-sm';
-  const titleMinHeightClass = compact ? 'min-h-[3rem]' : 'min-h-[3.5rem]';
-  const descriptionMinHeightClass = compact ? 'min-h-[3.25rem]' : 'min-h-[3.75rem]';
+  const titleMinHeightClass = compact ? 'md:min-h-[3rem]' : 'md:min-h-[3.5rem]';
+  const descriptionMinHeightClass = compact ? 'md:min-h-[3.25rem]' : 'md:min-h-[3.75rem]';
   const buttonPaddingClass = compact ? 'py-2 px-3' : 'py-2 px-4';
 
   return (
     <Link href={`/catalogo/${id}`} className="block h-full">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex flex-col card-hover-expand group">
+      <div
+        className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex card-hover-expand group ${
+          isMobileSideLayout ? 'flex-row md:flex-col' : 'flex-col'
+        }`}
+      >
         {/* Image Container */}
         <div
-          className={`relative w-full overflow-hidden aspect-square ${imageHeightClass}`}
+          className={`relative overflow-hidden aspect-square ${imageHeightClass} ${
+            isMobileSideLayout ? 'w-28 shrink-0 md:w-full' : 'w-full'
+          }`}
           style={{ backgroundColor: categoryColor + '20' }}
         >
           <Image

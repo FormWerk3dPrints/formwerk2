@@ -109,6 +109,7 @@ export default function Catalogo() {
                   price={product.price}
                   image={product.images[0]}
                   categoryColor={selectedCategoryData?.color || '#0D6AA7'}
+                  mobileLayout="side"
                 />
               ))}
             </div>

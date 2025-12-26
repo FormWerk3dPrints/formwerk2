@@ -118,7 +118,7 @@ export default function Home() {
               
 
               {/* Card 1 */}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand">
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
                   //style={{ backgroundColor: '#418b3b' }}
@@ -136,7 +136,7 @@ export default function Home() {
               </div>
               
               {/* Card 2 */}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand">
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
                   //style={{ backgroundColor: '#ec373f' }}
@@ -154,7 +154,7 @@ export default function Home() {
               </div>
 
               {/* Card 3 */}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand">
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
                   //style={{ backgroundColor: '#fbbc3c' }}
