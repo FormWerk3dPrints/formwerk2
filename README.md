@@ -1,3 +1,9 @@
+# Firebase
+
+Para conectar o projeto ao Firebase (Auth/Firestore/Storage), crie um arquivo `.env.local` na raiz usando como base o `.env.local.example`.
+
+Os valores ficam em: Firebase Console → Project settings → Your apps → (Web app) → Firebase SDK snippet (Config).
+
 # FORMWERK - Portfólio de Materiais Educacionais 3D
 
 Site de portfólio para a FORMWERK, empresa especializada em criar materiais educacionais personalizados através de impressão 3D.
