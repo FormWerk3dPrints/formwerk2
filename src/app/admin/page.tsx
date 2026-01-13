@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -240,6 +241,14 @@ export default function AdminPage() {
   const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [validationPopup, setValidationPopup] = useState<{
+    title: string;
+    missingFields: string[];
+  } | null>(null);
+
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+
   const [showCategoryCreate, setShowCategoryCreate] = useState(true);
   const [showCategoryList, setShowCategoryList] = useState(true);
   const [showProductCreate, setShowProductCreate] = useState(true);
@@ -359,12 +368,20 @@ export default function AdminPage() {
 
   async function createCategory() {
     setError(null);
+    setValidationPopup(null);
 
     const name = newCategoryName.trim();
-    if (!name) {
-      setError('Informe o nome da categoria.');
+    const missingFields: string[] = [];
+    if (!name) missingFields.push('Nome');
+    if (missingFields.length) {
+      setValidationPopup({
+        title: 'Não foi possível cadastrar a categoria.',
+        missingFields,
+      });
       return;
     }
+
+    setIsCreatingCategory(true);
 
     const baseId = slugify(name);
     const id = await findAvailableDocId('categories', baseId);
@@ -388,6 +405,8 @@ export default function AdminPage() {
     } catch (e) {
       console.error(e);
       setError('Erro ao criar categoria.');
+    } finally {
+      setIsCreatingCategory(false);
     }
   }
 
@@ -509,29 +528,28 @@ export default function AdminPage() {
 
   async function createProduct() {
     setError(null);
+    setValidationPopup(null);
 
     const name = newProductName.trim();
     const pluralName = newProductPluralName.trim();
     const description = newProductDescription.trim();
     const categoryId = newProductCategoryId.trim();
 
-    if (!name) {
-      setError('Informe o nome do produto.');
-      return;
-    }
-    if (!pluralName) {
-      setError('Informe o nome do produto no plural.');
-      return;
-    }
-    if (!categoryId) {
-      setError('Selecione uma categoria.');
+    const missingFields: string[] = [];
+    if (!name) missingFields.push('Nome');
+    if (!pluralName) missingFields.push('Nome (plural)');
+    if (!categoryId) missingFields.push('Categoria');
+    if (!newProductFiles.length) missingFields.push('Imagens (upload)');
+
+    if (missingFields.length) {
+      setValidationPopup({
+        title: 'Não foi possível cadastrar o produto.',
+        missingFields,
+      });
       return;
     }
 
-    if (!newProductFiles.length) {
-      setError('Envie pelo menos 1 imagem do produto.');
-      return;
-    }
+    setIsCreatingProduct(true);
 
     const baseSlug = slugify(name);
     const slug = await findAvailableDocId('products', baseSlug);
@@ -593,6 +611,8 @@ export default function AdminPage() {
         // ignore
       }
       setError('Erro ao criar produto.');
+    } finally {
+      setIsCreatingProduct(false);
     }
   }
 
@@ -753,7 +773,7 @@ export default function AdminPage() {
         {error && <p className="mt-4 text-red-600">{error}</p>}
 
         {LOGIN_ASCII_ART.trim().length > 0 && (
-          <pre className="mt-6 overflow-x-auto whitespace-pre text-xs leading-tight text-gray-900">
+          <pre className="mt-6 overflow-x-auto whitespace-pre text-[10px] leading-tight text-gray-900">
             {LOGIN_ASCII_ART}
           </pre>
         )}
@@ -783,6 +803,38 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900">
       <div className="container mx-auto px-4 py-10">
+        {validationPopup && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label={validationPopup.title}
+            onClick={() => setValidationPopup(null)}
+          >
+            <div
+              className="w-full max-w-md rounded-lg border border-black/10 bg-white p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-lg font-bold">{validationPopup.title}</div>
+              <div className="mt-2 text-sm opacity-80">Campos faltando:</div>
+              <ul className="mt-2 list-disc pl-5 text-sm">
+                {validationPopup.missingFields.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  className="inline-flex items-center rounded-md bg-black px-4 py-2 text-white hover:opacity-90 active:opacity-80"
+                  onClick={() => setValidationPopup(null)}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Admin</h1>
@@ -790,12 +842,25 @@ export default function AdminPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/admin/emissao"
+            className="inline-flex w-full items-center justify-center rounded-md border border-black px-4 py-2 hover:opacity-90 active:opacity-80 sm:w-auto"
+          >
+            Emissão
+          </Link>
           <button
             type="button"
-            className="inline-flex items-center rounded-md bg-black px-4 py-2 text-white"
+            className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             onClick={() => void refreshData()}
             disabled={dataLoading}
+            aria-busy={dataLoading}
           >
+            {dataLoading && (
+              <span
+                className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white"
+                aria-hidden="true"
+              />
+            )}
             {dataLoading ? 'Atualizando…' : 'Atualizar'}
           </button>
           <button
@@ -889,10 +954,18 @@ export default function AdminPage() {
             </label>
             <button
               type="button"
-              className="ml-auto inline-flex items-center rounded-md bg-black px-4 py-2 text-white"
+              className="ml-auto inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               onClick={() => void createCategory()}
+              disabled={isCreatingCategory}
+              aria-busy={isCreatingCategory}
             >
-              Criar categoria
+              {isCreatingCategory && (
+                <span
+                  className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white"
+                  aria-hidden="true"
+                />
+              )}
+              {isCreatingCategory ? 'Criando…' : 'Criar categoria'}
             </button>
           </div>
         </div>
@@ -1187,10 +1260,18 @@ export default function AdminPage() {
           <div className="flex items-center justify-end">
             <button
               type="button"
-              className="inline-flex items-center rounded-md bg-black px-4 py-2 text-white"
+              className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               onClick={() => void createProduct()}
+              disabled={isCreatingProduct}
+              aria-busy={isCreatingProduct}
             >
-              Criar produto
+              {isCreatingProduct && (
+                <span
+                  className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white"
+                  aria-hidden="true"
+                />
+              )}
+              {isCreatingProduct ? 'Criando…' : 'Criar produto'}
             </button>
           </div>
         </div>
