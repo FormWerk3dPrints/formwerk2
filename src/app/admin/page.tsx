@@ -66,6 +66,7 @@ type Product = {
   imageUrls: string[];
   mainImageUrl?: string;
   videoUrl?: string;
+  salesCount: number;
   active: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -322,6 +323,7 @@ export default function AdminPage() {
           imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
           mainImageUrl: data.mainImageUrl,
           videoUrl: typeof data.videoUrl === 'string' ? data.videoUrl : undefined,
+          salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
           active: data.active ?? false,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -593,6 +595,7 @@ export default function AdminPage() {
         imageUrls: [],
         mainImageUrl: '',
         videoUrl: '',
+        salesCount: 0,
         active: !!newProductActive,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),

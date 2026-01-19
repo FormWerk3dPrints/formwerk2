@@ -86,12 +86,9 @@ export default function CatalogoClient({
 
         {selectedCategoryData && (
           <div
-            className="p-6 rounded-lg mb-8 text-white"
+            className="h-1 rounded-full mb-8"
             style={{ backgroundColor: selectedCategoryData.color }}
-          >
-            <h2 className="text-2xl font-bold mb-2">{selectedCategoryData.name}</h2>
-            <p>{selectedCategoryData.description}</p>
-          </div>
+          />
         )}
 
         {filteredProducts.length > 0 ? (

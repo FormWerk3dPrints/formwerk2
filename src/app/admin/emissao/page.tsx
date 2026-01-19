@@ -11,11 +11,14 @@ import {
 } from 'firebase/auth';
 import {
   collection,
+  doc,
   getDocs,
+  increment,
   limit,
   orderBy,
   query,
   type Timestamp,
+  updateDoc,
 } from 'firebase/firestore';
 
 import { firebaseAuth, firestoreDb } from '@/lib/firebase/client';
@@ -30,6 +33,7 @@ type Product = {
   keywords: string[];
   priceCents: number;
   currency: string;
+  salesCount: number;
   active: boolean;
   createdAt?: Timestamp;
 };
@@ -160,6 +164,7 @@ export default function EmissaoPage() {
             keywords: Array.isArray(data.keywords) ? data.keywords : [],
             priceCents: coerceFirestorePriceToCents(data.priceCents),
             currency: String(data.currency ?? 'BRL'),
+            salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
             active: !!data.active,
             createdAt: data.createdAt,
           };
@@ -287,6 +292,35 @@ export default function EmissaoPage() {
 
     return { text: lines.join('\n'), missing: [] as string[] };
   }, [discountPct, products, selected]);
+
+  async function handleGenerate() {
+    setError(null);
+
+    if (declaration.missing.length) {
+      setPopup({ title: 'Não foi possível gerar a declaração.', lines: declaration.missing });
+      return;
+    }
+
+    try {
+      // Incrementar contador de vendas para cada produto selecionado com qty > 0
+      const updates: Promise<void>[] = [];
+      for (const sel of selected) {
+        if (sel.quantity > 0) {
+          updates.push(
+            updateDoc(doc(firestoreDb, 'products', sel.productId), {
+              salesCount: increment(sel.quantity),
+            })
+          );
+        }
+      }
+      await Promise.all(updates);
+
+      setPopup({ title: 'Declaração pronta!', lines: ['A declaração foi gerada e os contadores de vendas foram atualizados.'] });
+    } catch (e) {
+      console.error(e);
+      setError('Falha ao gerar declaração.');
+    }
+  }
 
   async function handleCopy() {
     setError(null);
@@ -597,13 +631,7 @@ export default function EmissaoPage() {
               <button
                 type="button"
                 className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-white hover:opacity-90 active:opacity-80 sm:w-auto"
-                onClick={() => {
-                  if (declaration.missing.length) {
-                    setPopup({ title: 'Não foi possível gerar a declaração.', lines: declaration.missing });
-                    return;
-                  }
-                  setPopup({ title: 'Declaração pronta!', lines: ['A declaração foi gerada abaixo.'] });
-                }}
+                onClick={() => void handleGenerate()}
               >
                 Gerar
               </button>
