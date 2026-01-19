@@ -18,6 +18,7 @@ export interface DetailsProduct {
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  videoUrl?: string;
 }
 
 function hashStringToSeed(input: string): number {
@@ -49,28 +50,43 @@ export default function ProductDetailsClient({
   suggestedProducts: DetailsProduct[];
   categoriesById: Record<string, DetailsCategory>;
 }) {
-  const images = useMemo(() => {
+  // Mídias: vídeo primeiro (se existir), depois imagens
+  const mediaItems = useMemo(() => {
+    const items: { type: 'video' | 'image'; url: string }[] = [];
+
+    // Vídeo como primeiro item
+    if (product.videoUrl) {
+      items.push({ type: 'video', url: product.videoUrl });
+    }
+
+    // Imagens
     const urls = Array.isArray(product.imageUrls) ? product.imageUrls : [];
     const main = typeof product.mainImageUrl === 'string' ? product.mainImageUrl : '';
     const merged = [main, ...urls].filter(Boolean);
-    return Array.from(new Set(merged));
-  }, [product.imageUrls, product.mainImageUrl]);
+    const uniqueImages = Array.from(new Set(merged));
+    for (const url of uniqueImages) {
+      items.push({ type: 'image', url });
+    }
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    return items;
+  }, [product.imageUrls, product.mainImageUrl, product.videoUrl]);
 
-  const handlePrevImage = () => {
-    if (images.length) {
-      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  const handlePrevMedia = () => {
+    if (mediaItems.length) {
+      setCurrentMediaIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
     }
   };
 
-  const handleNextImage = () => {
-    if (images.length) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  const handleNextMedia = () => {
+    if (mediaItems.length) {
+      setCurrentMediaIndex((prev) => (prev + 1) % mediaItems.length);
     }
   };
 
-  const safeImageIndex = images.length ? currentImageIndex % images.length : 0;
+  const safeMediaIndex = mediaItems.length ? currentMediaIndex % mediaItems.length : 0;
+  const currentMedia = mediaItems[safeMediaIndex];
 
   const seededSuggested = useMemo(() => {
     const seed = hashStringToSeed(product.id);
@@ -95,62 +111,78 @@ export default function ProductDetailsClient({
                 className="relative w-full aspect-square rounded-lg overflow-hidden"
                 style={{ backgroundColor: (category?.color || '#0D6AA7') + '20' }}
               >
-                {images.length > 0 ? (
-                  <Image
-                    src={images[safeImageIndex]}
-                    alt={`${product.name} - ${safeImageIndex + 1}`}
-                    fill
-                    className="object-cover"
-                  />
+                {currentMedia ? (
+                  currentMedia.type === 'video' ? (
+                    <video
+                      src={currentMedia.url}
+                      controls
+                      disablePictureInPicture
+                      controlsList="nodownload noplaybackrate"
+                      className="absolute inset-0 w-full h-full object-contain bg-black"
+                    />
+                  ) : (
+                    <Image
+                      src={currentMedia.url}
+                      alt={`${product.name} - ${safeMediaIndex + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  )
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-600">
                     Sem imagem
                   </div>
                 )}
 
-                {images.length > 1 && (
+                {mediaItems.length > 1 && (
                   <>
                     <button
-                      onClick={handlePrevImage}
+                      onClick={handlePrevMedia}
                       className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 font-bold py-2 px-3 rounded-full transition-colors btn-hover-expand"
-                      aria-label="Imagem anterior"
+                      aria-label="Mídia anterior"
                     >
                       &#10094;
                     </button>
                     <button
-                      onClick={handleNextImage}
+                      onClick={handleNextMedia}
                       className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 font-bold py-2 px-3 rounded-full transition-colors btn-hover-expand"
-                      aria-label="Próxima imagem"
+                      aria-label="Próxima mídia"
                     >
                       &#10095;
                     </button>
                   </>
                 )}
 
-                {images.length > 0 && (
+                {mediaItems.length > 0 && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                    {safeImageIndex + 1} / {images.length}
+                    {safeMediaIndex + 1} / {mediaItems.length}
                   </div>
                 )}
               </div>
 
-              {images.length > 1 && (
+              {mediaItems.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto">
-                  {images.map((image, index) => (
+                  {mediaItems.map((media, index) => (
                     <button
-                      key={image}
-                      onClick={() => setCurrentImageIndex(index)}
+                      key={media.url}
+                      onClick={() => setCurrentMediaIndex(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors btn-hover-expand ${
-                        safeImageIndex === index ? 'border-blue-500' : 'border-gray-200'
+                        safeMediaIndex === index ? 'border-blue-500' : 'border-gray-200'
                       }`}
                     >
-                      <Image
-                        src={image}
-                        alt={`Thumbnail ${index + 1}`}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                      />
+                      {media.type === 'video' ? (
+                        <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white text-xs">
+                          ▶ Vídeo
+                        </div>
+                      ) : (
+                        <Image
+                          src={media.url}
+                          alt={`Thumbnail ${index + 1}`}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -207,6 +239,7 @@ export default function ProductDetailsClient({
           <Link
             href="/catalogo"
             className="inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors btn-hover-expand"
+            style={{ backgroundColor: '#0D6AA7' }}
           >
             Voltar ao Catálogo
           </Link>

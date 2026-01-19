@@ -257,6 +257,7 @@ export default function AdminPage() {
 
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
 
   const [showCategoryCreate, setShowCategoryCreate] = useState(true);
   const [showCategoryList, setShowCategoryList] = useState(true);
@@ -320,6 +321,7 @@ export default function AdminPage() {
           currency: data.currency ?? 'BRL',
           imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
           mainImageUrl: data.mainImageUrl,
+          videoUrl: typeof data.videoUrl === 'string' ? data.videoUrl : undefined,
           active: data.active ?? false,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
@@ -662,6 +664,7 @@ export default function AdminPage() {
   async function saveEditProduct() {
     if (!editingProductId) return;
     setError(null);
+    setIsSavingProduct(true);
 
     const patch = { ...editingProductPatch };
     if (typeof patch.name === 'string') {
@@ -716,6 +719,8 @@ export default function AdminPage() {
     } catch (e) {
       console.error(e);
       setError('Erro ao atualizar produto.');
+    } finally {
+      setIsSavingProduct(false);
     }
   }
 
@@ -1679,10 +1684,18 @@ export default function AdminPage() {
                     </button>
                     <button
                       type="button"
-                      className="rounded-md bg-black px-3 py-2 text-white"
+                      className="inline-flex items-center justify-center rounded-md bg-black px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
                       onClick={() => void saveEditProduct()}
+                      disabled={isSavingProduct}
+                      aria-busy={isSavingProduct}
                     >
-                      Salvar
+                      {isSavingProduct && (
+                        <span
+                          className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white"
+                          aria-hidden="true"
+                        />
+                      )}
+                      {isSavingProduct ? 'Salvando…' : 'Salvar'}
                     </button>
                   </div>
                 </div>

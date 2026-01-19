@@ -39,6 +39,7 @@ export default async function ProductPage({
     description: String(data.description ?? ''),
     imageUrls,
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+    videoUrl: typeof data.videoUrl === 'string' && data.videoUrl ? data.videoUrl : undefined,
   };
 
   let category: DetailsCategory | null = null;
