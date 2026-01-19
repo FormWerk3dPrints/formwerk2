@@ -26,9 +26,20 @@ const getLocalIp = () => {
   return "127.0.0.1";
 };
 
-const nextConfig: NextConfig = {
+const localIp = process.env.NODE_ENV === "development" ? getLocalIp() : undefined;
+
+const nextConfig: NextConfig & { allowedDevOrigins?: string[] } = {
   /* config options here */
   reactCompiler: true,
+  ...(process.env.NODE_ENV === "development"
+    ? {
+        allowedDevOrigins: [
+          "http://localhost:3000",
+          "http://127.0.0.1:3000",
+          ...(localIp ? [`http://${localIp}:3000`, `http://${localIp}`] : []),
+        ],
+      }
+    : {}),
   images: {
     remotePatterns: [
       {
@@ -48,7 +59,6 @@ const nextConfig: NextConfig = {
 
 // Log IP na inicialização
 if (process.env.NODE_ENV === "development") {
-  const localIp = getLocalIp();
   console.log(`\n✓ Acesse via rede em: http://${localIp}:3000\n`);
 }
 

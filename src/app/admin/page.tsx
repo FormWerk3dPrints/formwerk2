@@ -65,6 +65,7 @@ type Product = {
   currency: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  videoUrl?: string;
   active: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -230,6 +231,14 @@ async function uploadProductImages(slug: string, files: File[]): Promise<string[
   }
 
   return uploadedUrls;
+}
+
+async function uploadProductVideo(slug: string, file: File): Promise<string> {
+  const ext = fileExtensionFromName(file.name);
+  const fileName = `${slug}-video${ext ? `.${ext}` : ''}`;
+  const objectRef = storageRef(firebaseStorage, `products/${slug}/${fileName}`);
+  await uploadBytes(objectRef, file);
+  return getDownloadURL(objectRef);
 }
 
 export default function AdminPage() {
@@ -467,9 +476,13 @@ export default function AdminPage() {
   const [newProductKeywordsManual, setNewProductKeywordsManual] = useState('');
   const [newProductFiles, setNewProductFiles] = useState<File[]>([]);
   const [newProductFilesInputKey, setNewProductFilesInputKey] = useState(0);
+  const [newProductVideoFile, setNewProductVideoFile] = useState<File | null>(null);
+  const [newProductVideoInputKey, setNewProductVideoInputKey] = useState(0);
 
   const [editingProductNewFiles, setEditingProductNewFiles] = useState<File[]>([]);
   const [editingProductFilesInputKey, setEditingProductFilesInputKey] = useState(0);
+  const [editingProductNewVideoFile, setEditingProductNewVideoFile] = useState<File | null>(null);
+  const [editingProductVideoInputKey, setEditingProductVideoInputKey] = useState(0);
 
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editingProductPatch, setEditingProductPatch] = useState<Partial<Product>>({});
@@ -577,6 +590,7 @@ export default function AdminPage() {
         currency: newProductCurrency.trim() || 'BRL',
         imageUrls: [],
         mainImageUrl: '',
+        videoUrl: '',
         active: !!newProductActive,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -584,9 +598,15 @@ export default function AdminPage() {
 
       imageUrls = await uploadProductImages(slug, newProductFiles);
 
+      let videoUrl = '';
+      if (newProductVideoFile) {
+        videoUrl = await uploadProductVideo(slug, newProductVideoFile);
+      }
+
       await updateDoc(doc(firestoreDb, 'products', slug), {
         imageUrls,
         mainImageUrl: imageUrls[0] ?? '',
+        videoUrl,
         updatedAt: serverTimestamp(),
       });
 
@@ -600,6 +620,8 @@ export default function AdminPage() {
       setNewProductKeywordsManual('');
       setNewProductFiles([]);
       setNewProductFilesInputKey((k) => k + 1);
+      setNewProductVideoFile(null);
+      setNewProductVideoInputKey((k) => k + 1);
 
       await refreshData();
     } catch (e) {
@@ -620,6 +642,8 @@ export default function AdminPage() {
     setEditingProductId(p.id);
     setEditingProductNewFiles([]);
     setEditingProductFilesInputKey((k) => k + 1);
+    setEditingProductNewVideoFile(null);
+    setEditingProductVideoInputKey((k) => k + 1);
     setEditingProductPatch({
       name: p.name,
       pluralName: p.pluralName,
@@ -630,6 +654,7 @@ export default function AdminPage() {
       active: p.active,
       imageUrls: p.imageUrls,
       mainImageUrl: p.mainImageUrl,
+      videoUrl: p.videoUrl,
       keywords: p.keywords,
     });
   }
@@ -672,6 +697,10 @@ export default function AdminPage() {
         }
       }
 
+      if (editingProductNewVideoFile) {
+        patch.videoUrl = await uploadProductVideo(editingProductId, editingProductNewVideoFile);
+      }
+
       await updateDoc(doc(firestoreDb, 'products', editingProductId), {
         ...patch,
         updatedAt: serverTimestamp(),
@@ -681,6 +710,8 @@ export default function AdminPage() {
       setEditingProductPatch({});
       setEditingProductNewFiles([]);
       setEditingProductFilesInputKey((k) => k + 1);
+      setEditingProductNewVideoFile(null);
+      setEditingProductVideoInputKey((k) => k + 1);
       await refreshData();
     } catch (e) {
       console.error(e);
@@ -729,6 +760,42 @@ export default function AdminPage() {
     } catch (e) {
       console.error(e);
       setError('Erro ao remover imagem.');
+    }
+  }
+
+  async function removeProductVideo(productId: string) {
+    const confirmed = window.confirm('Remover o vídeo deste produto?');
+    if (!confirmed) return;
+
+    setError(null);
+
+    const currentVideoUrl = typeof editingProductPatch.videoUrl === 'string'
+      ? editingProductPatch.videoUrl
+      : '';
+
+    if (!currentVideoUrl) return;
+
+    try {
+      await updateDoc(doc(firestoreDb, 'products', productId), {
+        videoUrl: '',
+        updatedAt: serverTimestamp(),
+      });
+
+      setEditingProductPatch((prev) => ({
+        ...prev,
+        videoUrl: '',
+      }));
+
+      try {
+        await deleteObject(storageObjectRefFromUrl(currentVideoUrl));
+      } catch (storageErr) {
+        console.warn('Falha ao remover vídeo do Storage:', storageErr);
+      }
+
+      await refreshData();
+    } catch (e) {
+      console.error(e);
+      setError('Erro ao remover vídeo.');
     }
   }
 
@@ -1246,13 +1313,53 @@ export default function AdminPage() {
               accept="image/*"
               multiple
               className="rounded-md border border-black/20 bg-gray-50 px-3 py-2"
-              onChange={(e) =>
-                setNewProductFiles(Array.from(e.target.files ?? []).filter(Boolean))
-              }
+              onChange={(e) => {
+                const selected = Array.from(e.target.files ?? []).filter(Boolean);
+                setNewProductFiles((prev) => [...prev, ...selected]);
+              }}
             />
             {newProductFiles.length > 0 && (
-              <div className="text-xs opacity-70">
-                {newProductFiles.length} arquivo(s) selecionado(s)
+              <div className="flex items-center gap-2 text-xs opacity-70">
+                <span>{newProductFiles.length} arquivo(s) selecionado(s)</span>
+                <button
+                  type="button"
+                  className="text-red-600 underline hover:text-red-800"
+                  onClick={() => {
+                    setNewProductFiles([]);
+                    setNewProductFilesInputKey((k) => k + 1);
+                  }}
+                >
+                  limpar
+                </button>
+              </div>
+            )}
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm opacity-80">Vídeo (opcional, máx. 1)</span>
+            <input
+              key={newProductVideoInputKey}
+              type="file"
+              accept="video/*"
+              className="rounded-md border border-black/20 bg-gray-50 px-3 py-2"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setNewProductVideoFile(file);
+              }}
+            />
+            {newProductVideoFile && (
+              <div className="flex items-center gap-2 text-xs opacity-70">
+                <span>Vídeo: {newProductVideoFile.name}</span>
+                <button
+                  type="button"
+                  className="text-red-600 underline hover:text-red-800"
+                  onClick={() => {
+                    setNewProductVideoFile(null);
+                    setNewProductVideoInputKey((k) => k + 1);
+                  }}
+                >
+                  remover
+                </button>
               </div>
             )}
           </label>
@@ -1496,15 +1603,65 @@ export default function AdminPage() {
                       accept="image/*"
                       multiple
                       className="rounded-md border border-black/20 bg-white px-3 py-2"
-                      onChange={(e) =>
-                        setEditingProductNewFiles(
-                          Array.from(e.target.files ?? []).filter(Boolean)
-                        )
-                      }
+                      onChange={(e) => {
+                        const selected = Array.from(e.target.files ?? []).filter(Boolean);
+                        setEditingProductNewFiles((prev) => [...prev, ...selected]);
+                      }}
                     />
                     {editingProductNewFiles.length > 0 && (
-                      <div className="text-xs opacity-70">
-                        {editingProductNewFiles.length} arquivo(s) selecionado(s)
+                      <div className="flex items-center gap-2 text-xs opacity-70">
+                        <span>{editingProductNewFiles.length} arquivo(s) selecionado(s)</span>
+                        <button
+                          type="button"
+                          className="text-red-600 underline hover:text-red-800"
+                          onClick={() => {
+                            setEditingProductNewFiles([]);
+                            setEditingProductFilesInputKey((k) => k + 1);
+                          }}
+                        >
+                          limpar
+                        </button>
+                      </div>
+                    )}
+                  </label>
+
+                  <label className="grid gap-1">
+                    <span className="text-sm opacity-80">Vídeo (opcional, máx. 1)</span>
+                    {editingProductPatch.videoUrl && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-green-700">Vídeo atual cadastrado</span>
+                        <button
+                          type="button"
+                          className="text-red-600 underline hover:text-red-800"
+                          onClick={() => void removeProductVideo(editingProductId!)}
+                        >
+                          remover vídeo
+                        </button>
+                      </div>
+                    )}
+                    <input
+                      key={editingProductVideoInputKey}
+                      type="file"
+                      accept="video/*"
+                      className="rounded-md border border-black/20 bg-white px-3 py-2"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setEditingProductNewVideoFile(file);
+                      }}
+                    />
+                    {editingProductNewVideoFile && (
+                      <div className="flex items-center gap-2 text-xs opacity-70">
+                        <span>Novo vídeo: {editingProductNewVideoFile.name}</span>
+                        <button
+                          type="button"
+                          className="text-red-600 underline hover:text-red-800"
+                          onClick={() => {
+                            setEditingProductNewVideoFile(null);
+                            setEditingProductVideoInputKey((k) => k + 1);
+                          }}
+                        >
+                          cancelar
+                        </button>
                       </div>
                     )}
                   </label>
