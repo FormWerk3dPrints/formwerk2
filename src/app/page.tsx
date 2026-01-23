@@ -2,7 +2,27 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { firestoreDb } from '@/lib/firebase/client';
+import ProductCard from '@/components/ProductCard';
+
+interface TopProduct {
+  id: string;
+  name: string;
+  description: string;
+  categoryId: string;
+  categoryColor: string;
+  imageUrls: string[];
+  mainImageUrl?: string;
+  salesCount: number;
+  createdAt: Date;
+}
+
+interface Category {
+  id: string;
+  color: string;
+}
 
 const clients = [
   { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
@@ -22,86 +42,112 @@ const clients = [
 ];
 
 export default function Home() {
-  const [isHeroExpanded, setIsHeroExpanded] = useState(false);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    async function fetchTopProducts() {
+      try {
+        // Buscar categorias para obter as cores
+        const categoriesSnap = await getDocs(
+          query(collection(firestoreDb, 'categories'), where('active', '==', true))
+        );
+        const categoriesMap = new Map<string, Category>();
+        categoriesSnap.docs.forEach((doc) => {
+          const data = doc.data();
+          categoriesMap.set(doc.id, {
+            id: doc.id,
+            color: typeof data.color === 'string' ? data.color : '#0D6AA7',
+          });
+        });
+
+        // Buscar produtos ativos
+        const productsSnap = await getDocs(
+          query(
+            collection(firestoreDb, 'products'),
+            where('active', '==', true)
+          )
+        );
+
+        const products: TopProduct[] = productsSnap.docs.map((doc) => {
+          const data = doc.data();
+          const imageUrls = Array.isArray(data.imageUrls)
+            ? (data.imageUrls as string[]).filter(Boolean)
+            : [];
+          const category = categoriesMap.get(data.categoryId);
+
+          return {
+            id: doc.id,
+            name: String(data.name ?? ''),
+            description: String(data.description ?? ''),
+            categoryId: String(data.categoryId ?? ''),
+            categoryColor: category?.color ?? '#0D6AA7',
+            imageUrls,
+            mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+            salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
+            createdAt: data.createdAt?.toDate?.() ?? new Date(0),
+          };
+        });
+
+        // Ordenar: salesCount desc, depois createdAt desc (mais recentes primeiro em caso de empate)
+        products.sort((a, b) => {
+          if (b.salesCount !== a.salesCount) {
+            return b.salesCount - a.salesCount;
+          }
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        });
+
+        // Pegar os 6 primeiros
+        setTopProducts(products.slice(0, 6));
+      } catch (error) {
+        console.error('Erro ao buscar produtos mais vendidos:', error);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    }
+
+    fetchTopProducts();
+  }, []);
 
   return (
     <>
       <main>
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100 py-8 md:py-12 px-4 md:px-8">
-          <div className="container mx-auto max-w-7xl relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 items-center">
-              {/* Conteúdo */}
-              <div>
-                <h1
-                  className="text-4xl md:text-5xl font-bold mb-3"
-                  style={{ color: '#0D6AA7' }}
-                >
-                  FormWerk
-                </h1>
-                <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
-                  Educação em Três Dimensões
-                </h2>
-                <div
-                  id="hero-text"
-                  className={`text-base md:text-lg text-gray-700 leading-relaxed mb-4 md:mb-6 ${
-                    isHeroExpanded
-                      ? 'max-h-none'
-                      : 'max-h-28 overflow-hidden'
-                  } md:max-h-none md:overflow-visible`}
-                >
-                  <p>
-                    A Formwerk é uma empresa dedicada à criação de materiais educacionais 
-                    em impressão 3D, desenvolvidos para tornar o processo de alfabetização
-                    e aprendizagem mais lúdico, interativo e acessível. Nossos produtos 
-                    são voltados para o ensino de Matemática, Inglês, Geografia e Português,
-                    oferecendo recursos que estimulam a curiosidade, a criatividade e o raciocínio
-                    lógico das crianças.
-                  </p>
-                  <p className="mt-6">
-                    Nosso compromisso é com a educação de qualidade, unindo tecnologia e inovação pedagógica 
-                    para apoiar professores, escolas e famílias no desenvolvimento integral dos alunos. 
-                    Na Formwerk, acreditamos que aprender pode – e deve – ser uma experiência prazerosa, 
-                    transformadora e inclusiva.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  className="md:hidden block text-sm font-semibold mb-6 btn-hover-expand"
-                  style={{ color: '#0D6AA7' }}
-                  aria-expanded={isHeroExpanded}
-                  aria-controls="hero-text"
-                  onClick={() => setIsHeroExpanded((v) => !v)}
-                >
-                  {isHeroExpanded ? 'Ler menos' : 'Ler mais'}
-                </button>
+        {/* Top Selling Products Section */}
+        {!isLoadingProducts && topProducts.length > 0 && (
+          <section className="py-12 px-4 bg-white">
+            <div className="container mx-auto max-w-6xl">
+              <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+                Nossos produtos mais vendidos:
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {topProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    description={product.description}
+                    price=""
+                    image={product.mainImageUrl || product.imageUrls[0] || '/images/placeholder.png'}
+                    categoryColor={product.categoryColor}
+                    compact
+                  />
+                ))}
+              </div>
+              <div className="text-center mt-8">
                 <Link
                   href="/catalogo"
-                  className="inline-block text-white font-semibold py-3 px-7 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
+                  className="inline-block text-white font-semibold py-3 px-8 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
                   style={{ backgroundColor: '#0D6AA7' }}
                 >
-                  Explorar Produtos
+                  Ver Todos os Produtos
                 </Link>
               </div>
-
-              {/* Imagem Landing Page */}
-              <div className="flex items-center justify-center">
-                <Image
-                  src="/images/landingpage2.jpg"
-                  alt="FORMWERK - Materiais Educacionais 3D"
-                  width={400}
-                  height={320}
-                  className="w-full max-w-[400px] rounded-lg shadow-lg"
-                  priority
-                />
-              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Diferenciais Section */}
-        <section className="relative overflow-hidden py-16 px-4 bg-white">
+        <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-r from-blue-50 to-blue-100">
           <div className="container mx-auto max-w-4xl relative z-10">
             <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
               <span className="md:whitespace-nowrap">Por que Escolher a</span>
@@ -115,13 +161,10 @@ export default function Home() {
               <span className="md:whitespace-nowrap">FormWerk?</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              
-
               {/* Card 1 */}
               <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
-                  //style={{ backgroundColor: '#418b3b' }}
                   style={{ backgroundColor: '#0d6aa7' }}
                 >
                   ✓
@@ -139,7 +182,6 @@ export default function Home() {
               <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
-                  //style={{ backgroundColor: '#ec373f' }}
                   style={{ backgroundColor: '#0d6aa7' }}
                 >
                   ♻
@@ -157,7 +199,6 @@ export default function Home() {
               <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
                   className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
-                  //style={{ backgroundColor: '#fbbc3c' }}
                   style={{ backgroundColor: '#0d6aa7' }}
                 >
                   ★
@@ -167,7 +208,7 @@ export default function Home() {
                 </h3>
                 <p className="text-gray-600">
                   A durabilidade de nossos materiais é muito superior à produtos de mdf ou eva,
-                  longe do sol e da umidaden, é capaz de atingir 5-25 anos.
+                  longe do sol e da umidade, é capaz de atingir 5-25 anos.
                 </p>
               </div>
             </div>
@@ -175,7 +216,7 @@ export default function Home() {
         </section>
 
         {/* Clientes Section */}
-        <section className="py-12 bg-gradient-to-r from-blue-50 to-blue-100">
+        <section className="py-12 bg-white">
           <div className="container mx-auto max-w-6xl px-4">
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
               Nossos Clientes:
@@ -210,7 +251,7 @@ export default function Home() {
         
 
         {/* CTA Section */}
-        <section className="relative overflow-hidden py-16 px-4 bg-white">
+        <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-r from-blue-50 to-blue-100">
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-bold mb-6" style={{ color: '#000000ff' }}>
               Pronto para Transformar a Educação?
