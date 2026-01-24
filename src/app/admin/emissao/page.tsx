@@ -99,7 +99,8 @@ function applyDiscountToCents(cents: number, discountPct: number): number {
 export default function EmissaoPage() {
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const isAdmin = useMemo(() => isAdminEmail(authUser?.email), [authUser?.email]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckDone, setAdminCheckDone] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [dataLoading, setDataLoading] = useState(false);
@@ -120,6 +121,19 @@ export default function EmissaoPage() {
 
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!authUser?.email) {
+      setIsAdmin(false);
+      setAdminCheckDone(true);
+      return;
+    }
+    isAdminEmail(authUser.email).then((result) => {
+      setIsAdmin(result);
+      setAdminCheckDone(true);
+    });
+  }, [authUser?.email, authLoading]);
 
   async function handleLogin() {
     setError(null);
@@ -339,7 +353,7 @@ export default function EmissaoPage() {
     }
   }
 
-  if (authLoading) {
+  if (authLoading || !adminCheckDone) {
     return (
       <main className="min-h-screen bg-gray-50 text-gray-900">
         <div className="container mx-auto px-4 py-10">

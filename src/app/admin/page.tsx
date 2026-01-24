@@ -265,7 +265,8 @@ export default function AdminPage() {
   const [showProductCreate, setShowProductCreate] = useState(true);
   const [showProductList, setShowProductList] = useState(true);
 
-  const isAdmin = useMemo(() => isAdminEmail(authUser?.email), [authUser?.email]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckDone, setAdminCheckDone] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(firebaseAuth, (user) => {
@@ -275,6 +276,19 @@ export default function AdminPage() {
 
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!authUser?.email) {
+      setIsAdmin(false);
+      setAdminCheckDone(true);
+      return;
+    }
+    isAdminEmail(authUser.email).then((result) => {
+      setIsAdmin(result);
+      setAdminCheckDone(true);
+    });
+  }, [authUser?.email, authLoading]);
 
   async function refreshData() {
     setError(null);
@@ -822,7 +836,7 @@ export default function AdminPage() {
     }
   }
 
-  if (authLoading) {
+  if (authLoading || !adminCheckDone) {
     return (
       <main className="min-h-screen bg-gray-50 text-gray-900">
         <div className="container mx-auto px-4 py-10">
