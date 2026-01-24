@@ -5,6 +5,9 @@ import CatalogoClient, {
   type CatalogProduct,
 } from './CatalogoClient';
 
+// Força a página a ser dinâmica (sem cache estático)
+export const dynamic = 'force-dynamic';
+
 export default async function Catalogo() {
   const categoriesQuery = query(
     collection(firestoreServerDb, 'categories'),
