@@ -28,8 +28,8 @@ interface Category {
 
 // Clientes reais - apenas 2 por enquanto
 const clientsBase = [
-  { name: 'ColÈgio Ros·rio Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'ColÈgio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+  { name: 'Col√©gio Ros√°rio Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Col√©gio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
 ];
 // Repetir 20x garante preenchimento em ultrawide (40 itens, duplicados no JSX = 80)
 const clients = Array(20).fill(clientsBase).flat();
