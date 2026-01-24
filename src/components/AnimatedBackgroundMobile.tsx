@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-export default function AnimatedBackground() {
+export default function AnimatedBackgroundMobile() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<number | undefined>(undefined);
   const rendererRef = useRef<THREE.WebGLRenderer | undefined>(undefined);
@@ -15,7 +15,7 @@ export default function AnimatedBackground() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, -1, 15);
+    camera.position.set(0, -6.5, 30);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     rendererRef.current = renderer;

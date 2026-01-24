@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import AnimatedBackgroundMobile from '@/components/AnimatedBackgroundMobile';
 
 interface TopProduct {
   id: string;
@@ -24,22 +26,13 @@ interface Category {
   color: string;
 }
 
-const clients = [
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
-  { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
-  { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
+// Clientes reais - apenas 2 por enquanto
+const clientsBase = [
+  { name: 'Col�gio Ros�rio Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.facebook.com/people/EEB-Nossa-Senhora-do-Ros%C3%A1rio/100082839357407' },
+  { name: 'Col�gio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
 ];
+// Repetir 20x garante preenchimento em ultrawide (40 itens, duplicados no JSX = 80)
+const clients = Array(20).fill(clientsBase).flat();
 
 export default function Home() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -113,6 +106,22 @@ export default function Home() {
     <>
       <main>
         {/* Top Selling Products Section */}
+        {isLoadingProducts && (
+          <section className="py-12 px-4 bg-white">
+            <div className="container mx-auto max-w-6xl">
+              <div className="flex flex-col items-center justify-center py-8 md:min-h-[497px]">
+                <div className="w-14 h-14 md:hidden">
+                  <AnimatedBackgroundMobile />
+                </div>
+                <div className="hidden md:block md:w-40 md:h-40">
+                  <AnimatedBackground />
+                </div>
+                <p className="mt-4 text-xl text-gray-700 font-bold">Carregando produtos...</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {!isLoadingProducts && topProducts.length > 0 && (
           <section className="py-12 px-4 bg-white">
             <div className="container mx-auto max-w-6xl">
