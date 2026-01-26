@@ -15,7 +15,7 @@ export default function AnimatedBackground() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, -1, 15);
+    camera.position.set(0, -1.5, 10);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     rendererRef.current = renderer;
@@ -50,11 +50,30 @@ export default function AnimatedBackground() {
     const ambient = new THREE.AmbientLight(0xffffff, 0.15);
     scene.add(ambient);
 
+    // Tamanho base do icosaedro para cálculo de enquadramento
+    const objectRadius = 2.4;
+
     const resize = () => {
       const { clientWidth, clientHeight } = container;
       const width = clientWidth || 1;
       const height = clientHeight || 1;
-      camera.aspect = width / height;
+      const aspect = width / height;
+      
+      camera.aspect = aspect;
+      
+      // Distância fixa que funciona bem, com pequeno ajuste para aspect ratio
+      let distance = 10;
+      if (aspect > 1.2) {
+        // Em telas mais largas, recuar um pouco
+        distance = 10 + (aspect - 1.2) * 1.5;
+      } else if (aspect < 0.8) {
+        // Em telas mais altas (portrait), recuar também
+        distance = 10 + (0.8 - aspect) * 2;
+      }
+      
+      camera.position.z = Math.min(distance, 16);
+      camera.position.y = -1.5;
+      
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };

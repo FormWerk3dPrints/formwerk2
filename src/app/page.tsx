@@ -102,14 +102,16 @@ export default function Home() {
         {isLoadingProducts && (
           <section className="py-12 px-4 bg-white">
             <div className="container mx-auto max-w-6xl">
-              <div className="flex flex-col items-center justify-center py-8 md:min-h-[497px]">
-                <div className="w-14 h-14 md:hidden">
-                  <AnimatedBackgroundMobile />
+              <div className="flex flex-col items-center justify-end py-8 md:min-h-[497px]">
+                <div className="relative w-48 h-96 md:w-72 md:h-[28rem] -mb-4">
+                  <div className="md:hidden absolute inset-0">
+                    <AnimatedBackgroundMobile />
+                  </div>
+                  <div className="hidden md:block absolute inset-0">
+                    <AnimatedBackground />
+                  </div>
                 </div>
-                <div className="hidden md:block md:w-40 md:h-40">
-                  <AnimatedBackground />
-                </div>
-                <p className="mt-4 text-xl text-gray-700 font-bold">Carregando produtos...</p>
+                <p className="text-xl text-gray-700 font-bold">Carregando produtos...</p>
               </div>
             </div>
           </section>

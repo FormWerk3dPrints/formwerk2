@@ -15,7 +15,7 @@ export default function AnimatedBackgroundMobile() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, -6.5, 30);
+    camera.position.set(0, -1.5, 11);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     rendererRef.current = renderer;
@@ -54,7 +54,22 @@ export default function AnimatedBackgroundMobile() {
       const { clientWidth, clientHeight } = container;
       const width = clientWidth || 1;
       const height = clientHeight || 1;
-      camera.aspect = width / height;
+      const aspect = width / height;
+      
+      camera.aspect = aspect;
+      
+      // Distância fixa que funciona bem, com ajuste para aspect ratio
+      let distance = 11;
+      if (aspect > 1.2) {
+        distance = 11 + (aspect - 1.2) * 1.5;
+      } else if (aspect < 0.8) {
+        // Em telas mais altas (portrait), recuar também
+        distance = 11 + (0.8 - aspect) * 2;
+      }
+      
+      camera.position.z = Math.min(distance, 17);
+      camera.position.y = -1.5;
+      
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
