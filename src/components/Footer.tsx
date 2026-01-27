@@ -93,7 +93,7 @@ export default function Footer() {
 
         <div className="pt-4">
           <p className="text-center text-gray-400">
-            &copy; 2025 FormWerk — CNPJ: 63.806.709/0001-07
+            &copy; 2026 FormWerk — CNPJ: 63.806.709/0001-07
             <br />Todos os direitos reservados.
           </p>
         </div>
