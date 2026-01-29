@@ -2,11 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 
 export default function QuemSomos() {
-  const [isHeroExpanded, setIsHeroExpanded] = useState(false);
-
   return (
     <main>
       {/* Hero Section */}
@@ -26,11 +23,7 @@ export default function QuemSomos() {
               </h2>
               <div
                 id="hero-text"
-                className={`text-base md:text-lg text-gray-700 leading-relaxed mb-4 md:mb-6 ${
-                  isHeroExpanded
-                    ? 'max-h-none'
-                    : 'max-h-28 overflow-hidden'
-                } md:max-h-none md:overflow-visible`}
+                className="text-base md:text-lg text-gray-700 leading-relaxed mb-4 md:mb-6"
               >
                 <p>
                   A Formwerk é uma empresa dedicada à criação de materiais educacionais 
@@ -48,16 +41,6 @@ export default function QuemSomos() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="md:hidden block text-sm font-semibold mb-6 btn-hover-expand"
-                style={{ color: '#0D6AA7' }}
-                aria-expanded={isHeroExpanded}
-                aria-controls="hero-text"
-                onClick={() => setIsHeroExpanded((v) => !v)}
-              >
-                {isHeroExpanded ? 'Ler menos' : 'Ler mais'}
-              </button>
               <Link
                 href="/catalogo"
                 className="inline-block text-white font-semibold py-3 px-7 rounded-lg hover:opacity-90 transition-opacity btn-hover-expand"
