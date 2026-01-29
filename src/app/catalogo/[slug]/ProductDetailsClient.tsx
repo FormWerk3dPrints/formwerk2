@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
+import { formatBRLFromFirestorePrice } from '@/lib/money/format';
 
 export interface DetailsCategory {
   id: string;
@@ -19,6 +20,7 @@ export interface DetailsProduct {
   imageUrls: string[];
   mainImageUrl?: string;
   videoUrl?: string;
+  priceCents?: number | string;
 }
 
 function hashStringToSeed(input: string): number {
@@ -50,6 +52,11 @@ export default function ProductDetailsClient({
   suggestedProducts: DetailsProduct[];
   categoriesById: Record<string, DetailsCategory>;
 }) {
+  const priceLabel = useMemo(
+    () => formatBRLFromFirestorePrice(product.priceCents),
+    [product.priceCents]
+  );
+
   // Mídias: vídeo primeiro (se existir), depois imagens
   const mediaItems = useMemo(() => {
     const items: { type: 'video' | 'image'; url: string }[] = [];
@@ -131,6 +138,15 @@ export default function ProductDetailsClient({
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-600">
                     Sem imagem
+                  </div>
+                )}
+
+                {priceLabel && (
+                  <div
+                    className="absolute top-0 right-0 px-3 py-1 rounded-bl-lg text-white text-sm font-semibold"
+                    style={{ backgroundColor: category?.color || '#0D6AA7' }}
+                  >
+                    {priceLabel}
                   </div>
                 )}
 
@@ -223,7 +239,7 @@ export default function ProductDetailsClient({
                       id={p.id}
                       name={p.name}
                       description={p.description}
-                      price={''}
+                      price={formatBRLFromFirestorePrice(p.priceCents)}
                       image={p.mainImageUrl || p.imageUrls[0] || ''}
                       categoryColor={cat?.color || '#0D6AA7'}
                       compact

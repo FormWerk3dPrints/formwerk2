@@ -40,6 +40,10 @@ export default async function ProductPage({
     imageUrls,
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
     videoUrl: typeof data.videoUrl === 'string' && data.videoUrl ? data.videoUrl : undefined,
+    priceCents:
+      typeof data.priceCents === 'number' || typeof data.priceCents === 'string'
+        ? data.priceCents
+        : undefined,
   };
 
   let category: DetailsCategory | null = null;
@@ -91,6 +95,10 @@ export default async function ProductPage({
         description: String(p.description ?? ''),
         imageUrls: urls,
         mainImageUrl: typeof p.mainImageUrl === 'string' ? p.mainImageUrl : undefined,
+        priceCents:
+          typeof p.priceCents === 'number' || typeof p.priceCents === 'string'
+            ? p.priceCents
+            : undefined,
       };
     });
 

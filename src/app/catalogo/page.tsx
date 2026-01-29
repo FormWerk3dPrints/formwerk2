@@ -49,6 +49,10 @@ export default async function Catalogo() {
       description: String(data.description ?? ''),
       imageUrls,
       mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+      priceCents:
+        typeof data.priceCents === 'number' || typeof data.priceCents === 'string'
+          ? data.priceCents
+          : undefined,
     };
   });
 

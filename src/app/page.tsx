@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
+import { formatBRLFromFirestorePrice } from '@/lib/money/format';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import AnimatedBackgroundMobile from '@/components/AnimatedBackgroundMobile';
 import ClientsSection from '@/components/ClientsSection';
@@ -18,6 +19,7 @@ interface TopProduct {
   categoryColor: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  priceCents?: number | string;
   salesCount: number;
   createdAt: Date;
 }
@@ -70,6 +72,10 @@ export default function Home() {
             categoryColor: category?.color ?? '#0D6AA7',
             imageUrls,
             mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+            priceCents:
+              typeof data.priceCents === 'number' || typeof data.priceCents === 'string'
+                ? (data.priceCents as number | string)
+                : undefined,
             salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
             createdAt: data.createdAt?.toDate?.() ?? new Date(0),
           };
@@ -130,7 +136,7 @@ export default function Home() {
                     id={product.id}
                     name={product.name}
                     description={product.description}
-                    price=""
+                    price={formatBRLFromFirestorePrice(product.priceCents)}
                     image={product.mainImageUrl || product.imageUrls[0] || '/images/placeholder.png'}
                     categoryColor={product.categoryColor}
                     compact

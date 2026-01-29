@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
+import { formatBRLFromFirestorePrice } from '@/lib/money/format';
 
 export interface CatalogCategory {
   id: string;
@@ -17,6 +18,7 @@ export interface CatalogProduct {
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  priceCents?: number | string;
 }
 
 export default function CatalogoClient({
@@ -99,7 +101,7 @@ export default function CatalogoClient({
                 id={product.id}
                 name={product.name}
                 description={product.description}
-                price={''}
+                price={formatBRLFromFirestorePrice(product.priceCents)}
                 image={product.mainImageUrl || product.imageUrls[0] || ''}
                 categoryColor={selectedCategoryData?.color || '#0D6AA7'}
                 mobileLayout="side"

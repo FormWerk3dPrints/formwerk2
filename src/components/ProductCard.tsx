@@ -22,7 +22,8 @@ export default function ProductCard({
   compact = false,
   mobileLayout = 'stack',
 }: ProductCardProps) {
-  void price;//PREÇO REMOVIDO
+  const priceLabel = price.trim();
+  const showPrice = priceLabel.length > 0;
 
   const isMobileSideLayout = mobileLayout === 'side';
 
@@ -60,14 +61,16 @@ export default function ProductCard({
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105 motion-reduce:transition-none"
           />
-          {/*PREÇO REMOVIDO
-          <div
-            className="absolute top-0 right-0 px-3 py-1 rounded-bl-lg text-white text-sm font-semibold"
-            style={{ backgroundColor: categoryColor }}
-          >
-            {price}
-          </div>
-          */}
+
+          {showPrice && (
+            <div
+              className="absolute top-0 right-0 px-3 py-1 rounded-bl-lg text-white text-sm font-semibold"
+              style={{ backgroundColor: categoryColor }}
+            >
+              {priceLabel}
+            </div>
+          )}
+        
         </div>
 
         {/* Content Container */}
