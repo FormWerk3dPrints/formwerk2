@@ -68,7 +68,7 @@ body {
 .clients-marquee {
   display: flex;
   width: max-content;
-  animation: clients-marquee 50s linear infinite;
+  animation: clients-marquee 100s linear infinite;
 }
 
 /* Fade edges so items feel like they come from outside the screen */
