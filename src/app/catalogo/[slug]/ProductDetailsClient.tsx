@@ -125,7 +125,7 @@ export default function ProductDetailsClient({
                       controls
                       disablePictureInPicture
                       controlsList="nodownload noplaybackrate"
-                      className="absolute inset-0 w-full h-full object-contain bg-black"
+                      className="absolute inset-0 w-full h-full object-contain bg-black product-media"
                     />
                   ) : (
                     <Image
