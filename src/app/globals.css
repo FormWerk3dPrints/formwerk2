@@ -100,3 +100,29 @@ body {
     animation: none;
   }
 }
+
+/* Product video fullscreen (catalogo/[slug])
+   Some desktop browsers (notably Chromium) can rotate portrait videos 90° when entering native fullscreen
+   due to the hardware video overlay path. A no-op filter forces composited rendering and avoids the issue. */
+.product-media {
+  /* Prefer opacity() over brightness(): tends to more reliably disable Chromium's hardware overlay path */
+  filter: opacity(0.9999);
+  -webkit-filter: opacity(0.9999);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+}
+/*yep. same reason then above*/
+.product-media:fullscreen,
+.product-media:-webkit-full-screen {
+  filter: opacity(0.9999);
+  -webkit-filter: opacity(0.9999);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  object-fit: contain;
+  background: #000;
+}
