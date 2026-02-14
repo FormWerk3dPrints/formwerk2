@@ -36,6 +36,12 @@ export default function Header() {
           >
             Sobre Nós
           </Link>
+          <Link
+            href="/assinatura"
+            className="text-white hover:text-blue-100 transition-colors font-medium"
+          >
+            Assinatura
+          </Link>
           <a
             href="#contato"
             className="text-white hover:text-blue-100 transition-colors font-medium"
@@ -73,7 +79,7 @@ export default function Header() {
       {/* Mobile Menu Dropdown */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          isMobileMenuOpen ? 'max-h-48' : 'max-h-0'
+          isMobileMenuOpen ? 'max-h-80' : 'max-h-0'
         }`}
         style={{ backgroundColor: '#0D6AA7' }}
       >
@@ -91,6 +97,13 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Sobre Nós
+          </Link>
+          <Link
+            href="/assinatura"
+            className="text-white hover:text-blue-100 transition-colors font-medium py-2 border-t border-white/20"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Assinatura
           </Link>
           <a
             href="#contato"

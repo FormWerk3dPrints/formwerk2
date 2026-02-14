@@ -5,6 +5,7 @@ import ScrollContext from "@/components/ScrollContext";
 import Header from "@/components/Header";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import Footer from "@/components/Footer";
+import PopupAssinatura from "@/components/PopupAssinatura";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ScrollContext>
           <Header />
+          <PopupAssinatura />
           <div className="pt-20">{children}</div>
           <FloatingWhatsApp />
           <Footer />
