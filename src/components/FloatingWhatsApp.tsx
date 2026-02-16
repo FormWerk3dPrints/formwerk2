@@ -83,7 +83,7 @@ export default function FloatingWhatsApp() {
       aria-label="Abrir WhatsApp para (55) 49 99159142"
       aria-hidden={isHidden ? true : undefined}
       tabIndex={isHidden ? -1 : undefined}
-      className={`fixed bottom-4 right-4 z-50 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-500 text-white transition-all duration-200 hover:bg-green-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-300 ${
+      className={`fixed bottom-4 right-4 z-50 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-all duration-300 hover:bg-green-600 hover:scale-110 hover:shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-green-300 ${
         isHidden ? "pointer-events-none opacity-0 scale-95" : "opacity-100 scale-100"
       }`}
     >
