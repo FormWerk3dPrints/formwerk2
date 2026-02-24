@@ -144,6 +144,12 @@ function formatTimestamp(ts?: Timestamp): string {
   }
 }
 
+function logAndAlertError(prefix: string, error: unknown) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error(`${prefix}:`, error);
+  window.alert(`${prefix}:\n${errorMessage}`);
+}
+
 async function findAvailableDocId(
   collectionName: 'products' | 'categories',
   baseId: string
@@ -345,8 +351,7 @@ export default function AdminPage() {
       });
       setProducts(loadedProducts);
     } catch (e) {
-      console.error(e);
-      setError('Erro ao carregar dados do Firestore.');
+      logAndAlertError('Erro ao carregar dados do Firestore', e);
     } finally {
       setDataLoading(false);
     }
@@ -365,8 +370,7 @@ export default function AdminPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(firebaseAuth, provider);
     } catch (e) {
-      console.error(e);
-      setError('Falha no login com Google.');
+      logAndAlertError('Falha no login com Google', e);
     }
   }
 
@@ -376,8 +380,7 @@ export default function AdminPage() {
     try {
       await signOut(firebaseAuth);
     } catch (e) {
-      console.error(e);
-      setError('Falha ao sair.');
+      logAndAlertError('Falha ao sair', e);
     }
   }
 
@@ -430,8 +433,7 @@ export default function AdminPage() {
 
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao criar categoria.');
+      logAndAlertError('Erro ao criar categoria', e);
     } finally {
       setIsCreatingCategory(false);
     }
@@ -461,8 +463,7 @@ export default function AdminPage() {
       setEditingCategoryPatch({});
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao atualizar categoria.');
+      logAndAlertError('Erro ao atualizar categoria', e);
     }
   }
 
@@ -476,8 +477,7 @@ export default function AdminPage() {
       await deleteDoc(doc(firestoreDb, 'categories', categoryId));
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao remover categoria.');
+      logAndAlertError('Erro ao remover categoria', e);
     }
   }
 
@@ -644,14 +644,13 @@ export default function AdminPage() {
 
       await refreshData();
     } catch (e) {
-      console.error(e);
+      logAndAlertError('Erro ao criar produto', e);
       // Best-effort cleanup if we created the doc but failed later.
       try {
         await deleteDoc(doc(firestoreDb, 'products', slug));
       } catch {
         // ignore
       }
-      setError('Erro ao criar produto.');
     } finally {
       setIsCreatingProduct(false);
     }
@@ -704,8 +703,6 @@ export default function AdminPage() {
     }
     patch.pluralName = nextPluralName;
 
-    patch.updatedAt = serverTimestamp() as unknown as Timestamp;
-
     try {
       if (editingProductNewFiles.length) {
         const newUrls = await uploadProductImages(editingProductId, editingProductNewFiles);
@@ -721,10 +718,18 @@ export default function AdminPage() {
         patch.videoUrl = await uploadProductVideo(editingProductId, editingProductNewVideoFile);
       }
 
-      await updateDoc(doc(firestoreDb, 'products', editingProductId), {
+      const updatePayload = {
         ...patch,
         updatedAt: serverTimestamp(),
-      });
+      };
+      const sanitizedPayload = Object.fromEntries(
+        Object.entries(updatePayload).filter(([, value]) => value !== undefined)
+      );
+
+      await updateDoc(
+        doc(firestoreDb, 'products', editingProductId),
+        sanitizedPayload
+      );
 
       setEditingProductId(null);
       setEditingProductPatch({});
@@ -734,8 +739,7 @@ export default function AdminPage() {
       setEditingProductVideoInputKey((k) => k + 1);
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao atualizar produto.');
+      logAndAlertError('Erro ao atualizar produto', e);
     } finally {
       setIsSavingProduct(false);
     }
@@ -780,8 +784,7 @@ export default function AdminPage() {
 
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao remover imagem.');
+      logAndAlertError('Erro ao remover imagem', e);
     }
   }
 
@@ -816,8 +819,7 @@ export default function AdminPage() {
 
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao remover vídeo.');
+      logAndAlertError('Erro ao remover vídeo', e);
     }
   }
 
@@ -831,8 +833,7 @@ export default function AdminPage() {
       await deleteDoc(doc(firestoreDb, 'products', productId));
       await refreshData();
     } catch (e) {
-      console.error(e);
-      setError('Erro ao remover produto.');
+      logAndAlertError('Erro ao remover produto', e);
     }
   }
 
@@ -1289,7 +1290,7 @@ export default function AdminPage() {
 
           <div className="grid gap-3 md:grid-cols-3">
             <label className="grid gap-1">
-              <span className="text-sm opacity-80">Preço (centavos)</span>
+              <span className="text-sm opacity-80">Preço</span>
               <input
                 type="number"
                 className="rounded-md border border-black/20 bg-gray-50 px-3 py-2"
@@ -1516,7 +1517,7 @@ export default function AdminPage() {
 
                   <div className="grid gap-3 md:grid-cols-3">
                     <label className="grid gap-1">
-                      <span className="text-sm opacity-80">Preço (centavos)</span>
+                      <span className="text-sm opacity-80">Preço</span>
                       <input
                         type="number"
                         className="rounded-md border border-black/20 bg-white px-3 py-2"
