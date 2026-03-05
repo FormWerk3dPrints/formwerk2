@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { siWhatsapp } from 'simple-icons/icons';
+
+const WHATSAPP_WA_ME_URL = 'https://wa.me/554999159142';
 
 export default function PopupAssinatura() {
   const [shouldShow, setShouldShow] = useState(false);
@@ -179,6 +182,46 @@ export default function PopupAssinatura() {
             <path d="M6 6l12 12" />
           </svg>
         </button>
+
+        <a
+          href={WHATSAPP_WA_ME_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Entre em contato pelo WhatsApp"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 24,
+            transform: 'translateX(-50%)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'nowrap',
+            whiteSpace: 'nowrap',
+            gap: 8,
+            minHeight: 48,
+            padding: '12px 20px',
+            borderRadius: 999,
+            textDecoration: 'none',
+            backgroundColor: '#25D366',
+            color: '#ffffff',
+            fontWeight: 700,
+            letterSpacing: 0.4,
+            textTransform: 'uppercase',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="currentColor"
+          >
+            <path d={siWhatsapp.path} />
+          </svg>
+          Entre em contato
+        </a>
       </div>
     </div>
   );
