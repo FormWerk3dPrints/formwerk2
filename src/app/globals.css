@@ -101,8 +101,65 @@ body {
   width: 64px;
 }
 
+@keyframes whatsapp-shake-10s {
+  0%,
+  14%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  1% {
+    transform: translate(-3px, 2px) rotate(-2deg);
+  }
+  2% {
+    transform: translate(3px, -2px) rotate(2deg);
+  }
+  3% {
+    transform: translate(-4px, 3px) rotate(-2deg);
+  }
+  4% {
+    transform: translate(4px, -3px) rotate(2deg);
+  }
+  5% {
+    transform: translate(-3px, -3px) rotate(-1deg);
+  }
+  6% {
+    transform: translate(3px, 3px) rotate(1deg);
+  }
+  7% {
+    transform: translate(-2px, 3px) rotate(-1deg);
+  }
+  8% {
+    transform: translate(2px, -3px) rotate(1deg);
+  }
+  9% {
+    transform: translate(-2px, 2px) rotate(-1deg);
+  }
+  10% {
+    transform: translate(2px, -2px) rotate(1deg);
+  }
+  11% {
+    transform: translate(-1px, -1px) rotate(-0.5deg);
+  }
+  12% {
+    transform: translate(1px, 1px) rotate(0.5deg);
+  }
+  13% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+.whatsapp-shake-10s {
+  transform-origin: 50% 50%;
+  animation: whatsapp-shake-10s 10s ease-in-out infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .clients-marquee {
+    animation: none;
+  }
+
+  .whatsapp-shake-10s {
     animation: none;
   }
 }
