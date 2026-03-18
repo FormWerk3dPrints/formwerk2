@@ -180,7 +180,7 @@ export default function EmissaoPage() {
             currency: String(data.currency ?? 'BRL'),
             salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
             active: !!data.active,
-            createdAt: data.createdAt,
+            createdAt: data.createdAt as Timestamp | undefined,
           };
         })
         .filter((p) => p.active);
