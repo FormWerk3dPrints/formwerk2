@@ -274,7 +274,18 @@ export default function AdminPage() {
   const [adminCheckDone, setAdminCheckDone] = useState(false);
 
   useEffect(() => {
+    console.log('[AdminPage] Registrando onAuthStateChanged listener');
     const unsub = onAuthStateChanged(firebaseAuth, (user) => {
+      console.log('[AdminPage] onAuthStateChanged disparado');
+      console.log('[AdminPage]   user:', user ? 'presente' : 'null');
+      if (user) {
+        console.log('[AdminPage]   user.uid:', user.uid);
+        console.log('[AdminPage]   user.email:', JSON.stringify(user.email));
+        console.log('[AdminPage]   user.displayName:', JSON.stringify(user.displayName));
+        console.log('[AdminPage]   user.providerId:', user.providerId);
+        console.log('[AdminPage]   user.emailVerified:', user.emailVerified);
+        console.log('[AdminPage]   providerData:', JSON.stringify(user.providerData));
+      }
       setAuthUser(user);
       setAuthLoading(false);
     });
@@ -283,13 +294,20 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authLoading) return;
+    console.log('[AdminPage] useEffect admin check — authLoading:', authLoading, '| email:', authUser?.email);
+    if (authLoading) {
+      console.log('[AdminPage] Ainda carregando auth, aguardando...');
+      return;
+    }
     if (!authUser?.email) {
+      console.log('[AdminPage] Sem email de usuário — setIsAdmin(false)');
       setIsAdmin(false);
       setAdminCheckDone(true);
       return;
     }
+    console.log('[AdminPage] Verificando se é admin para email:', JSON.stringify(authUser.email));
     isAdminEmail(authUser.email).then((result) => {
+      console.log('[AdminPage] Resultado isAdminEmail:', result, '| email:', JSON.stringify(authUser.email));
       setIsAdmin(result);
       setAdminCheckDone(true);
     });
@@ -364,13 +382,30 @@ export default function AdminPage() {
 
   async function handleLogin() {
     setError(null);
+    console.log('[AdminPage] handleLogin — iniciando login com Google...');
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(firebaseAuth, provider);
+      console.log('[AdminPage] GoogleAuthProvider criado, abrindo popup...');
+      const result = await signInWithPopup(firebaseAuth, provider);
+      console.log('[AdminPage] signInWithPopup concluído com sucesso');
+      console.log('[AdminPage]   result.user.uid:', result.user.uid);
+      console.log('[AdminPage]   result.user.email:', JSON.stringify(result.user.email));
+      console.log('[AdminPage]   result.user.displayName:', JSON.stringify(result.user.displayName));
+      console.log('[AdminPage]   result.user.emailVerified:', result.user.emailVerified);
+      console.log('[AdminPage]   result.providerId:', result.providerId);
+      console.log('[AdminPage]   result.operationType:', result.operationType);
+
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      console.log('[AdminPage]   credential:', credential ? 'presente' : 'null');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      console.error('Falha no login com Google:', e);
+      console.error('[AdminPage] ERRO no login com Google:', e);
+      if (e instanceof Error) {
+        console.error('[AdminPage]   error.name:', e.name);
+        console.error('[AdminPage]   error.message:', e.message);
+        console.error('[AdminPage]   error.stack:', e.stack);
+      }
       setError(`Falha no login com Google: ${msg}`);
     }
   }
