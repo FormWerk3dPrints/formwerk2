@@ -21,7 +21,6 @@ import {
   serverTimestamp,
   setDoc,
   updateDoc,
-  where,
   type Timestamp,
 } from 'firebase/firestore';
 
@@ -370,7 +369,9 @@ export default function AdminPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(firebaseAuth, provider);
     } catch (e) {
-      logAndAlertError('Falha no login com Google', e);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('Falha no login com Google:', e);
+      setError(`Falha no login com Google: ${msg}`);
     }
   }
 

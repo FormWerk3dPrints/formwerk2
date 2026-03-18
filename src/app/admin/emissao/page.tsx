@@ -169,7 +169,7 @@ export default function EmissaoPage() {
       const snap = await getDocs(productsQuery);
       const loaded: Product[] = snap.docs
         .map((d) => {
-          const data = d.data() as any;
+          const data = d.data() as Record<string, unknown>;
           return {
             id: String(d.id),
             name: String(data.name ?? ''),
