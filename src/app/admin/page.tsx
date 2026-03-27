@@ -34,12 +34,15 @@ import {
 
 import { firebaseAuth, firebaseStorage, firestoreDb } from '@/lib/firebase/client';
 import { isAdminEmail } from '@/lib/firebase/admin';
+
 import {
   normalizeText,
   slugify,
   splitKeywords,
   tokenize,
 } from '@/lib/text/normalize';
+
+import { AdminProductCommentsEditor } from './AdminProductCommentsEditor';
 
 type Category = {
   id: string;
@@ -1483,6 +1486,11 @@ export default function AdminPage() {
 
               {editingProductId === p.id && (
                 <div className="mt-4 grid gap-3 rounded-md border border-black/10 bg-gray-50 p-3">
+                                    {/* Seção de edição de comentários */}
+                                    <section className="mt-8">
+                                      <h4 className="font-bold text-lg mb-2">Editar comentários</h4>
+                                      <AdminProductCommentsEditor productId={p.id} />
+                                    </section>
                   <div className="grid gap-3 md:grid-cols-3">
                     <label className="grid gap-1">
                       <span className="text-sm opacity-80">Nome</span>

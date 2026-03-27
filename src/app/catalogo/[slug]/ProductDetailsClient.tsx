@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
+import { ProductCommentsSection } from '../../../components/ProductCommentsSection';
 
 export interface DetailsCategory {
   id: string;
@@ -244,6 +245,9 @@ export default function ProductDetailsClient({
             Voltar ao Catálogo
           </Link>
         </div>
+
+        {/* Comentários do produto */}
+        <ProductCommentsSection productId={product.id} />
       </div>
     </main>
   );
