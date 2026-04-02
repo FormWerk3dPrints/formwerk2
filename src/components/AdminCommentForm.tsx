@@ -38,10 +38,10 @@ export function AdminCommentForm({ productId, onCommentAdded }: AdminCommentForm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded-lg border border-black/10 mt-4">
-      <h3 className="font-bold text-base mb-2 text-gray-800">Adicionar comentário</h3>
+      <h3 className="font-bold text-base mb-2 text-gray-900">Adicionar comentário</h3>
       <div>
         <input
-          className="w-full border border-black/20 rounded-md px-3 py-2 bg-gray-50 focus:border-black focus:outline-none text-sm"
+          className="w-full border border-black rounded-md px-3 py-2 bg-white focus:border-black focus:outline-none text-sm text-gray-900"
           placeholder="Nome"
           value={name}
           onChange={e => setName(e.target.value)}
@@ -50,7 +50,7 @@ export function AdminCommentForm({ productId, onCommentAdded }: AdminCommentForm
       </div>
       <div>
         <input
-          className="w-full border border-black/20 rounded-md px-3 py-2 bg-gray-50 focus:border-black focus:outline-none text-sm"
+          className="w-full border border-black rounded-md px-3 py-2 bg-white focus:border-black focus:outline-none text-sm text-gray-900"
           placeholder="Função"
           value={role}
           onChange={e => setRole(e.target.value)}
@@ -59,7 +59,7 @@ export function AdminCommentForm({ productId, onCommentAdded }: AdminCommentForm
       </div>
       <div>
         <textarea
-          className="w-full border border-black/20 rounded-md px-3 py-2 bg-gray-50 focus:border-black focus:outline-none text-sm"
+          className="w-full border border-black rounded-md px-3 py-2 bg-white focus:border-black focus:outline-none text-sm text-gray-900"
           placeholder="Comentário"
           value={comment}
           onChange={e => setComment(e.target.value)}
@@ -68,7 +68,7 @@ export function AdminCommentForm({ productId, onCommentAdded }: AdminCommentForm
         />
       </div>
       <div>
-        <span className="text-xs text-gray-600">Imagem de perfil (opcional):</span>
+        <span className="text-xs text-gray-900">Imagem de perfil (opcional):</span>
         <CommentProfileImagePicker value={profilePicture} onChange={setProfilePicture} />
       </div>
       {error && <div className="text-red-600 text-sm">{error}</div>}

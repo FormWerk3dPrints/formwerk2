@@ -50,7 +50,7 @@ export function CommentProfileImagePicker({ value, onChange }: CommentProfileIma
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="border rounded px-2 py-1 text-xs"
+          className="border border-black rounded px-2 py-1 text-xs text-gray-900"
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
         >

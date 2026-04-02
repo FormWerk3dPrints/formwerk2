@@ -84,7 +84,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
     }
   }
 
-  if (loading) return <div className="text-sm opacity-70">Carregando comentários…</div>;
+  if (loading) return <div className="text-sm text-gray-900">Carregando comentários…</div>;
   if (error) return <div className="text-red-600 text-sm">{error}</div>;
 
   return (
@@ -92,7 +92,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
       <AdminCommentForm productId={productId} onCommentAdded={refresh} />
       <div className="flex flex-col gap-4">
         {comments.length === 0 && (
-          <div className="text-sm opacity-60">Nenhum comentário cadastrado.</div>
+          <div className="text-sm text-gray-900">Nenhum comentário cadastrado.</div>
         )}
         {comments.map((c) => (
           <div key={c.id} className="rounded border p-3 bg-white flex flex-col gap-2">
@@ -100,26 +100,26 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
               <>
                 <div className="flex flex-wrap gap-2 items-center">
                   <input
-                    className="border rounded px-2 py-1 text-sm"
+                    className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900"
                     value={editData.name ?? ''}
                     onChange={e => setEditData(d => ({ ...d, name: e.target.value }))}
                     placeholder="Nome"
                   />
                   <input
-                    className="border rounded px-2 py-1 text-sm"
+                    className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900"
                     value={editData.role ?? ''}
                     onChange={e => setEditData(d => ({ ...d, role: e.target.value }))}
                     placeholder="Função"
                   />
                   <input
-                    className="border rounded px-2 py-1 text-sm"
+                    className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900"
                     value={editData.profilePicture ?? ''}
                     onChange={e => setEditData(d => ({ ...d, profilePicture: e.target.value }))}
                     placeholder="URL da foto (opcional)"
                   />
                 </div>
                 <textarea
-                  className="border rounded px-2 py-1 text-sm w-full mt-1"
+                  className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900 w-full mt-1"
                   value={editData.comment ?? ''}
                   onChange={e => setEditData(d => ({ ...d, comment: e.target.value }))}
                   placeholder="Comentário"
@@ -136,7 +136,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
                   </button>
                   <button
                     type="button"
-                    className="border rounded px-3 py-1 text-sm"
+                    className="border border-black/20 rounded px-3 py-1 text-sm text-gray-900"
                     onClick={() => { setEditingId(null); setEditData({}); }}
                     disabled={saving}
                   >
@@ -150,15 +150,15 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
                   {c.profilePicture && (
                     <img src={c.profilePicture} alt={c.name} className="w-8 h-8 rounded-full object-cover border" />
                   )}
-                  <span className="font-semibold text-sm">{c.name}</span>
-                  <span className="text-xs text-gray-500">{c.role}</span>
-                  <span className="text-xs text-gray-400 ml-2">{c.date ? new Date(c.date).toLocaleDateString() : ''}</span>
+                  <span className="font-semibold text-sm text-gray-900">{c.name}</span>
+                  <span className="text-xs text-gray-900">{c.role}</span>
+                  <span className="text-xs text-gray-600 ml-2">{c.date ? new Date(c.date).toLocaleDateString() : ''}</span>
                 </div>
-                <div className="text-sm italic text-gray-700">{c.comment}</div>
+                <div className="text-sm italic text-gray-900">{c.comment}</div>
                 <div className="flex gap-2 mt-1">
                   <button
                     type="button"
-                    className="border rounded px-3 py-1 text-sm"
+                    className="border border-black/20 rounded px-3 py-1 text-sm text-gray-900"
                     onClick={() => beginEdit(c)}
                     disabled={saving}
                   >
