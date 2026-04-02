@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Geologica } from "next/font/google";
 import "./globals.css";
 import ScrollContext from "@/components/ScrollContext";
-import Header from "@/components/Header";
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
-import Footer from "@/components/Footer";
-import PopupAssinatura from "@/components/PopupAssinatura";
+import SiteLayoutWrapper from "@/components/SiteLayoutWrapper";
 
 const geologica = Geologica({
   variable: "--font-geologica",
@@ -41,11 +38,7 @@ export default function RootLayout({
       <body
         className={`${geologica.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ScrollContext>
-          <Header />
-          <PopupAssinatura />
-          <div className="pt-20">{children}</div>
-          <FloatingWhatsApp />
-          <Footer />
+          <SiteLayoutWrapper>{children}</SiteLayoutWrapper>
         </ScrollContext>
       </body>
     </html>
