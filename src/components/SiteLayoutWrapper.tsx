@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
-import PopupAssinatura from './PopupAssinatura';
 import FloatingWhatsApp from './FloatingWhatsApp';
 
 export default function SiteLayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -23,7 +22,6 @@ export default function SiteLayoutWrapper({ children }: { children: React.ReactN
   return (
     <>
       <Header />
-      <PopupAssinatura />
       <div className="pt-20">{children}</div>
       <FloatingWhatsApp />
       <Footer />
