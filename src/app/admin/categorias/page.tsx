@@ -19,6 +19,7 @@ import {
   findAvailableDocId,
   logAndAlertError,
 } from '../_utils/helpers';
+import { useSmoothScroller } from '@/components/ScrollContext';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 
 type CategoryForm = {
@@ -44,6 +45,7 @@ export default function AdminCategoriasPage() {
   const [editing, setEditing] = useState<Category | null>(null);
   const [form, setForm] = useState<CategoryForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const lenisRef = useSmoothScroller();
 
   async function fetchCategories() {
     try {
@@ -75,6 +77,16 @@ export default function AdminCategoriasPage() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const lenis = lenisRef?.current;
+    if (showForm) {
+      lenis?.stop();
+    } else {
+      lenis?.start();
+    }
+    return () => { lenis?.start(); };
+  }, [showForm, lenisRef]);
 
   function openCreate() {
     setEditing(null);
@@ -158,10 +170,12 @@ export default function AdminCategoriasPage() {
       {showForm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          data-lenis-prevent
           onClick={() => setShowForm(false)}
         >
           <div
             className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+            data-lenis-prevent
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">

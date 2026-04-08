@@ -31,6 +31,7 @@ import {
   uploadProductVideo,
 } from '../_utils/helpers';
 import { AdminProductCommentsEditor } from '../AdminProductCommentsEditor';
+import { useSmoothScroller } from '@/components/ScrollContext';
 import { Plus, Pencil, Trash2, X, Eye, EyeOff, MessageSquare } from 'lucide-react';
 
 export default function AdminProdutosPage() {
@@ -75,6 +76,7 @@ export default function AdminProdutosPage() {
     title: string;
     missingFields: string[];
   } | null>(null);
+  const lenisRef = useSmoothScroller();
 
   async function fetchData() {
     try {
@@ -132,6 +134,16 @@ export default function AdminProdutosPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const lenis = lenisRef?.current;
+    if (showForm || commentsProductId || validationPopup) {
+      lenis?.stop();
+    } else {
+      lenis?.start();
+    }
+    return () => { lenis?.start(); };
+  }, [showForm, commentsProductId, validationPopup, lenisRef]);
 
   const filteredProducts = useMemo(() => {
     let list = products;
@@ -437,6 +449,7 @@ export default function AdminProdutosPage() {
       {validationPopup && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          data-lenis-prevent
           onClick={() => setValidationPopup(null)}
         >
           <div
@@ -467,10 +480,12 @@ export default function AdminProdutosPage() {
       {commentsProductId && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          data-lenis-prevent
           onClick={() => setCommentsProductId(null)}
         >
           <div
             className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            data-lenis-prevent
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
@@ -538,10 +553,12 @@ export default function AdminProdutosPage() {
       {showForm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          data-lenis-prevent
           onClick={() => setShowForm(false)}
         >
           <div
             className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            data-lenis-prevent
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">

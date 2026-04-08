@@ -24,6 +24,8 @@ import {
 import { firebaseAuth, firestoreDb } from '@/lib/firebase/client';
 import { isAdminEmail } from '@/lib/firebase/admin';
 import { normalizeText, splitKeywords, tokenize } from '@/lib/text/normalize';
+import { incrementGlobalSalesCount } from '@/lib/stats/incrementGlobalSalesCount';
+import { useSmoothScroller } from '@/components/ScrollContext';
 
 type Product = {
   id: string; // slug
@@ -112,6 +114,7 @@ export default function EmissaoPage() {
   const [discountPct, setDiscountPct] = useState<number>(0);
 
   const [popup, setPopup] = useState<{ title: string; lines: string[] } | null>(null);
+  const lenisRef = useSmoothScroller();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(firebaseAuth, (user) => {
@@ -193,6 +196,16 @@ export default function EmissaoPage() {
       setDataLoading(false);
     }
   }
+
+  useEffect(() => {
+    const lenis = lenisRef?.current;
+    if (popup) {
+      lenis?.stop();
+    } else {
+      lenis?.start();
+    }
+    return () => { lenis?.start(); };
+  }, [popup, lenisRef]);
 
   useEffect(() => {
     if (!authLoading && isAdmin) {
@@ -318,14 +331,20 @@ export default function EmissaoPage() {
     try {
       // Incrementar contador de vendas para cada produto selecionado com qty > 0
       const updates: Promise<void>[] = [];
+      let totalQty = 0;
       for (const sel of selected) {
         if (sel.quantity > 0) {
+          totalQty += sel.quantity;
           updates.push(
             updateDoc(doc(firestoreDb, 'products', sel.productId), {
               salesCount: increment(sel.quantity),
             })
           );
         }
+      }
+      // Atualizar contador global de vendas
+      if (totalQty > 0) {
+        updates.push(incrementGlobalSalesCount(totalQty));
       }
       await Promise.all(updates);
 
@@ -407,6 +426,7 @@ export default function EmissaoPage() {
           role="dialog"
           aria-modal="true"
           aria-label={popup.title}
+          data-lenis-prevent
           onClick={() => setPopup(null)}
         >
           <div
