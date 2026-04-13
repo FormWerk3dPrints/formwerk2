@@ -156,7 +156,7 @@ export default function AnimatedSales3Mobile({ salesCount, started = true }: Ani
       const [c] = makeOverlay();
       overlays.push(c);
       const topImg = new Image();
-      topImg.src = "/images/assets/top-box.png";
+      topImg.src = "/images/assets/top-box2.png";
       topImg.onload = () => {
         const ctx = c.getContext("2d")!;
         ctx.drawImage(topImg, 0, 0, S, S);
@@ -189,7 +189,7 @@ export default function AnimatedSales3Mobile({ salesCount, started = true }: Ani
       const [c] = makeOverlay();
       overlays.push(c);
       const frontImg = new Image();
-      frontImg.src = "/images/assets/front-box.png";
+      frontImg.src = "/images/assets/front-box2.0.png";
       frontImg.onload = () => {
         const ctx = c.getContext("2d")!;
         ctx.drawImage(frontImg, 0, 0, S, S);
