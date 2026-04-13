@@ -158,7 +158,7 @@ export default function AnimatedSales3({ salesCount, started = true }: AnimatedS
       const [c] = makeOverlay();
       overlays.push(c);
       const topImg = new Image();
-      topImg.src = "/images/assets/top-box.png";
+      topImg.src = "/images/assets/top-box2.png";
       topImg.onload = () => {
         const ctx = c.getContext("2d")!;
         ctx.drawImage(topImg, 0, 0, S, S);
