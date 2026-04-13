@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import AnimatedBackgroundMobile from '@/components/AnimatedBackgroundMobile';
 import ClientsSection from '@/components/ClientsSection';
+import AnimatedSales3 from '@/components/AnimatedSales3';
+import AnimatedSales3Mobile from '@/components/AnimatedSales3Mobile';
+import { getGlobalStats } from '@/lib/stats/getGlobalStats';
 
 interface TopProduct {
   id: string;
@@ -30,6 +33,29 @@ interface Category {
 export default function Home() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [salesCount, setSalesCount] = useState<number | null>(null);
+  const [animationStarted, setAnimationStarted] = useState(false);
+  const salesSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    getGlobalStats().then((stats) => setSalesCount(stats.totalSalesCount));
+  }, []);
+
+  useEffect(() => {
+    const el = salesSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setAnimationStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [salesCount]);
 
   useEffect(() => {
     async function fetchTopProducts() {
@@ -150,6 +176,89 @@ export default function Home() {
           </section>
         )}
 
+        {/* Animação de Vendas – Skeleton */}
+        {salesCount === null && (
+          <section className="relative w-full h-screen overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100">
+            {/* Desktop skeleton */}
+            <div className="hidden md:flex absolute inset-0">
+              {/* Left side – text skeleton */}
+              <div className="w-1/2 flex items-center justify-center px-8">
+                <div className="max-w-md w-full space-y-4">
+                  <div className="h-14 w-32 bg-blue-200/60 rounded-lg animate-pulse" />
+                  <div className="h-8 w-full bg-blue-200/60 rounded-lg animate-pulse" />
+                  <div className="h-8 w-4/5 bg-blue-200/60 rounded-lg animate-pulse" />
+                </div>
+              </div>
+              {/* Right side – boxes skeleton */}
+              <div className="w-1/2 flex items-end justify-center pb-16 gap-2">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-blue-200/50 rounded animate-pulse"
+                    style={{
+                      width: 48,
+                      height: 40 + i * 22,
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            {/* Mobile skeleton */}
+            <div className="md:hidden flex flex-col items-center justify-center h-full px-6 gap-8">
+              <div className="w-full max-w-xs space-y-3">
+                <div className="h-10 w-24 mx-auto bg-blue-200/60 rounded-lg animate-pulse" />
+                <div className="h-6 w-full bg-blue-200/60 rounded-lg animate-pulse" />
+                <div className="h-6 w-3/4 mx-auto bg-blue-200/60 rounded-lg animate-pulse" />
+              </div>
+              <div className="flex items-end gap-2">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-blue-200/50 rounded animate-pulse"
+                    style={{
+                      width: 40,
+                      height: 32 + i * 18,
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Animação de Vendas */}
+        {salesCount !== null && salesCount > 0 && (
+          <section ref={salesSectionRef} className="relative w-full h-screen overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100">
+            {/* Desktop: full canvas + text overlay */}
+            <div className="hidden md:block absolute inset-0">
+              <AnimatedSales3 salesCount={salesCount} started={animationStarted} />
+            </div>
+            <div className={`hidden md:flex absolute inset-y-0 left-0 md:w-1/2 items-center justify-center px-8 py-12 z-10 transition-all duration-1000 ease-out ${animationStarted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full'}`}>
+              <div className="max-w-md">
+                <p className="text-3xl md:text-5xl font-bold text-gray-800 leading-tight drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
+                  <span className="text-4xl md:text-6xl font-extrabold" style={{ color: '#0D6AA7' }}>{salesCount}</span>{" "}
+                  itens já produzidos, equipando as melhores instituições de ensino!
+                </p>
+              </div>
+            </div>
+            {/* Mobile: canvas full + text overlay */}
+            <div className="md:hidden absolute inset-0">
+              <AnimatedSales3Mobile salesCount={salesCount} started={animationStarted} />
+            </div>
+            <div className={`md:hidden absolute inset-0 flex items-start justify-center px-6 pt-10 z-10 pointer-events-none transition-all duration-1000 ease-out ${animationStarted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
+              <p className="text-2xl font-bold text-gray-800 leading-tight text-center drop-shadow-[0_0_12px_rgba(255,255,255,1)]">
+                <span className="text-3xl font-extrabold" style={{ color: '#0D6AA7' }}>{salesCount}</span>{" "}
+                itens já produzidos, equipando as melhores instituições de ensino!
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* Clientes Section */}
+        <ClientsSection />
+
         {/* Diferenciais Section */}
         <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-r from-blue-50 to-blue-100">
           <div className="container mx-auto max-w-4xl relative z-10">
@@ -219,12 +328,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Clientes Section */}
-        <ClientsSection />
-        
-
         {/* CTA Section */}
-        <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-r from-blue-50 to-blue-100">
+        <section className="relative overflow-hidden py-16 px-4 bg-white">
           <div className="container mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-bold mb-6" style={{ color: '#000000ff' }}>
               Pronto para Transformar a Educação?
