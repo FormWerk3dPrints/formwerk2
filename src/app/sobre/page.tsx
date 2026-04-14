@@ -59,6 +59,7 @@ export default function QuemSomos() {
                 height={300}
                 className="w-full max-w-[300px]"
                 priority
+                unoptimized
               />
             </div>
           </div>

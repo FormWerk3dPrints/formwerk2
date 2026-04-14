@@ -84,6 +84,7 @@ export default function Assinatura() {
                 height={300}
                 className="w-full max-w-[300px] rounded-lg"
                 priority
+                unoptimized
               />
             </div>
           </div>

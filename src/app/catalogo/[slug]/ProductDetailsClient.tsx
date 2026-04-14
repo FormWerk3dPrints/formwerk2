@@ -126,6 +126,7 @@ export default function ProductDetailsClient({
                       src={currentMedia.url}
                       alt={`${product.name} - ${safeMediaIndex + 1}`}
                       fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                   )
@@ -181,6 +182,7 @@ export default function ProductDetailsClient({
                           alt={`Thumbnail ${index + 1}`}
                           width={80}
                           height={80}
+                          sizes="80px"
                           className="w-full h-full object-cover"
                         />
                       )}

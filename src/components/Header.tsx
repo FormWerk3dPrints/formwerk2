@@ -18,6 +18,7 @@ export default function Header() {
             width={35}
             height={35}
             priority
+            unoptimized
           />
           <div className="text-2xl font-bold">FormWerk</div>
         </Link>

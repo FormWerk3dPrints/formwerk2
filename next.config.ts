@@ -51,6 +51,13 @@ const nextConfig: NextConfig & { allowedDevOrigins?: string[] } = {
         hostname: 'firebasestorage.googleapis.com',
       },
     ],
+    // Reduce variant count to lower optimization load
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [16, 48, 96, 256],
+    // Keep webp only (AVIF encoding is much heavier on CPU)
+    formats: ['image/webp'],
+    // Cache optimized images for 1 year
+    minimumCacheTTL: 31536000,
   },
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,

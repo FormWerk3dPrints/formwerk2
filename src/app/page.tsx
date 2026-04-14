@@ -270,6 +270,7 @@ export default function Home() {
                 width={35}
                 height={35}
                 className="hidden md:inline-block"
+                unoptimized
               />
               <span className="md:whitespace-nowrap">FormWerk?</span>
             </h2>
