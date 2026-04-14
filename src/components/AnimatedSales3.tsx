@@ -13,7 +13,7 @@ const PER_LAYER = COLS * ROWS;
 const BOX_W = 1.0;
 const BOX_H = 0.7;
 const BOX_D = 1.0;
-const GAP = 0.05;
+const GAP = 0.02;
 const GRAVITY = -15;
 const FLOOR_Y = 0;
 
