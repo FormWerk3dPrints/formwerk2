@@ -15,7 +15,7 @@ const BOX_H = 0.7;
 const BOX_D = 1.0;
 const GAP = 0.05;
 const GRAVITY = -15;
-const FLOOR_Y = 0;
+const FLOOR_Y = -7;
 
 interface FallingBox {
   mesh: THREE.Mesh;
