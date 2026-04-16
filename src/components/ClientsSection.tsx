@@ -39,7 +39,7 @@ export default function ClientsSection() {
                   alt={client.name}
                   width={80}
                   height={80}
-                  sizes="80px"
+                  unoptimized
                   className="block"
                 />
               </a>
