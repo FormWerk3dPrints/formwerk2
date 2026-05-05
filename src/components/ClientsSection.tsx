@@ -9,7 +9,7 @@ const clientsBase = [
   //{ name: 'Instituto Autismo Lages', src: '/images/clients/autismo_lages.jpg', href: 'https://www.instagram.com/institutoautismolagesoficial/' },
   { name: 'Colégio Sigma Lages', src: '/images/clients/sigma_lages2.jpg', href: 'https://temnaweb.com.br/' },
   { name: 'SESI', src: '/images/clients/sesiescola.png', href: 'https://www.escolasesisc.com.br/' },
-  { name: 'APAS', src: '/images/clients/apas.png', href: 'https://www.instagram.com/apas.lages/' },
+  { name: 'APAS', src: '/images/clients/apas.jpg', href: 'https://www.instagram.com/apas.lages/' },
 ];
 // Repetir 20x garante preenchimento em ultrawide (40 itens, duplicados no JSX = 80)
 const clients = Array(20).fill(clientsBase).flat();
