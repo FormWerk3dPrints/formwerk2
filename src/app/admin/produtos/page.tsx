@@ -32,7 +32,7 @@ import {
 } from '../_utils/helpers';
 import { AdminProductCommentsEditor } from '../AdminProductCommentsEditor';
 import { useSmoothScroller } from '@/components/ScrollContext';
-import { Plus, Pencil, Trash2, X, Eye, EyeOff, MessageSquare } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Eye, EyeOff, MessageSquare, ChevronUp, ChevronDown } from 'lucide-react';
 
 export default function AdminProdutosPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -392,6 +392,47 @@ export default function AdminProdutosPage() {
     }
   }
 
+  async function moveImage(idx: number, direction: -1 | 1) {
+    const next = [...editImageUrls];
+    const target = idx + direction;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    const newMain = next[0] ?? '';
+    setEditImageUrls(next);
+    setEditMainImageUrl(newMain);
+
+    if (editing) {
+      try {
+        await updateDoc(doc(firestoreDb, 'products', editing.id), {
+          imageUrls: next,
+          mainImageUrl: newMain,
+          updatedAt: serverTimestamp(),
+        });
+      } catch (e) {
+        logAndAlertError('Erro ao mover imagem', e);
+      }
+    }
+  }
+
+  async function reverseImageOrder() {
+    const reversed = [...editImageUrls].reverse();
+    const newMain = reversed[0] ?? '';
+    setEditImageUrls(reversed);
+    setEditMainImageUrl(newMain);
+
+    if (editing) {
+      try {
+        await updateDoc(doc(firestoreDb, 'products', editing.id), {
+          imageUrls: reversed,
+          mainImageUrl: newMain,
+          updatedAt: serverTimestamp(),
+        });
+      } catch (e) {
+        logAndAlertError('Erro ao inverter ordem das imagens', e);
+      }
+    }
+  }
+
   async function removeExistingImage(url: string) {
     if (!window.confirm('Remover esta imagem?')) return;
 
@@ -710,23 +751,48 @@ export default function AdminProdutosPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Imagens cadastradas ({editImageUrls.length})
                   </label>
-                  <div className="grid gap-2 max-h-40 overflow-y-auto">
-                    {editImageUrls.map((url) => (
+                  <div className="grid gap-2 max-h-48 overflow-y-auto">
+                    {editImageUrls.map((url, idx) => (
                       <div
                         key={url}
                         className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2"
                       >
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="max-w-[50ch] truncate text-xs underline text-gray-500"
-                        >
-                          {url}
-                        </a>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => moveImage(idx, -1)}
+                            className="text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
+                            title="Mover para cima"
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === editImageUrls.length - 1}
+                            onClick={() => moveImage(idx, 1)}
+                            className="text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
+                            title="Mover para baixo"
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </button>
+                          <span className="text-xs text-gray-400 w-4">{idx + 1}</span>
+                        </div>
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={url} alt="" className="h-8 w-8 object-cover rounded shrink-0" />
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="max-w-[30ch] truncate text-xs underline text-gray-500"
+                          >
+                            {url}
+                          </a>
+                        </div>
                         <button
                           type="button"
-                          className="text-red-500 hover:text-red-700 text-xs"
+                          className="text-red-500 hover:text-red-700 text-xs shrink-0"
                           onClick={() => removeExistingImage(url)}
                         >
                           Remover
