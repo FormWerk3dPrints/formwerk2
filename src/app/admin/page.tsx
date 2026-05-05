@@ -2,33 +2,52 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { collection, getDocs } from 'firebase/firestore';
-import { firestoreDb } from '@/lib/firebase/client';
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { firebaseAuth } from '@/lib/firebase/client';
 import { AdminShell } from './_components/AdminShell';
-import { FolderOpen, Package } from 'lucide-react';
+import { FolderOpen, Package, Users } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const [authUser, setAuthUser] = useState<User | null>(null);
   const [categoryCount, setCategoryCount] = useState(0);
   const [productCount, setProductCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const unsub = onAuthStateChanged(firebaseAuth, (user) => {
+      setAuthUser(user);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    if (!authUser) return;
+
     async function fetchCounts() {
       try {
-        const [catSnap, prodSnap] = await Promise.all([
-          getDocs(collection(firestoreDb, 'categories')),
-          getDocs(collection(firestoreDb, 'products')),
-        ]);
-        setCategoryCount(catSnap.size);
-        setProductCount(prodSnap.size);
+        const idToken = await authUser!.getIdToken();
+        const res = await fetch('/api/admin/stats', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
+        if (!res.ok) return;
+        const json = (await res.json()) as {
+          categories?: number;
+          products?: number;
+          userProfiles?: number;
+        };
+        setCategoryCount(json.categories ?? 0);
+        setProductCount(json.products ?? 0);
+        setUserCount(json.userProfiles ?? 0);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       } finally {
         setLoading(false);
       }
     }
-    fetchCounts();
-  }, []);
+
+    void fetchCounts();
+  }, [authUser]);
 
   return (
     <AdminShell>
@@ -66,6 +85,23 @@ export default function AdminDashboardPage() {
               <p className="text-sm text-gray-500">Produtos</p>
               <p className="text-2xl font-bold text-gray-900">
                 {loading ? '…' : productCount}
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/contas"
+          className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border"
+        >
+          <div className="flex items-center gap-4">
+            <div className="bg-purple-50 p-3 rounded-lg">
+              <Users className="h-6 w-6 text-purple-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Contas</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {loading ? '…' : userCount}
               </p>
             </div>
           </div>

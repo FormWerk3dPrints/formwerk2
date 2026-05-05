@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function hasEmail() {
+      return isSignedIn() && request.auth.token.email is string;
+    }
+
+    function normalizedAuthEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function isAdmin() {
+      return hasEmail()
+        && firestore.exists(/databases/(default)/documents/admins/$(normalizedAuthEmail()))
+        && firestore.get(/databases/(default)/documents/admins/$(normalizedAuthEmail())).data.active == true;
+    }
+
+    match /products/{productId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

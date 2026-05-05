@@ -33,6 +33,15 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
 NEXT_PUBLIC_FIREBASE_APP_ID=...
+
+# Firebase Admin SDK (somente servidor)
+FIREBASE_ADMIN_PROJECT_ID=...
+FIREBASE_ADMIN_CLIENT_EMAIL=...
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# Proteção LGPD de dados pessoais (somente servidor)
+USER_PROFILE_ENCRYPTION_SECRET=uma-chave-longa-e-forte
+USER_PROFILE_HASH_SECRET=um-segredo-dedicado-para-hash
 ```
 
 > Valores em: Firebase Console → Project settings → Your apps → Web app → Config
@@ -44,6 +53,25 @@ npm run dev      # desenvolvimento
 npm run build    # build de produção
 npm start        # rodar build
 ```
+
+### 4. Publicar regras de segurança (Firestore + Storage)
+
+Arquivos versionados no projeto:
+
+- `firestore.rules`
+- `storage.rules`
+- `firebase.json`
+
+Para aplicar no Firebase (CLI):
+
+```bash
+firebase deploy --only firestore:rules,storage
+```
+
+Observação de segurança:
+
+- A coleção `userProfiles` fica bloqueada para acesso direto no client.
+- Leitura/gravação de perfil ocorre apenas via API server-side (`/api/user-profile`) com Firebase Admin SDK.
 
 ## Estrutura
 
@@ -71,7 +99,29 @@ src/
 - **Catálogo**: Filtro por categoria, busca, ordenação
 - **Produtos**: Carrossel de imagens, detalhes, botão WhatsApp
 - **Admin**: CRUD de produtos/categorias, autenticação Google
+- **Minha Conta**: login com Google e cadastro de dados pessoais
+- **LGPD**: dados pessoais salvos criptografados + hashes para buscas internas
 - **Responsivo**: Mobile-first com menu hamburger animado
+
+## Busca por hash (admin)
+
+Endpoint server-side para busca exata por hash dos campos de perfil:
+
+- `GET /api/user-profile/search?field=<campo>&value=<valor>`
+
+Campos suportados em `field`:
+
+- `fullName`
+- `phone`
+- `email`
+- `city`
+- `educationInstitution`
+- `birthday`
+
+Requisitos:
+
+- Header `Authorization: Bearer <Firebase ID Token>`
+- Usuário precisa estar ativo em `admins/{emailNormalizado}` com `active: true`
 
 ## Deploy
 

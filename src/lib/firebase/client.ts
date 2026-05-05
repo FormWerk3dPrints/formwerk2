@@ -12,6 +12,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+
 } as const;
 
 function getFirebaseApp(): FirebaseApp {
@@ -24,5 +25,6 @@ function getFirebaseApp(): FirebaseApp {
 
 export const firebaseApp = getFirebaseApp();
 export const firebaseAuth = getAuth(firebaseApp);
+firebaseAuth.languageCode = 'pt';
 export const firestoreDb = getFirestore(firebaseApp);
 export const firebaseStorage = getStorage(firebaseApp);
