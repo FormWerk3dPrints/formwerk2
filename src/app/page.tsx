@@ -9,6 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import AnimatedBackgroundMobile from '@/components/AnimatedBackgroundMobile';
 import ClientsSection from '@/components/ClientsSection';
+import AnimatedStudents from '@/components/AnimatedStudents';
 import AnimatedSales3 from '@/components/AnimatedSales3';
 import AnimatedSales3Mobile from '@/components/AnimatedSales3Mobile';
 import { getGlobalStats } from '@/lib/stats/getGlobalStats';
@@ -124,6 +125,11 @@ export default function Home() {
   return (
     <>
       <main>
+        {/* Estudantes Impactados */}
+        <div className="-mt-7">
+          <AnimatedStudents count={1250} />
+        </div>
+
         {/* Top Selling Products Section */}
         {isLoadingProducts && (
           <section className="py-12 px-4 bg-white">
@@ -177,11 +183,12 @@ export default function Home() {
         )}
 
         {/* Animação de Vendas – Skeleton */}
+        {/*
         {salesCount === null && (
           <section className="relative w-full h-screen overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100">
-            {/* Desktop skeleton */}
+            {/* Desktop skeleton }
             <div className="hidden md:flex absolute inset-0">
-              {/* Left side – text skeleton */}
+              {/* Left side – text skeleton }
               <div className="w-1/2 flex items-center justify-center px-8">
                 <div className="max-w-md w-full space-y-4">
                   <div className="h-14 w-32 bg-blue-200/60 rounded-lg animate-pulse" />
@@ -189,7 +196,7 @@ export default function Home() {
                   <div className="h-8 w-4/5 bg-blue-200/60 rounded-lg animate-pulse" />
                 </div>
               </div>
-              {/* Right side – boxes skeleton */}
+              {/* Right side – boxes skeleton }
               <div className="w-1/2 flex items-end justify-center pb-16 gap-2">
                 {[...Array(5)].map((_, i) => (
                   <div
@@ -204,7 +211,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            {/* Mobile skeleton */}
+            {/* Mobile skeleton }
             <div className="md:hidden flex flex-col items-center justify-center h-full px-6 gap-8">
               <div className="w-full max-w-xs space-y-3">
                 <div className="h-10 w-24 mx-auto bg-blue-200/60 rounded-lg animate-pulse" />
@@ -228,10 +235,10 @@ export default function Home() {
           </section>
         )}
 
-        {/* Animação de Vendas */}
+        {/* Animação de Vendas }
         {salesCount !== null && salesCount > 0 && (
           <section ref={salesSectionRef} className="relative w-full h-screen overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100">
-            {/* Desktop: full canvas + text overlay */}
+            {/* Desktop: full canvas + text overlay }
             <div className="hidden md:block absolute inset-0">
               <AnimatedSales3 salesCount={salesCount} started={animationStarted} />
             </div>
@@ -243,7 +250,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            {/* Mobile: canvas full + text overlay */}
+            {/* Mobile: canvas full + text overlay }
             <div className="md:hidden absolute inset-0">
               <AnimatedSales3Mobile salesCount={salesCount} started={animationStarted} />
             </div>
@@ -254,7 +261,7 @@ export default function Home() {
               </p>
             </div>
           </section>
-        )}
+        )}/*}
 
         {/* Clientes Section */}
         <ClientsSection />

@@ -61,6 +61,18 @@ body {
   overflow-x: hidden;
 }
 
+/* Students text slide */
+@keyframes students-text-slide {
+  from { transform: translateX(110vw); }
+  to   { transform: translateX(-110%); }
+}
+
+.students-text-slide {
+  animation: students-text-slide 18s linear infinite;
+  will-change: transform;
+  white-space: nowrap;
+}
+
 /* Clients marquee */
 @keyframes clients-marquee {
   from {
