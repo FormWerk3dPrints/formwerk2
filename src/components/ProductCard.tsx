@@ -58,7 +58,8 @@ export default function ProductCard({
             src={image}
             alt={name}
             fill
-            sizes="(max-width: 768px) 112px, 250px"
+            // sizes="(max-width: 768px) 112px, 250px" -> consome menos de images transfomations no deploy
+            sizes="(max-width: 767px) 112px, (max-width: 1023px) calc(50vw - 40px), calc(33vw - 40px)"
             className="object-cover transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105 motion-reduce:transition-none"
           />
           {/*PREÇO REMOVIDO
