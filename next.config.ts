@@ -53,7 +53,7 @@ const nextConfig: NextConfig & { allowedDevOrigins?: string[] } = {
     ],
     // Reduce variant count to lower optimization load
     deviceSizes: [640, 828, 1200, 1920],
-    imageSizes: [16, 48, 96, 256, /*remover 384 caso image transformations custe muito*/384],
+    imageSizes: [16, 48, 96, /*remover 384 caso image transformations custe muito*/384],
     // Keep webp only (AVIF encoding is much heavier on CPU)
     formats: ['image/webp'],
     // Cache optimized images for 1 year
