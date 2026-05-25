@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
 import { isAdminEmail } from '@/lib/firebase/admin';
-import { LogOut, LayoutDashboard, FolderOpen, Package, FileText, Users } from 'lucide-react';
+import { LogOut, LayoutDashboard, FolderOpen, Package, FileText, Users, BarChart2 } from 'lucide-react';
 
 const LOGIN_ASCII_ART = String.raw`
                                                                                             +++::::--                                   __    _      __    _ ____          __                  __              _ __     
@@ -181,6 +181,7 @@ export function AdminShell({ children }: AdminShellProps) {
     { href: '/admin/produtos', label: 'Produtos', icon: Package },
     { href: '/admin/emissao', label: 'Emissão', icon: FileText },
     { href: '/admin/contas', label: 'Contas', icon: Users },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
   ];
 
   return (

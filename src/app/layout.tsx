@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Geologica } from "next/font/google";
 import "./globals.css";
 import ScrollContext from "@/components/ScrollContext";
 import SiteLayoutWrapper from "@/components/SiteLayoutWrapper";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const geologica = Geologica({
   variable: "--font-geologica",
@@ -37,6 +38,7 @@ export default function RootLayout({
     <html lang="pt-BR" data-scroll-behavior="smooth">
       <body
         className={`${geologica.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <GoogleAnalytics />
         <ScrollContext>
           <SiteLayoutWrapper>{children}</SiteLayoutWrapper>
         </ScrollContext>
