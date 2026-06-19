@@ -14,7 +14,7 @@ export interface DetailsCategory {
 
 export interface DetailsProduct {
   id: string; // slug
-  categoryId: string;
+  categoryIds: string[];
   name: string;
   description: string;
   imageUrls: string[];
@@ -219,7 +219,7 @@ export default function ProductDetailsClient({
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Você também pode gostar</h2>
             <div className="flex items-stretch gap-6 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible md:grid md:grid-cols-3 md:gap-8">
               {seededSuggested.map((p) => {
-                const cat = categoriesById[p.categoryId] ?? null;
+                const cat = p.categoryIds.map((id) => categoriesById[id]).find(Boolean) ?? null;
                 return (
                   <div key={p.id} className="flex-shrink-0 w-64 md:w-auto flex flex-col">
                     <ProductCard

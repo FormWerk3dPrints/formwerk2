@@ -93,7 +93,7 @@ export default async function CatalogoResultados({
                       description={product.description}
                       price={''}
                       image={product.mainImageUrl || product.imageUrls[0] || ''}
-                      categoryColor={categoryColorById.get(product.categoryId) ?? '#0D6AA7'}
+                      categoryColor={product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ?? '#0D6AA7'}
                       mobileLayout="side"
                     />
                   ))}
@@ -118,7 +118,7 @@ export default async function CatalogoResultados({
                       description={product.description}
                       price={''}
                       image={product.mainImageUrl || product.imageUrls[0] || ''}
-                      categoryColor={categoryColorById.get(product.categoryId) ?? '#0D6AA7'}
+                      categoryColor={product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ?? '#0D6AA7'}
                       mobileLayout="side"
                     />
                   ))}

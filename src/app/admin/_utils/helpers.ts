@@ -30,7 +30,7 @@ export type Product = {
   nameTokens: string[];
   keywords: string[];
   description: string;
-  categoryId: string;
+  categoryIds: string[];
   priceCents: number;
   currency: string;
   imageUrls: string[];

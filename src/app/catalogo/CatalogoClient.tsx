@@ -13,7 +13,7 @@ export interface CatalogCategory {
 
 export interface CatalogProduct {
   id: string; // slug
-  categoryId: string;
+  categoryIds: string[];
   name: string;
   description: string;
   imageUrls: string[];
@@ -49,7 +49,7 @@ export default function CatalogoClient({
   );
 
   const filteredProducts = useMemo(
-    () => products.filter((product) => product.categoryId === selectedCategory),
+    () => products.filter((product) => product.categoryIds.includes(selectedCategory)),
     [products, selectedCategory]
   );
 

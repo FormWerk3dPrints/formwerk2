@@ -18,7 +18,7 @@ interface TopProduct {
   id: string;
   name: string;
   description: string;
-  categoryId: string;
+  categoryIds: string[];
   categoryColor: string;
   imageUrls: string[];
   mainImageUrl?: string;
@@ -87,13 +87,16 @@ export default function Home() {
           const imageUrls = Array.isArray(data.imageUrls)
             ? (data.imageUrls as string[]).filter(Boolean)
             : [];
-          const category = categoriesMap.get(data.categoryId);
+          const rawCategoryIds = Array.isArray(data.categoryIds)
+            ? (data.categoryIds as string[])
+            : (typeof data.categoryId === 'string' && data.categoryId ? [data.categoryId] : []);
+          const category = rawCategoryIds.map((id) => categoriesMap.get(id)).find(Boolean);
 
           return {
             id: doc.id,
             name: String(data.name ?? ''),
             description: String(data.description ?? ''),
-            categoryId: String(data.categoryId ?? ''),
+            categoryIds: rawCategoryIds,
             categoryColor: category?.color ?? '#0D6AA7',
             imageUrls,
             mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,

@@ -34,7 +34,9 @@ export default async function ProductPage({
 
   const product: DetailsProduct = {
     id: String(snap.id),
-    categoryId: String(data.categoryId ?? ''),
+    categoryIds: Array.isArray(data.categoryIds)
+      ? data.categoryIds
+      : (typeof data.categoryId === 'string' && data.categoryId ? [data.categoryId] : []),
     name: String(data.name ?? ''),
     description: String(data.description ?? ''),
     imageUrls,
@@ -43,8 +45,8 @@ export default async function ProductPage({
   };
 
   let category: DetailsCategory | null = null;
-  if (product.categoryId) {
-    const catSnap = await getDoc(doc(firestoreServerDb, 'categories', product.categoryId));
+  if (product.categoryIds.length > 0) {
+    const catSnap = await getDoc(doc(firestoreServerDb, 'categories', product.categoryIds[0]));
     if (catSnap.exists()) {
       const c = catSnap.data() as any;
       category = {
@@ -86,7 +88,9 @@ export default async function ProductPage({
       const urls = Array.isArray(p.imageUrls) ? (p.imageUrls as string[]).filter(Boolean) : [];
       return {
         id: String(d.id),
-        categoryId: String(p.categoryId ?? ''),
+        categoryIds: Array.isArray(p.categoryIds)
+          ? p.categoryIds
+          : (typeof p.categoryId === 'string' && p.categoryId ? [p.categoryId] : []),
         name: String(p.name ?? ''),
         description: String(p.description ?? ''),
         imageUrls: urls,
@@ -95,8 +99,8 @@ export default async function ProductPage({
     });
 
   const suggestedProducts = allSuggested.sort((a, b) => {
-    const aSame = a.categoryId === product.categoryId;
-    const bSame = b.categoryId === product.categoryId;
+    const aSame = a.categoryIds.some((id) => product.categoryIds.includes(id));
+    const bSame = b.categoryIds.some((id) => product.categoryIds.includes(id));
     if (aSame !== bSame) return aSame ? -1 : 1;
     return 0;
   });

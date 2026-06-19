@@ -28,7 +28,9 @@ export async function GET() {
 
       return {
         id: String(d.id),
-        categoryId: typeof data.categoryId === 'string' ? data.categoryId : '',
+        categoryIds: Array.isArray(data.categoryIds)
+          ? (data.categoryIds as string[])
+          : (typeof data.categoryId === 'string' && data.categoryId ? [data.categoryId] : []),
         name: typeof data.name === 'string' ? data.name : '',
         pluralName: typeof data.pluralName === 'string' ? data.pluralName : '',
         description: typeof data.description === 'string' ? data.description : '',
