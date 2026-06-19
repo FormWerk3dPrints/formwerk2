@@ -44,7 +44,9 @@ export default async function Catalogo() {
 
     return {
       id: String(d.id),
-      categoryId: String(data.categoryId ?? ''),
+      categoryIds: Array.isArray(data.categoryIds)
+        ? data.categoryIds
+        : (typeof data.categoryId === 'string' && data.categoryId ? [data.categoryId] : []),
       name: String(data.name ?? ''),
       description: String(data.description ?? ''),
       imageUrls,

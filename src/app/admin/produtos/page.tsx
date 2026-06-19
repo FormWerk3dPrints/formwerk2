@@ -48,7 +48,7 @@ export default function AdminProdutosPage() {
   const [formName, setFormName] = useState('');
   const [formPluralName, setFormPluralName] = useState('');
   const [formDescription, setFormDescription] = useState('');
-  const [formCategoryId, setFormCategoryId] = useState('');
+  const [formCategoryIds, setFormCategoryIds] = useState<string[]>([]);
   const [formPriceCents, setFormPriceCents] = useState(0);
   const [formCurrency, setFormCurrency] = useState('BRL');
   const [formActive, setFormActive] = useState(true);
@@ -111,7 +111,7 @@ export default function AdminProdutosPage() {
             nameTokens: Array.isArray(data.nameTokens) ? data.nameTokens : [],
             keywords: Array.isArray(data.keywords) ? data.keywords : [],
             description: data.description ?? '',
-            categoryId: data.categoryId ?? '',
+            categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : ((data as any).categoryId ? [(data as any).categoryId] : []),
             priceCents: typeof data.priceCents === 'number' ? data.priceCents : 0,
             currency: data.currency ?? 'BRL',
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
@@ -149,7 +149,7 @@ export default function AdminProdutosPage() {
     let list = products;
 
     if (filterCategoryId) {
-      list = list.filter((p) => p.categoryId === filterCategoryId);
+      list = list.filter((p) => p.categoryIds.includes(filterCategoryId));
     }
 
     if (!searchQuery.trim()) return list;
@@ -199,7 +199,7 @@ export default function AdminProdutosPage() {
     setFormName('');
     setFormPluralName('');
     setFormDescription('');
-    setFormCategoryId('');
+    setFormCategoryIds([]);
     setFormPriceCents(0);
     setFormCurrency('BRL');
     setFormActive(true);
@@ -225,7 +225,7 @@ export default function AdminProdutosPage() {
     setFormName(p.name);
     setFormPluralName(p.pluralName);
     setFormDescription(p.description);
-    setFormCategoryId(p.categoryId);
+    setFormCategoryIds(p.categoryIds);
     setFormPriceCents(p.priceCents);
     setFormCurrency(p.currency);
     setFormActive(p.active);
@@ -246,7 +246,7 @@ export default function AdminProdutosPage() {
 
     const name = formName.trim();
     const pluralName = formPluralName.trim();
-    const categoryId = formCategoryId.trim();
+    const categoryIds = formCategoryIds;
 
     if (editing) {
       // Edit mode
@@ -292,7 +292,7 @@ export default function AdminProdutosPage() {
           nameTokens,
           keywords,
           description: formDescription.trim(),
-          categoryId,
+          categoryIds,
           priceCents: Number.isFinite(formPriceCents) ? formPriceCents : 0,
           currency: formCurrency.trim() || 'BRL',
           active: formActive,
@@ -322,7 +322,7 @@ export default function AdminProdutosPage() {
       const missingFields: string[] = [];
       if (!name) missingFields.push('Nome');
       if (!pluralName) missingFields.push('Nome (plural)');
-      if (!categoryId) missingFields.push('Categoria');
+      if (!categoryIds.length) missingFields.push('Categoria');
       if (!formImageFiles.length) missingFields.push('Imagens (upload)');
 
       if (missingFields.length) {
@@ -351,7 +351,7 @@ export default function AdminProdutosPage() {
           nameTokens,
           keywords,
           description: formDescription.trim(),
-          categoryId,
+          categoryIds,
           priceCents: Number.isFinite(formPriceCents) ? formPriceCents : 0,
           currency: formCurrency.trim() || 'BRL',
           imageUrls: [],
@@ -650,21 +650,28 @@ export default function AdminProdutosPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Categoria
                   </label>
-                  <select
-                    value={formCategoryId}
-                    onChange={(e) => setFormCategoryId(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-gray-900"
-                  >
-                    <option value="">Selecione…</option>
+                  <div className="flex flex-wrap gap-x-4 gap-y-2 border rounded-lg px-3 py-2">
                     {categories
                       .slice()
                       .sort((a, b) => a.order - b.order)
                       .map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
+                        <label key={c.id} className="flex items-center gap-1.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formCategoryIds.includes(c.id)}
+                            onChange={() =>
+                              setFormCategoryIds((prev) =>
+                                prev.includes(c.id)
+                                  ? prev.filter((id) => id !== c.id)
+                                  : [...prev, c.id]
+                              )
+                            }
+                            className="rounded"
+                          />
+                          <span className="text-sm text-gray-700">{c.name}</span>
+                        </label>
                       ))}
-                  </select>
+                  </div>
                 </div>
                 <div className="flex items-end">
                   <label className="flex items-center gap-2 cursor-pointer pb-2">
@@ -937,7 +944,7 @@ export default function AdminProdutosPage() {
                       <div className="text-xs text-gray-400">{prod.id}</div>
                     </td>
                     <td className="py-3 px-4 text-gray-500 text-sm hidden sm:table-cell">
-                      {getCategoryName(prod.categoryId)}
+                      {prod.categoryIds.map((id) => getCategoryName(id)).join(', ')}
                     </td>
                     <td className="py-3 px-4 text-gray-600 text-sm hidden md:table-cell">
                       {prod.imageUrls.length}
