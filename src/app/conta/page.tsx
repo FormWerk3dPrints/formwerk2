@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   createUserWithEmailAndPassword,
@@ -16,7 +16,9 @@ import {
   type OAuthCredential,
   type User,
 } from 'firebase/auth';
-import { firebaseAuth } from '@/lib/firebase/client';
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { firebaseAuth, firebaseStorage } from '@/lib/firebase/client';
+import { processAvatarImage } from '@/lib/image/processAvatar';
 
 type ProfileFormState = {
   fullName: string;
@@ -31,6 +33,7 @@ type ProfileFormState = {
 
 type LoadedProfile = Omit<ProfileFormState, 'consentAccepted'> & {
   email: string;
+  avatarUrl?: string;
   updatedAt?: string;
 };
 
@@ -104,6 +107,11 @@ export default function ContaPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Avatar
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       setAuthUser(user);
@@ -155,6 +163,7 @@ export default function ContaPage() {
           educationInstitution: body.profile?.educationInstitution || '',
           birthday: body.profile?.birthday || '',
         }));
+        setAvatarUrl(body.profile.avatarUrl ?? null);
         setLastUpdatedAt(body.profile.updatedAt || null);
       } catch (error) {
         console.error('[ContaPage] Falha ao carregar perfil', error);
@@ -174,6 +183,61 @@ export default function ContaPage() {
     if (Number.isNaN(date.getTime())) return null;
     return date.toLocaleString('pt-BR');
   }, [lastUpdatedAt]);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !authUser) return;
+    e.target.value = '';
+
+    setUploadingAvatar(true);
+    setErrorMessage(null);
+    try {
+      const blob = await processAvatarImage(file, 80);
+      const path = `avatars/${authUser.uid}/avatar.jpg`;
+      const ref = storageRef(firebaseStorage, path);
+      await uploadBytes(ref, blob, { contentType: 'image/jpeg' });
+      const url = await getDownloadURL(ref);
+
+      const idToken = await authUser.getIdToken();
+      const res = await fetch('/api/user-profile/avatar', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ avatarUrl: url }),
+      });
+      if (!res.ok) throw new Error('Falha ao salvar avatar.');
+      setAvatarUrl(url);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao enviar foto.';
+      setErrorMessage(msg);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  async function handleAvatarRemove() {
+    if (!authUser || !avatarUrl) return;
+    setUploadingAvatar(true);
+    setErrorMessage(null);
+    try {
+      try {
+        const ref = storageRef(firebaseStorage, `avatars/${authUser.uid}/avatar.jpg`);
+        await deleteObject(ref);
+      } catch {
+        // ignora se não existir no storage
+      }
+      const idToken = await authUser.getIdToken();
+      await fetch('/api/user-profile/avatar', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      setAvatarUrl(null);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao remover foto.';
+      setErrorMessage(msg);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
 
   async function handleGoogleLogin() {
     setErrorMessage(null);
@@ -650,6 +714,57 @@ export default function ContaPage() {
               {formattedLastUpdate ? (
                 <p className="text-gray-500 mt-1">Última atualização de perfil: {formattedLastUpdate}</p>
               ) : null}
+            </div>
+
+            {/* Avatar */}
+            <div className="mt-6 flex items-center gap-4">
+              <div className="relative h-20 w-20 shrink-0">
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrl}
+                    alt="Foto de perfil"
+                    className="h-20 w-20 rounded-full object-cover border"
+                  />
+                ) : (
+                  <div className="h-20 w-20 rounded-full bg-gray-200 border flex items-center justify-center text-gray-400 text-2xl select-none">
+                    {authUser.displayName?.[0]?.toUpperCase() ?? '?'}
+                  </div>
+                )}
+                {uploadingAvatar && (
+                  <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  disabled={uploadingAvatar}
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {avatarUrl ? 'Trocar foto' : 'Adicionar foto'}
+                </button>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    disabled={uploadingAvatar}
+                    onClick={handleAvatarRemove}
+                    className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    Remover foto
+                  </button>
+                )}
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
+                <p className="text-xs text-gray-400">JPG, PNG ou WebP. Será cortada e redimensionada para 80×80 px.</p>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">

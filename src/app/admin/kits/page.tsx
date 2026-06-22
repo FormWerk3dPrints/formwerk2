@@ -51,8 +51,10 @@ export default function AdminKitsPage() {
   const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
   const [editMainImageUrl, setEditMainImageUrl] = useState('');
 
-  // Search/filter
+  // Search/filter (tabela)
   const [searchQuery, setSearchQuery] = useState('');
+  // Busca de produtos dentro do formulário
+  const [productSearch, setProductSearch] = useState('');
 
   // Validation popup
   const [validationPopup, setValidationPopup] = useState<{
@@ -156,6 +158,7 @@ export default function AdminKitsPage() {
     setFormImageFilesKey((k) => k + 1);
     setEditImageUrls([]);
     setEditMainImageUrl('');
+    setProductSearch('');
   }
 
   function openCreate() {
@@ -328,6 +331,7 @@ export default function AdminKitsPage() {
     if (!window.confirm(`Excluir o kit "${kit.name}"?`)) return;
     try {
       await deleteDoc(doc(firestoreDb, 'kits', kit.id));
+      await Promise.allSettled(kit.imageUrls.map((url) => deleteStorageObject(url)));
       await fetchData();
     } catch (e) {
       logAndAlertError('Erro ao excluir kit', e);
@@ -490,22 +494,44 @@ export default function AdminKitsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Produtos do kit ({formProductIds.length} selecionado{formProductIds.length !== 1 ? 's' : ''})
                 </label>
-                <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-1">
+                <input
+                  type="text"
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                  placeholder="Buscar produto…"
+                  className="w-full border rounded-t-lg px-3 py-2 text-sm text-gray-700 border-b-0"
+                />
+                <div className="border rounded-b-lg p-3 max-h-48 overflow-y-auto space-y-1">
                   {products.length === 0 && (
                     <p className="text-sm text-gray-400">Nenhum produto cadastrado.</p>
                   )}
-                  {products.map((p) => (
-                    <label key={p.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-1 py-0.5 rounded">
-                      <input
-                        type="checkbox"
-                        checked={formProductIds.includes(p.id)}
-                        onChange={() => toggleProduct(p.id)}
-                        className="rounded"
-                      />
-                      <span className="text-sm text-gray-800">{p.name}</span>
-                      <span className="text-xs text-gray-400 ml-auto">{p.id}</span>
-                    </label>
-                  ))}
+                  {(() => {
+                    const q = productSearch.trim().toLowerCase();
+                    const visible = q
+                      ? products.filter(
+                          (p) =>
+                            p.name.toLowerCase().includes(q) ||
+                            p.id.toLowerCase().includes(q)
+                        )
+                      : products;
+                    if (visible.length === 0)
+                      return <p className="text-sm text-gray-400">Nenhum resultado.</p>;
+                    return visible.map((p) => (
+                      <label
+                        key={p.id}
+                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-1 py-0.5 rounded"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formProductIds.includes(p.id)}
+                          onChange={() => toggleProduct(p.id)}
+                          className="rounded"
+                        />
+                        <span className="text-sm text-gray-800">{p.name}</span>
+                        <span className="text-xs text-gray-400 ml-auto">{p.id}</span>
+                      </label>
+                    ));
+                  })()}
                 </div>
               </div>
 

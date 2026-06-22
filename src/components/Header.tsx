@@ -44,6 +44,12 @@ export default function Header() {
           >
             Assinatura
           </Link>
+          <Link
+            href="/forum"
+            className="text-white hover:text-blue-100 transition-colors font-medium"
+          >
+            Fórum
+          </Link>
           <a
             href="#contato"
             className="text-white hover:text-blue-100 transition-colors font-medium"
@@ -122,6 +128,13 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Assinatura
+          </Link>
+          <Link
+            href="/forum"
+            className="text-white hover:text-blue-100 transition-colors font-medium py-2 border-t border-white/20"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Fórum
           </Link>
           <a
             href="#contato"

@@ -120,6 +120,7 @@ export async function GET(req: Request) {
 
     const data = docSnap.data() as {
       encryptedProfile?: EncryptedBlob;
+      avatarUrl?: string;
       updatedAt?: { toDate?: () => Date };
     };
 
@@ -136,6 +137,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       profile: {
         ...decrypted,
+        avatarUrl: typeof data.avatarUrl === 'string' ? data.avatarUrl : undefined,
         updatedAt:
           typeof data.updatedAt?.toDate === 'function'
             ? data.updatedAt.toDate().toISOString()
