@@ -43,6 +43,7 @@ export default function AdminKitsPage() {
   const [formProductIds, setFormProductIds] = useState<string[]>([]);
   const [formPriceCents, setFormPriceCents] = useState(0);
   const [formCurrency, setFormCurrency] = useState('BRL');
+  const [formColor, setFormColor] = useState('#0D6AA7');
   const [formActive, setFormActive] = useState(true);
   const [formImageFiles, setFormImageFiles] = useState<File[]>([]);
   const [formImageFilesKey, setFormImageFilesKey] = useState(0);
@@ -110,6 +111,7 @@ export default function AdminKitsPage() {
             currency: data.currency ?? 'BRL',
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
             mainImageUrl: data.mainImageUrl,
+            color: typeof data.color === 'string' ? data.color : '#0D6AA7',
             active: data.active ?? false,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
@@ -153,6 +155,7 @@ export default function AdminKitsPage() {
     setFormProductIds([]);
     setFormPriceCents(0);
     setFormCurrency('BRL');
+    setFormColor('#0D6AA7');
     setFormActive(true);
     setFormImageFiles([]);
     setFormImageFilesKey((k) => k + 1);
@@ -174,6 +177,7 @@ export default function AdminKitsPage() {
     setFormProductIds(k.productIds);
     setFormPriceCents(k.priceCents);
     setFormCurrency(k.currency);
+    setFormColor(k.color || '#0D6AA7');
     setFormActive(k.active);
     setFormImageFiles([]);
     setFormImageFilesKey((n) => n + 1);
@@ -256,6 +260,7 @@ export default function AdminKitsPage() {
           productIds: formProductIds,
           priceCents: Number.isFinite(formPriceCents) ? formPriceCents : 0,
           currency: formCurrency.trim() || 'BRL',
+          color: formColor.trim() || '#0D6AA7',
           active: formActive,
           imageUrls,
           mainImageUrl,
@@ -295,6 +300,7 @@ export default function AdminKitsPage() {
           productIds: formProductIds,
           priceCents: Number.isFinite(formPriceCents) ? formPriceCents : 0,
           currency: formCurrency.trim() || 'BRL',
+          color: formColor.trim() || '#0D6AA7',
           imageUrls: [],
           mainImageUrl: '',
           active: formActive,
@@ -454,8 +460,8 @@ export default function AdminKitsPage() {
                 />
               </div>
 
-              {/* Preço + Moeda + Ativo */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Preço + Moeda + Cor + Ativo */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Preço (centavos)
@@ -475,6 +481,25 @@ export default function AdminKitsPage() {
                     onChange={(e) => setFormCurrency(e.target.value)}
                     className="w-full border rounded-lg px-3 py-2 text-gray-900"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cor</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formColor}
+                      onChange={(e) => setFormColor(e.target.value)}
+                      className="color-picker-input h-10 w-14 shrink-0 cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white p-1"
+                      aria-label="Selecionar cor do kit"
+                    />
+                    <input
+                      type="text"
+                      value={formColor}
+                      onChange={(e) => setFormColor(e.target.value)}
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-900"
+                      placeholder="#0D6AA7"
+                    />
+                  </div>
                 </div>
                 <div className="flex items-end pb-2">
                   <label className="flex items-center gap-2 cursor-pointer">

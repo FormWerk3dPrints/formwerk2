@@ -10,6 +10,7 @@ interface ProductCardProps {
   categoryColor: string;
   compact?: boolean;
   mobileLayout?: 'stack' | 'side';
+  href?: string;
 }
 
 export default function ProductCard({
@@ -21,6 +22,7 @@ export default function ProductCard({
   categoryColor,
   compact = false,
   mobileLayout = 'stack',
+  href,
 }: ProductCardProps) {
   void price;//PREÇO REMOVIDO
 
@@ -41,7 +43,7 @@ export default function ProductCard({
   const buttonPaddingClass = compact ? 'py-2 px-3' : 'py-2 px-4';
 
   return (
-    <Link href={`/catalogo/${id}`} className="block h-full">
+    <Link href={href ?? `/catalogo/${id}`} className="block h-full">
       <div
         className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer h-full flex card-hover-expand group ${
           isMobileSideLayout ? 'flex-row md:flex-col' : 'flex-col'

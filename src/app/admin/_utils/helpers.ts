@@ -50,6 +50,7 @@ export type Kit = {
   productIds: string[];
   priceCents: number;
   currency: string;
+  color: string;
   imageUrls: string[];
   mainImageUrl?: string;
   active: boolean;

@@ -61,6 +61,25 @@ body {
   overflow-x: hidden;
 }
 
+input[type="color"].color-picker-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="color"].color-picker-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"].color-picker-input::-webkit-color-swatch {
+  border: 0;
+  border-radius: 0.5rem;
+}
+
+input[type="color"].color-picker-input::-moz-color-swatch {
+  border: 0;
+  border-radius: 0.5rem;
+}
+
 /* Students text slide */
 @keyframes students-text-slide {
   from { transform: translateX(110vw); }

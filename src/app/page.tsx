@@ -339,6 +339,64 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Depoimentos de Educadores
+        <section className="py-16 px-4 bg-white">
+          <div className="container mx-auto max-w-4xl">
+            <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+              O que educadores dizem sobre a FormWerk
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+              {/* Depoimento 1 *}
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong border border-gray-100 flex flex-col items-center">
+                <div
+                  className="w-20 h-20 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 border-4 border-blue-100"
+                  style={{ backgroundColor: '#0d6aa7' }}
+                >
+                  MS
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">Maria Silva</h3>
+                <p className="text-sm font-medium mb-4" style={{ color: '#0D6AA7' }}>Professora de Educação Infantil</p>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  &ldquo;Os materiais da FormWerk transformaram minhas aulas! As crianças ficam muito mais engajadas com os recursos táteis e coloridos.&rdquo;
+                </p>
+              </div>
+
+              {/* Depoimento 2 *}
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong border border-gray-100 flex flex-col items-center">
+                <div
+                  className="w-20 h-20 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 border-4 border-blue-100"
+                  style={{ backgroundColor: '#0d6aa7' }}
+                >
+                  JP
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">João Pereira</h3>
+                <p className="text-sm font-medium mb-4" style={{ color: '#0D6AA7' }}>Coordenador Pedagógico</p>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  &ldquo;A qualidade dos produtos supera qualquer expectativa. Durabilidade excelente e a personalização com o logo da nossa escola foi perfeita.&rdquo;
+                </p>
+              </div>
+
+              {/* Depoimento 3 *}
+              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong border border-gray-100 flex flex-col items-center">
+                <div
+                  className="w-20 h-20 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 border-4 border-blue-100"
+                  style={{ backgroundColor: '#0d6aa7' }}
+                >
+                  AC
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">Ana Costa</h3>
+                <p className="text-sm font-medium mb-4" style={{ color: '#0D6AA7' }}>Terapeuta Ocupacional</p>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  &ldquo;Uso os kits da FormWerk nas minhas sessões de terapia. A segurança do material PLA e a variedade de cores fazem toda a diferença para meus pacientes.&rdquo;
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+        {*/}
+
         {/* CTA Section */}
         <section className="relative overflow-hidden py-16 px-4 bg-white">
           <div className="container mx-auto max-w-4xl text-center">
