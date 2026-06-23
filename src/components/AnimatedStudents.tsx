@@ -9,6 +9,12 @@ interface Props {
   count?: number;
 }
 
+interface KitPreview {
+  id: string;
+  name: string;
+  imageUrl: string;
+}
+
 const FALLBACK_PALETTE = [
   '#FF6B6B', '#FF8E53', '#FFC300', '#51CF66', '#22B5D2',
   '#339AF0', '#CC5DE8', '#F06595', '#20C997', '#FF6348',
@@ -80,6 +86,8 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
   const colsRef = useRef(0);
   const avatarImgRef = useRef<HTMLImageElement | null>(null);
   const [started, setStarted] = useState(false);
+  const [kits, setKits] = useState<KitPreview[]>([]);
+  const [activeKit, setActiveKit] = useState(0);
 
   // Trigger slide-in when section enters viewport
   useEffect(() => {
@@ -113,6 +121,35 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
     };
     img.src = url;
   }, []);
+
+  // Fetch kits for carousel
+  useEffect(() => {
+    getDocs(query(collection(firestoreDb, 'kits'), where('active', '==', true)))
+      .then((snap) => {
+        const items: KitPreview[] = snap.docs
+          .map((d) => {
+            const data = d.data();
+            const imageUrls = Array.isArray(data.imageUrls)
+              ? (data.imageUrls as string[]).filter(Boolean)
+              : [];
+            const imageUrl =
+              typeof data.mainImageUrl === 'string' && data.mainImageUrl
+                ? data.mainImageUrl
+                : imageUrls[0] ?? '';
+            return { id: d.id, name: typeof data.name === 'string' ? data.name : '', imageUrl };
+          })
+          .filter((k) => k.imageUrl);
+        setKits(items);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Auto-rotate kit carousel
+  useEffect(() => {
+    if (kits.length <= 1) return;
+    const id = setInterval(() => setActiveKit((prev) => (prev + 1) % kits.length), 3500);
+    return () => clearInterval(id);
+  }, [kits.length]);
 
   // Fetch category colors from Firestore
   useEffect(() => {
@@ -262,31 +299,75 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
           </span>
         </div>
 
-        {/* Right overlay — slides in from the left */}
+        {/* Right overlay — slides in from the left — Kit carousel */}
         <div className="absolute inset-y-0 left-0 right-0 overflow-hidden flex items-start justify-end pointer-events-none">
           <div
-            className={`flex flex-col font-bold text-white text-xl md:text-3xl leading-tight select-none transition-all duration-700 ease-out ${
+            className={`flex flex-col text-white select-none transition-all duration-700 ease-out ${
               started ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
             }`}
             style={{
               background: 'linear-gradient(135deg, #0D6AA7 0%, #1278BC 52%, #0A5B8F 100%)',
-              padding: '8px 28px 24px 28px',
+              padding: '12px 24px 16px 24px',
               boxShadow: '0 6px 24px 0 rgba(13,106,167,0.22)',
-              marginTop: 168,
+              marginTop: 30,
               lineHeight: 1.18,
+              width: 260,
+              height: 310,
+              overflow: 'hidden',
             }}
           >
-            Conheça nossos<br />
-            <span className="flex items-center gap-3">
-              produtos:
-              <Link
-                href="/catalogo"
-                className="bg-white font-extrabold rounded px-6 py-1 text-base pointer-events-auto transition-transform duration-200 hover:scale-110"
-                style={{ color: '#0D6AA7' }}
-              >
-                ir!
-              </Link>
+            <span className="text-xs md:text-sm font-bold opacity-80 mb-2 tracking-wide uppercase flex-shrink-0">
+              Conheça nossos Kits:
             </span>
+
+            {/* Image hero — fixed size, always rendered */}
+            <div className="relative w-full overflow-hidden rounded flex-shrink-0 mb-2" style={{ height: 148 }}>
+              {kits.map((kit, i) => (
+                <div
+                  key={kit.id}
+                  className="absolute inset-0 transition-opacity duration-700"
+                  style={{ opacity: i === activeKit ? 1 : 0 }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={kit.imageUrl}
+                    alt={kit.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Kit name — fixed height to avoid layout shift */}
+            <span
+              className="text-base font-bold leading-tight mb-2 flex-shrink-0 truncate"
+              style={{ height: '1.5rem' }}
+            >
+              {kits[activeKit]?.name ?? ''}
+            </span>
+
+            {/* Dot indicators — fixed height slot */}
+            <div className="flex gap-1.5 mb-3 flex-shrink-0" style={{ height: 12 }}>
+              {kits.length > 1 && kits.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveKit(i)}
+                  className="w-2 h-2 rounded-full pointer-events-auto transition-opacity"
+                  style={{ backgroundColor: 'white', opacity: i === activeKit ? 1 : 0.35 }}
+                />
+              ))}
+            </div>
+
+            {/* Spacer */}
+            <div className="flex-1" />
+
+            <Link
+              href="/kits"
+              className="pointer-events-auto text-center bg-white font-extrabold rounded py-2 px-6 text-base transition-transform duration-200 hover:scale-105 flex-shrink-0"
+              style={{ color: '#0D6AA7' }}
+            >
+              Ver Kits →
+            </Link>
           </div>
         </div>
       </div>
