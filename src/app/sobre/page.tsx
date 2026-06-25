@@ -53,13 +53,12 @@ export default function QuemSomos() {
             {/* Logo */}
             <div className="flex items-center justify-center">
               <Image
-                src="/logo_colorida_vetorial.svg"
-                alt="FORMWERK - Materiais Educacionais 3D"
-                width={300}
-                height={300}
-                className="w-full max-w-[300px]"
+                src="/images/foto_gestores.jpg"
+                alt="FORMWERK - Gestores"
+                width={500}
+                height={400}
+                className="w-full max-w-[500px] rounded-xl object-cover"
                 priority
-                unoptimized
               />
             </div>
           </div>
