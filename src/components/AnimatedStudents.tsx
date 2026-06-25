@@ -299,6 +299,26 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
           </span>
         </div>
 
+        {/* Center overlay — phrase */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-4">
+          <p
+            className={`text-center font-extrabold text-white text-lg md:text-2xl leading-snug select-none transition-all duration-1000 ease-out max-w-xs md:max-w-sm ${
+              started ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            }`}
+            style={{
+              background: 'linear-gradient(135deg, #0D6AA7 0%, #1278BC 52%, #0A5B8F 100%)',
+              padding: '14px 22px',
+              boxShadow: '0 6px 24px 0 rgba(13,106,167,0.22)',
+              lineHeight: 1.3,
+              transitionDelay: '200ms',
+            }}
+          >
+            Transformamos o aprendizado teórico em
+              experiência prática e interativa
+            para professores e alunos.
+          </p>
+        </div>
+
         {/* Right overlay — slides in from the left — Kit carousel */}
         <div className="absolute inset-y-0 left-0 right-0 overflow-hidden flex items-start justify-end pointer-events-none">
           <div
