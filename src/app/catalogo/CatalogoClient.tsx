@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 
 export interface CatalogCategory {
@@ -33,9 +33,20 @@ export default function CatalogoClient({
   products: CatalogProduct[];
 }) {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    () => categories[0]?.id ?? ''
-  );
+  const searchParams = useSearchParams();
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    const param = searchParams.get('categoria');
+    if (param && categories.some((c) => c.id === param)) return param;
+    return categories[0]?.id ?? '';
+  });
+
+  function handleCategorySelect(categoryId: string) {
+    setSelectedCategory(categoryId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('categoria', categoryId);
+    router.replace(`/catalogo?${params.toString()}`, { scroll: false });
+  }
 
   const [queryText, setQueryText] = useState('');
   const [suggestions, setSuggestions] = useState<ProductSuggestion[]>([]);
@@ -249,7 +260,7 @@ export default function CatalogoClient({
             {categories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => handleCategorySelect(category.id)}
                 className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-all text-sm md:text-base btn-hover-expand ${
                   selectedCategory === category.id
                     ? 'text-white shadow-lg'

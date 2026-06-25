@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
 import CatalogoClient, {
@@ -54,5 +55,9 @@ export default async function Catalogo() {
     };
   });
 
-  return <CatalogoClient categories={categories} products={products} />;
+  return (
+    <Suspense>
+      <CatalogoClient categories={categories} products={products} />
+    </Suspense>
+  );
 }
