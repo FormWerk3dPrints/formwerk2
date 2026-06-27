@@ -181,7 +181,7 @@ export default function NovoPostPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Do que se trata esta discussão?"
               maxLength={200}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -197,7 +197,7 @@ export default function NovoPostPage() {
               placeholder="Detalhe sua dúvida, ideia ou observação..."
               rows={6}
               maxLength={5000}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
               required
             />
             <p className="text-xs text-gray-400 mt-1 text-right">{body.length}/5000</p>
@@ -278,7 +278,7 @@ export default function NovoPostPage() {
                   value={productSearch}
                   onChange={(e) => setProductSearch(e.target.value)}
                   placeholder="Buscar produto..."
-                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-900 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-400"
                 />
                 <div className="max-h-36 overflow-y-auto flex flex-col gap-1">
                   {filteredProducts.map((p) => (
