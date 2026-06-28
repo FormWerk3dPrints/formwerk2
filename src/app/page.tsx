@@ -129,9 +129,7 @@ export default function Home() {
     <>
       <main>
         {/* Estudantes Impactados */}
-        <div className="-mt-7">
-          <AnimatedStudents count={1250} />
-        </div>
+        <AnimatedStudents count={1250} />
 
         {/* Top Selling Products Section */}
         {isLoadingProducts && (
