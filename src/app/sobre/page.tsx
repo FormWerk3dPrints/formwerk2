@@ -34,9 +34,17 @@ export default function QuemSomos() {
                   lógico das crianças.
                 </p>
                 <p className="mt-6">
-                  Nosso compromisso é com a educação de qualidade, unindo tecnologia e inovação pedagógica 
-                  para apoiar professores, escolas e famílias no desenvolvimento integral dos alunos. 
-                  Na Formwerk, acreditamos que aprender pode – e deve – ser uma experiência prazerosa, 
+                  Nossa responsabilidade vai além da sala de aula. Adotamos práticas alinhadas aos princípios
+                  ESG: utilizamos filamento PLA, um material à base de vegetais, atóxico e biodegradável,
+                  reduzindo nosso impacto ambiental. No campo social, desenvolvemos materiais em Libras e
+                  colaboramos com a APAE (Associação de Pais e Amigos dos Excepcionais) e a APAS (Associação
+                  de Pais e Amigos dos Surdos), tornando o aprendizado acessível a todas as crianças,
+                  independentemente de suas necessidades.
+                </p>
+                <p className="mt-6">
+                  Nosso compromisso é com a educação de qualidade, unindo tecnologia e inovação pedagógica
+                  para apoiar professores, escolas e famílias no desenvolvimento integral dos alunos.
+                  Na Formwerk, acreditamos que aprender pode – e deve – ser uma experiência prazerosa,
                   transformadora e inclusiva.
                 </p>
               </div>

@@ -273,7 +273,7 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
         <div className="flex flex-col gap-3 flex-1 min-w-0">
           {/* Students count */}
           <div
-            className={`flex-1 flex items-center justify-center rounded-2xl p-3 transition-all duration-700 ease-out ${
+            className={`flex-1 flex items-center justify-center rounded-2xl p-3 transition-all duration-700 ease-out hover:opacity-80 hover:duration-200 ${
               started ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
             }`}
             style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW }}
@@ -286,7 +286,7 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
 
           {/* Mission */}
           <div
-            className={`flex-1 flex items-center justify-center rounded-2xl p-3 transition-all duration-700 ease-out ${
+            className={`flex-1 flex items-center justify-center rounded-2xl p-3 transition-all duration-700 ease-out hover:opacity-80 hover:duration-200 ${
               started ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
             }`}
             style={{
@@ -302,80 +302,102 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
           </div>
         </div>
 
-        {/* Right: kits card — always square */}
+        {/* Right column: kits + ESG */}
         <div
-          className={`aspect-square flex-shrink-0 self-start flex flex-col rounded-2xl overflow-hidden transition-all duration-700 ease-out ${
+          className={`flex flex-col gap-3 flex-shrink-0 transition-all duration-700 ease-out ${
             started ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
           }`}
-          style={{
-            background: BLUE_GRADIENT,
-            boxShadow: BLUE_SHADOW,
-            width: 'calc(50% - 6px)',
-            transitionDelay: '200ms',
-          }}
+          style={{ width: 'calc(50% - 6px)', transitionDelay: '200ms' }}
         >
-          <div className="flex flex-col h-full p-3 text-white select-none">
-            <span className="text-xs font-bold opacity-80 mb-1.5 tracking-wide uppercase flex-shrink-0">
-              Nossos Kits:
-            </span>
+          {/* Kits card */}
+          <div
+            className="flex-[2] flex flex-col rounded-2xl overflow-hidden"
+            style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW }}
+          >
+            <div className="flex flex-col h-full p-3 text-white select-none">
+              <span className="text-xs font-bold opacity-80 mb-1.5 tracking-wide uppercase flex-shrink-0">
+                Nossos Kits:
+              </span>
 
-            <div className="relative flex-1 overflow-hidden rounded mb-1.5">
-              {kits.map((kit, i) => (
-                <div
-                  key={kit.id}
-                  className="absolute inset-0 transition-opacity duration-700"
-                  style={{ opacity: i === activeKit ? 1 : 0 }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={kit.imageUrl}
-                    alt={kit.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-1 mb-1.5 flex-shrink-0">
-              {kits.length > 1 &&
-                kits.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveKit(i)}
-                    className="w-1.5 h-1.5 rounded-full transition-opacity"
-                    style={{ backgroundColor: 'white', opacity: i === activeKit ? 1 : 0.35 }}
-                  />
+              <div className="relative flex-1 overflow-hidden rounded mb-1.5">
+                {kits.map((kit, i) => (
+                  <div
+                    key={kit.id}
+                    className="absolute inset-0 transition-opacity duration-700"
+                    style={{ opacity: i === activeKit ? 1 : 0 }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={kit.imageUrl}
+                      alt={kit.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
                 ))}
-            </div>
+              </div>
 
-            <Link
-              href="/kits"
-              className="text-center bg-white font-extrabold rounded-lg py-1.5 text-xs transition-transform duration-200 hover:scale-105 flex-shrink-0"
-              style={{ color: '#0D6AA7' }}
-            >
-              Ver Kits →
-            </Link>
+              <div className="flex gap-1 mb-1.5 flex-shrink-0">
+                {kits.length > 1 &&
+                  kits.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveKit(i)}
+                      className="w-1.5 h-1.5 rounded-full transition-opacity"
+                      style={{ backgroundColor: 'white', opacity: i === activeKit ? 1 : 0.35 }}
+                    />
+                  ))}
+              </div>
+
+              <Link
+                href="/kits"
+                className="text-center bg-white font-extrabold rounded-lg py-1.5 text-xs transition-transform duration-200 hover:scale-105 flex-shrink-0"
+                style={{ color: '#0D6AA7' }}
+              >
+                Ver Kits →
+              </Link>
+            </div>
           </div>
+
+          {/* ESG card */}
+          <Link
+            href="/sobre"
+            className="group flex-1 flex items-center justify-center rounded-2xl p-3 transition-opacity duration-200 hover:opacity-80"
+            style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW }}
+          >
+            <p className="text-white font-bold text-center leading-snug select-none text-xs group-hover:underline">
+              A Formwerk adota práticas alinhadas aos princípios ESG.
+            </p>
+          </Link>
         </div>
       </div>
 
       {/* ── DESKTOP layout (lg+): three cards in a horizontal row ── */}
       <div className="hidden lg:flex absolute inset-0 items-stretch justify-between gap-8 z-20 pointer-events-none">
-        {/* Left: students count */}
+        {/* Left: two-card column (students count + ESG) */}
         <div
-          className={`flex flex-col items-center justify-center p-8 flex-shrink-0 transition-all duration-700 ease-out ${
+          className={`flex flex-col gap-2 flex-shrink-0 pointer-events-auto transition-all duration-700 ease-out ${
             started ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'
           }`}
-          style={{
-            background: BLUE_GRADIENT,
-            boxShadow: BLUE_SHADOW,
-            width: 300,
-          }}
+          style={{ width: 300 }}
         >
-          <p className="text-white font-bold text-center text-2xl xl:text-3xl leading-snug select-none">
-            Somamos&nbsp;<span className="font-extrabold">{formatted}</span>
-            <br />estudantes impactados!
-          </p>
+          <div
+            className="flex-1 flex flex-col items-center justify-center p-8 transition-opacity duration-200 hover:opacity-80"
+            style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW }}
+          >
+            <p className="text-white font-bold text-center text-2xl xl:text-3xl leading-snug select-none">
+              Somamos&nbsp;<span className="font-extrabold">{formatted}</span>
+              <br />estudantes impactados!
+            </p>
+          </div>
+          <Link
+            href="/sobre"
+            className="group flex-1 flex items-center justify-center p-8 pointer-events-auto transition-opacity duration-200 hover:opacity-80"
+            style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW }}
+          >
+            <p className="text-white font-bold text-center text-base xl:text-lg leading-snug select-none group-hover:underline">
+              A Formwerk adota práticas alinhadas aos princípios ESG.
+            </p>
+          </Link>
         </div>
 
         {/* Center: mission */}
@@ -386,7 +408,7 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
           style={{ transitionDelay: '200ms' }}
         >
           <p
-            className="text-center font-extrabold text-white text-xl xl:text-2xl leading-snug select-none p-8"
+            className="text-center font-extrabold text-white text-xl xl:text-2xl leading-snug select-none p-8 pointer-events-auto transition-opacity duration-200 hover:opacity-80"
             style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW, maxWidth: 420 }}
           >
             Transformamos o aprendizado teórico em experiência prática e interativa para
