@@ -19,7 +19,7 @@ export default function QuemSomos() {
                 FormWerk
               </h1>
               <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
-                Educação em Três Dimensões
+                Educação em Três Dimensões 
               </h2>
               <div
                 id="hero-text"
