@@ -92,6 +92,17 @@ input[type="color"].color-picker-input::-moz-color-swatch {
   white-space: nowrap;
 }
 
+/* Plane flyover */
+@keyframes plane-flyover {
+  from { transform: translateX(110vw) translateY(-50%); }
+  to   { transform: translateX(-110%) translateY(-50%); }
+}
+
+.plane-flyover {
+  animation: plane-flyover 12s linear infinite;
+  will-change: transform;
+}
+
 /* Clients marquee */
 @keyframes clients-marquee {
   from {

@@ -131,6 +131,27 @@ export default function Home() {
         {/* Estudantes Impactados */}
         <AnimatedStudents count={1250} />
 
+        {/* Plane flyover */}
+        <section className="relative overflow-hidden h-[80px] bg-white">
+          <div className="plane-flyover absolute top-1/2 left-0 flex items-center whitespace-nowrap">
+            <Image
+              src="/images/assets/aviao.gif"
+              alt=""
+              width={160}
+              height={80}
+              unoptimized
+              className="h-10 w-auto flex-shrink-0"
+            />
+            <span className="h-px w-8 bg-gray-400 flex-shrink-0" />
+            <div
+              className="text-white font-extrabold text-xs sm:text-sm tracking-wide px-4 py-1.5 rounded-sm shadow-sm flex-shrink-0"
+              style={{ backgroundColor: '#0D6AA7' }}
+            >
+              APRENDER PODE SER PRÁTICO, DIVERTIDO E INTERATIVO
+            </div>
+          </div>
+        </section>
+
         {/* Top Selling Products Section */}
         {isLoadingProducts && (
           <section className="py-12 px-4 bg-white">
