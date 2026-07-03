@@ -12,8 +12,8 @@ const clientsBase = [
   { name: 'APAS', src: '/images/clients/APAS.png', href: 'https://www.instagram.com/apas.lages/' },
   { name: 'APAE', src: '/images/clients/APAE.png', href: 'https://www.apaelages.org.br/'},
 ];
-// Repetir 20x garante preenchimento em ultrawide (40 itens, duplicados no JSX = 80)
-const clients = Array(20).fill(clientsBase).flat();
+// Repetir 6x garante preenchimento em ultrawide (36 itens, duplicados no JSX = 72)
+const clients = Array(6).fill(clientsBase).flat();
 
 export default function ClientsSection() {
   return (

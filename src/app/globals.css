@@ -99,8 +99,9 @@ input[type="color"].color-picker-input::-moz-color-swatch {
 }
 
 .plane-flyover {
-  animation: plane-flyover 12s linear infinite;
+  animation: plane-flyover 26s linear infinite;
   will-change: transform;
+  backface-visibility: hidden;
 }
 
 /* Clients marquee */
@@ -117,6 +118,8 @@ input[type="color"].color-picker-input::-moz-color-swatch {
   display: flex;
   width: max-content;
   animation: clients-marquee 100s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 /* Fade edges so items feel like they come from outside the screen */

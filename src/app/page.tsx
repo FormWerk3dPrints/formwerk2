@@ -144,7 +144,7 @@ export default function Home() {
             />
             <span className="h-px w-8 bg-gray-400 flex-shrink-0" />
             <div
-              className="text-white font-extrabold text-xs sm:text-sm tracking-wide px-4 py-1.5 rounded-sm shadow-sm flex-shrink-0"
+              className="text-white font-extrabold text-sm sm:text-base tracking-wide px-4 py-1.5 rounded-sm shadow-sm flex-shrink-0"
               style={{ backgroundColor: '#0D6AA7' }}
             >
               APRENDER PODE SER PRÁTICO, DIVERTIDO E INTERATIVO
