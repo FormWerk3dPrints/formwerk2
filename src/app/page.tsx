@@ -31,11 +31,50 @@ interface Category {
   color: string;
 }
 
+function TestimonialCard({
+  imageUrl,
+  initials,
+  name,
+  role,
+  quote,
+  expanded,
+}: {
+  imageUrl?: string;
+  initials?: string;
+  name: string;
+  role: string;
+  quote: string;
+  expanded: boolean;
+}) {
+  return (
+    <div className="p-5 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white border border-gray-100 flex flex-col items-center">
+      {imageUrl ? (
+        <div className="w-16 h-16 rounded-full mb-3 flex-shrink-0 border-4 border-blue-100 overflow-hidden relative">
+          <Image src={imageUrl} alt={name} fill className="object-cover" />
+        </div>
+      ) : (
+        <div
+          className="w-16 h-16 rounded-full mb-3 flex items-center justify-center text-white text-xl font-bold flex-shrink-0 border-4 border-blue-100"
+          style={{ backgroundColor: '#0d6aa7' }}
+        >
+          {initials}
+        </div>
+      )}
+      <h3 className="text-base font-semibold text-gray-800">{name}</h3>
+      <p className="text-xs font-medium mb-3" style={{ color: '#0D6AA7' }}>{role}</p>
+      <p className={`text-gray-600 text-sm leading-relaxed whitespace-pre-line ${expanded ? '' : 'line-clamp-4'}`}>
+        &ldquo;{quote}&rdquo;
+      </p>
+    </div>
+  );
+}
+
 export default function Home() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [salesCount, setSalesCount] = useState<number | null>(null);
   const [animationStarted, setAnimationStarted] = useState(false);
+  const [testimonialsExpanded, setTestimonialsExpanded] = useState(false);
   const salesSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -358,63 +397,54 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Depoimentos de Educadores
+        {/* Depoimentos de Educadores */}
         <section className="py-16 px-4 bg-white">
           <div className="container mx-auto max-w-4xl">
             <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
               O que educadores dizem sobre a FormWerk
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <TestimonialCard
+                imageUrl="/images/educadores/Claiane.jpeg"
+                name="Claiane Pereira"
+                role="Supervisora de Inclusão, Acolhimento e Bibliotecas da Escola SESI de Referência."
+                quote="Utilizei os materiais pedagógicos em minhas avaliações diagnósticas com estudantes atípicos. Os materiais são muitos bons, com cores vivas, atraentes, confecção durável, pensados com detalhes em texturas que causam conforto tátil. Vi que os estudantes se conectaram mais com às propostas, resultado do conjunto de qualidades das peças. Fiquei muito satisfeita com a aquisição feita pela Escola SESI e já estamos tramitando os próximos projetos em parceria, que preciso registra, tendem a trazer mais benefícios às nossas práticas pedagógicas."
+                expanded={testimonialsExpanded}
+              />
 
-              {/* Depoimento 1 *}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong border border-gray-100 flex flex-col items-center">
-                <div
-                  className="w-20 h-20 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 border-4 border-blue-100"
-                  style={{ backgroundColor: '#0d6aa7' }}
-                >
-                  MS
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800">Maria Silva</h3>
-                <p className="text-sm font-medium mb-4" style={{ color: '#0D6AA7' }}>Professora de Educação Infantil</p>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  &ldquo;Os materiais da FormWerk transformaram minhas aulas! As crianças ficam muito mais engajadas com os recursos táteis e coloridos.&rdquo;
-                </p>
-              </div>
+              <TestimonialCard
+                initials="GLSA"
+                name="Glaucia Laurentino Sousa de Araujo"
+                role="Psicopedagoga"
+                quote={`Utilizei os blocos geométricos durante as avaliações diagnósticas com estudantes com Transtorno do Espectro Autista  e Deficiência Intelectual, obtendo resultados muito positivos. O material favoreceu o reconhecimento de cores e formas, a coordenação motora fina, a atenção, a concentração e o raciocínio lógico.
+As diferentes texturas proporcionaram conforto tátil e maior engajamento nas atividades, enquanto o sistema de encaixe estimulou a coordenação, a paciência e a resolução de problemas. Nas propostas em duplas, foi possível trabalhar a troca de turnos, a cooperação e a interação social. Trata-se de um material atrativo, resistente e inclusivo, que contribui significativamente para o processo de aprendizagem.
+Fiquei muito satisfeita com a aquisição realizada pela Escola SESI. Já estamos planejando novas parcerias e projetos, que certamente contribuirão para fortalecer nossas práticas pedagógicas e ampliar as possibilidades de aprendizagem dos nossos estudantes.`}
+                expanded={testimonialsExpanded}
+              />
 
-              {/* Depoimento 2 *}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong border border-gray-100 flex flex-col items-center">
-                <div
-                  className="w-20 h-20 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 border-4 border-blue-100"
-                  style={{ backgroundColor: '#0d6aa7' }}
-                >
-                  JP
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800">João Pereira</h3>
-                <p className="text-sm font-medium mb-4" style={{ color: '#0D6AA7' }}>Coordenador Pedagógico</p>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  &ldquo;A qualidade dos produtos supera qualquer expectativa. Durabilidade excelente e a personalização com o logo da nossa escola foi perfeita.&rdquo;
-                </p>
-              </div>
-
-              {/* Depoimento 3 *}
-              <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong border border-gray-100 flex flex-col items-center">
-                <div
-                  className="w-20 h-20 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 border-4 border-blue-100"
-                  style={{ backgroundColor: '#0d6aa7' }}
-                >
-                  AC
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800">Ana Costa</h3>
-                <p className="text-sm font-medium mb-4" style={{ color: '#0D6AA7' }}>Terapeuta Ocupacional</p>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  &ldquo;Uso os kits da FormWerk nas minhas sessões de terapia. A segurança do material PLA e a variedade de cores fazem toda a diferença para meus pacientes.&rdquo;
-                </p>
-              </div>
-
+              <TestimonialCard
+                initials="LM"
+                name="Luciana Monteiro"
+                role="Professora 5° ano 1"
+                quote={`Utilizei o material de ângulos. Foi um recurso pedagógico de grande importância durante as aulas. Por ser concreto, resistente e de fácil manuseio, possibilitou que os estudantes visualizassem e compreendessem melhor os conceitos relacionados aos ângulos, tornando a aprendizagem mais significativa e dinâmica.
+A utilização desse material despertou o interesse e a participação da turma, facilitando a identificação, comparação e medição dos diferentes tipos de ângulos. Além disso, contribuiu para que os alunos desenvolvessem o raciocínio geométrico de forma prática e interativa.
+Foi um recurso que enriqueceu as aulas de Matemática e auxiliou significativamente no processo de ensino e aprendizagem, favorecendo a compreensão dos conteúdos e proporcionando maior envolvimento dos estudantes.`}
+                expanded={testimonialsExpanded}
+              />
+            </div>
+            <div className="text-center mt-8">
+              <button
+                type="button"
+                onClick={() => setTestimonialsExpanded((prev) => !prev)}
+                className="inline-block font-semibold py-2 px-6 rounded-lg border-2 hover:opacity-90 transition-opacity"
+                style={{ color: '#0D6AA7', borderColor: '#0D6AA7' }}
+              >
+                {testimonialsExpanded ? 'Ler menos' : 'Ler mais'}
+              </button>
             </div>
           </div>
         </section>
-        {*/}
+        
 
         {/* CTA Section */}
         <section className="relative overflow-hidden py-16 px-4 bg-white">
