@@ -369,10 +369,10 @@ export default function Home() {
                   ♻
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-800">
-                  Impressão 3D de Qualidade 
+                  Ecológico e Sustentável 
                 </h3>
                 <p className="text-gray-600">
-                  Utilizamos filamentos PLA, um material plástico à base de vegetais,
+                  Utilizamos plástico PLA, um material à base de vegetais,
                   atóxico e biodegradável, garantindo segurança e sustentabilidade!
                 </p>
               </div>
