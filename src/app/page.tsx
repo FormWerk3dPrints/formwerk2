@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { Recycle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
@@ -325,7 +326,7 @@ export default function Home() {
         )}/*}
 
         {/* Clientes Section */}
-        <ClientsSection />
+        {<ClientsSection />}
 
         {/* Diferenciais Section */}
         <section className="relative overflow-hidden py-16 px-4 bg-gradient-to-r from-blue-50 to-blue-100">
@@ -363,10 +364,10 @@ export default function Home() {
               {/* Card 2 */}
               <div className="p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white card-hover-expand-strong">
                 <div
-                  className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold"
+                  className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white"
                   style={{ backgroundColor: '#0d6aa7' }}
                 >
-                  ♻
+                  <Recycle className="w-8 h-8" strokeWidth={2.5} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-800">
                   Ecológico e Sustentável 
