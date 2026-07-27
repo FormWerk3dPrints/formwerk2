@@ -418,65 +418,72 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
 
         {/* Right: kits carousel */}
         <div
-          className={`flex flex-col overflow-hidden flex-shrink-0 pointer-events-auto transition-all duration-700 ease-out ${
+          className={`relative h-full flex-shrink-0 transition-all duration-700 ease-out ${
             started ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'
           }`}
-          style={{
-            background: BLUE_GRADIENT,
-            boxShadow: BLUE_SHADOW,
-            width: 300,
-            transitionDelay: '120ms',
-          }}
+          style={{ width: 300, transitionDelay: '120ms' }}
         >
-          <div className="flex flex-col h-full p-5 text-white select-none">
-            <span className="text-sm font-bold opacity-80 mb-2 tracking-wide uppercase flex-shrink-0">
-              Conheça nossos Kits:
-            </span>
+          <div
+            className="flex flex-col h-full overflow-hidden pointer-events-auto"
+            style={{ background: BLUE_GRADIENT, boxShadow: BLUE_SHADOW }}
+          >
+            <div className="flex flex-col h-full p-5 text-white select-none">
+              <span className="text-sm font-bold opacity-80 mb-2 tracking-wide uppercase flex-shrink-0">
+                Conheça nossos Kits:
+              </span>
 
-            <div className="relative flex-1 overflow-hidden rounded mb-3">
-              {kits.map((kit, i) => (
-                <div
-                  key={kit.id}
-                  className="absolute inset-0 transition-opacity duration-700"
-                  style={{ opacity: i === activeKit ? 1 : 0 }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={kit.imageUrl}
-                    alt={kit.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <span
-              className="text-base font-bold leading-tight mb-2 flex-shrink-0 truncate"
-              style={{ minHeight: '1.5rem' }}
-            >
-              {kits[activeKit]?.name ?? ''}
-            </span>
-
-            <div className="flex gap-1.5 mb-3 flex-shrink-0" style={{ minHeight: 12 }}>
-              {kits.length > 1 &&
-                kits.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveKit(i)}
-                    className="w-2 h-2 rounded-full pointer-events-auto transition-opacity"
-                    style={{ backgroundColor: 'white', opacity: i === activeKit ? 1 : 0.35 }}
-                  />
+              <div className="relative flex-1 overflow-hidden rounded mb-3">
+                {kits.map((kit, i) => (
+                  <div
+                    key={kit.id}
+                    className="absolute inset-0 transition-opacity duration-700"
+                    style={{ opacity: i === activeKit ? 1 : 0 }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={kit.imageUrl}
+                      alt={kit.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
                 ))}
-            </div>
+              </div>
 
-            <Link
-              href="/kits"
-              className="pointer-events-auto text-center bg-white font-extrabold rounded-lg py-2.5 px-6 text-base transition-transform duration-200 hover:scale-105 flex-shrink-0"
-              style={{ color: '#0D6AA7' }}
-            >
-              Ver Kits →
-            </Link>
+              <span
+                className="text-base font-bold leading-tight mb-2 flex-shrink-0 truncate"
+                style={{ minHeight: '1.5rem' }}
+              >
+                {kits[activeKit]?.name ?? ''}
+              </span>
+
+              <div className="flex gap-1.5 mb-3 flex-shrink-0" style={{ minHeight: 12 }}>
+                {kits.length > 1 &&
+                  kits.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveKit(i)}
+                      className="w-2 h-2 rounded-full pointer-events-auto transition-opacity"
+                      style={{ backgroundColor: 'white', opacity: i === activeKit ? 1 : 0.35 }}
+                    />
+                  ))}
+              </div>
+
+              <Link
+                href="/kits"
+                className="pointer-events-auto text-center bg-white font-extrabold rounded-lg py-2.5 px-6 text-base transition-transform duration-200 hover:scale-105 flex-shrink-0"
+                style={{ color: '#0D6AA7' }}
+              >
+                Ver Kits →
+              </Link>
+            </div>
           </div>
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/assets/apontando.png"
+            alt=""
+            className="pointer-events-none select-none absolute -bottom-2 -left-22 w-28 z-30 drop-shadow-xl"
+          />
         </div>
       </div>
     </section>

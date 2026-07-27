@@ -12,6 +12,39 @@
   .card-hover-expand-strong {
     @apply transition-transform duration-200 ease-out hover:scale-[1.15] motion-reduce:transition-none motion-reduce:hover:scale-100;
   }
+
+  /* Design system components — formalizes the CTA/card patterns already
+     repeated by hand across pages (see design-system.md).
+     Note: hover-scale utilities are inlined rather than @apply'd from
+     .btn-hover-expand/.card-hover-expand — Tailwind v4's @apply only
+     resolves engine utilities, not other @layer components classes. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-8 py-3 font-semibold text-white transition-[opacity,transform] duration-200 ease-out hover:opacity-90 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border-2 border-brand bg-transparent px-8 py-3 font-semibold text-brand transition-[background-color,transform] duration-200 ease-out hover:bg-brand-50 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-8 py-3 font-semibold text-gray-900 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-200 hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100;
+  }
+
+  .card {
+    @apply rounded-lg bg-white p-6 shadow-lg transition-[box-shadow,transform] duration-200 ease-out hover:shadow-xl hover:scale-[1.02] motion-reduce:transition-none motion-reduce:hover:scale-100;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center rounded-full bg-success-50 px-2.5 py-0.5 text-xs font-medium text-success-700;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center rounded-full bg-warning-50 px-2.5 py-0.5 text-xs font-medium text-warning-700;
+  }
+
+  .badge-error {
+    @apply inline-flex items-center rounded-full bg-error-50 px-2.5 py-0.5 text-xs font-medium text-error-700;
+  }
 }
 
 :root {
@@ -24,6 +57,39 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand — canonical token for the site's primary blue (#0D6AA7),
+     which today is duplicated as an inline style in ~16 files.
+     Use bg-brand / text-brand / border-brand-* going forward. */
+  --color-brand-50: #f1f9fe;
+  --color-brand-100: #def0fc;
+  --color-brand-200: #b4ddf9;
+  --color-brand-300: #7bc4f4;
+  --color-brand-400: #39a6ef;
+  --color-brand-500: #1289d9;
+  --color-brand-600: #0d6aa7;
+  --color-brand-700: #0b5484;
+  --color-brand-800: #084268;
+  --color-brand-900: #073350;
+  --color-brand-950: #042134;
+  --color-brand: var(--color-brand-600);
+
+  /* Semantic feedback colors — formalizes the ad-hoc green/amber/red
+     usage found across admin and form states. */
+  --color-success-50: #ecfdf5;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  --color-error-50: #fef2f2;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -51,7 +117,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-geologica), "Helvetica Bold", "Helvetica", "Helvetica Neue", Arial, sans-serif;
   font-optical-sizing: auto;
-  font-weight: 100;
+  /* 400, not 100: Geologica now loads as a variable font (full 100-900
+     range) instead of the fixed weight 700 it used to be capped at, so
+     font-bold/font-semibold utilities render as intended everywhere. */
+  font-weight: 400;
   font-style: normal;
   font-variation-settings:
     "slnt" 0,

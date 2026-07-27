@@ -8,7 +8,6 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 const geologica = Geologica({
   variable: "--font-geologica",
   subsets: ["latin"],
-  weight: ["700"],
 });
 
 const geistSans = Geist({
