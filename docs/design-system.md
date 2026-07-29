@@ -42,22 +42,16 @@ Formaliza o uso disperso de green/amber/red em estados de formulário/admin:
 
 ## Tipografia
 
-**Correção aplicada:** `Geologica` era carregada em `layout.tsx` só com `weight: ["700"]`, mas `globals.css` definia `font-weight: 100` no `body` — uma contradição (a variação 100 nunca foi carregada, então o navegador tinha que sintetizar ou cair para uma fonte substituta). Geologica é uma fonte variável (suporta 100–900 + eixos `slnt`/`CRSV`/`SHRP`, já referenciados no CSS), então:
+**Correção aplicada:** `Geologica` era carregada em `layout.tsx` só com `weight: ["700"]`, mas `globals.css` definia `font-weight: 100` no `body` — uma contradição (a variação 100 nunca foi carregada, então o navegador tinha que sintetizar ou cair para uma fonte substituta). Geologica é uma fonte variável (suporta 100–900 + eixos `slnt`/`CRSV`/`SHRP`), então:
 
 - `layout.tsx`: `Geologica({ variable: "--font-geologica", subsets: ["latin"] })` — sem `weight` fixo, carrega o range variável completo.
-- `globals.css`: `font-weight: 400` no `body` (era `100`).
 
-Isso não muda a aparência de nenhum componente que já sobrescrevia o peso (quase todos — `font-medium`/`font-semibold`/`font-bold` continuam funcionando como antes), só corrige a base.
+### Uma família só: Geologica
 
-### Hierarquia observada (mantida, não um token novo)
+O site usa **Geologica em tudo** — hero, H1, H2, card title, corpo e UI. Já é a fonte padrão do `body` (`globals.css`), então nenhum elemento precisa de classe extra para herdá-la.
 
-| Papel | Classes |
-|---|---|
-| H1 hero | `text-4xl` a `text-6xl font-bold` |
-| H2 de seção | `text-3xl font-bold` |
-| H3 / card title | `text-xl` / `text-2xl font-semibold` |
-| Corpo | tamanho herdado (`text-base`), `text-gray-600`/`text-gray-700` |
-| Legenda / metadado | `text-sm` ou `text-xs`, `text-gray-400`/`text-gray-500` |
+- **Poppins e BBB Poppins TN foram avaliadas como fonte secundária e descartadas** (não aprovadas para uso) — não usar nenhuma das duas em nenhum lugar do site ou do design system.
+- A classe `font-display` que existiu brevemente (para separar headings de corpo) foi removida — era redundante com uma família só.
 
 `text-sm` é o tamanho mais usado no site inteiro (UI densa de cards/forms) — não é um erro, é o padrão de fato.
 

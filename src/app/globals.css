@@ -90,6 +90,23 @@
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
   --color-error-700: #b91c1c;
+
+  /* Catalog category colors — defaults from the FormWerk brand guide.
+     Actual per-category colors are admin-editable (Firestore), so these
+     are reference/fallback values, not the source of truth at runtime. */
+  --color-cat-matematica: #116ca8;
+  --color-cat-linguas: #e3423a;
+  --color-cat-natureza: #409337;
+  --color-cat-humanas: #f6b22b;
+  --color-cat-diversos: #8c52ff;
+  --color-cat-adaptados: #808080;
+
+  /* Logo mark palette (brand identity, not UI tokens for text/backgrounds). */
+  --color-logo-red: #ec373f;
+  --color-logo-green: #418b3b;
+  --color-logo-yellow: #fbbc3c;
+  --color-logo-blue: #0d6aa7;
+  --color-logo-ink: #1d303a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -117,15 +134,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-geologica), "Helvetica Bold", "Helvetica", "Helvetica Neue", Arial, sans-serif;
   font-optical-sizing: auto;
-  /* 400, not 100: Geologica now loads as a variable font (full 100-900
-     range) instead of the fixed weight 700 it used to be capped at, so
-     font-bold/font-semibold utilities render as intended everywhere. */
   font-weight: 400;
   font-style: normal;
-  font-variation-settings:
-    "slnt" 0,
-    "CRSV" 0,
-    "SHRP" 0;
   margin: 0;
   overflow-x: hidden;
 }
