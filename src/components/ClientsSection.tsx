@@ -11,7 +11,7 @@ const clientsBase = [
   { name: 'SESI', src: '/images/clients/sesiescola.png', href: 'https://www.escolasesisc.com.br/' },
   { name: 'APAS', src: '/images/clients/APAS.png', href: 'https://www.instagram.com/apas.lages/' },
   { name: 'APAE', src: '/images/clients/APAE.png', href: 'https://www.apaelages.org.br/'},
-  { name: 'CISAMURES', src: '/images/clients/CISAMURES.jpeg', href: 'https://cisamures.sc.gov.br'},
+  { name: 'CISAMURES', src: '/images/clients/cisamures.jpeg', href: 'https://cisamures.sc.gov.br'},
 ];
 // Repetir 6x garante preenchimento em ultrawide (36 itens, duplicados no JSX = 72)
 const clients = Array(6).fill(clientsBase).flat();
