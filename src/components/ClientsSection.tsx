@@ -7,10 +7,11 @@ const clientsBase = [
   { name: 'Colégio Rosário Lages', src: '/images/clients/rosario_lages.jpg', href: 'https://www.instagram.com/e.e.bnossasradorosario/' },
   { name: 'Colégio Industrial Lages', src: '/images/clients/industrial_lages.jpg', href: 'http://cedupindustrialdelages.com.br/' },
   //{ name: 'Instituto Autismo Lages', src: '/images/clients/autismo_lages.jpg', href: 'https://www.instagram.com/institutoautismolagesoficial/' },
-  { name: 'Colégio Sigma Lages', src: '/images/clients/sigma_lages2.jpg', href: 'https://temnaweb.com.br/' },
+  { name: 'Colégio Sigma Lages', src: '/images/clients/SIGMA.jpeg', href: 'https://temnaweb.com.br/' },
   { name: 'SESI', src: '/images/clients/sesiescola.png', href: 'https://www.escolasesisc.com.br/' },
   { name: 'APAS', src: '/images/clients/APAS.png', href: 'https://www.instagram.com/apas.lages/' },
   { name: 'APAE', src: '/images/clients/APAE.png', href: 'https://www.apaelages.org.br/'},
+  { name: 'CISAMURES', src: '/images/clients/CISAMURES.jpeg', href: 'https://cisamures.sc.gov.br'},
 ];
 // Repetir 6x garante preenchimento em ultrawide (36 itens, duplicados no JSX = 72)
 const clients = Array(6).fill(clientsBase).flat();
