@@ -58,6 +58,22 @@ export type Kit = {
   updatedAt?: Timestamp;
 };
 
+export type WallPanel = {
+  id: string; // slug
+  slug: string;
+  name: string;
+  priceCents: number;
+  currency: string;
+  /** Módulo — dimensões reais em mm, usadas para escalar proporcionalmente no /paineis. */
+  widthMm: number;
+  heightMm: number;
+  imageUrls: string[];
+  mainImageUrl?: string;
+  active: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
 export function formatTimestamp(ts?: Timestamp): string {
   if (!ts) return '';
   try {
@@ -74,7 +90,7 @@ export function logAndAlertError(prefix: string, error: unknown) {
 }
 
 export async function findAvailableDocId(
-  collectionName: 'products' | 'categories' | 'kits',
+  collectionName: 'products' | 'categories' | 'kits' | 'wall-panels',
   baseId: string
 ): Promise<string> {
   const sanitized = baseId || 'item';
@@ -182,6 +198,39 @@ export async function uploadProductImages(slug: string, files: File[]): Promise<
     const index = startIndex + i;
     const fileName = `${slug}-${toPaddedIndex(index)}${ext ? `.${ext}` : ''}`;
     const objectRef = storageRef(firebaseStorage, `products/${slug}/${fileName}`);
+    await uploadBytes(objectRef, file);
+    const url = await getDownloadURL(objectRef);
+    uploadedUrls.push(url);
+  }
+
+  return uploadedUrls;
+}
+
+export async function uploadWallPanelImages(slug: string, files: File[]): Promise<string[]> {
+  if (!files.length) return [];
+
+  const folder = storageRef(firebaseStorage, `wall-panels/${slug}`);
+  let startIndex = 1;
+  try {
+    const listed = await listAll(folder);
+    let maxIndex = 0;
+    for (const item of listed.items) {
+      const match = item.name.match(/-(\d+)\.[a-z0-9]+$/i);
+      if (!match) continue;
+      const parsed = Number(match[1]);
+      if (Number.isFinite(parsed) && parsed > maxIndex) maxIndex = parsed;
+    }
+    startIndex = maxIndex + 1;
+  } catch {
+    startIndex = 1;
+  }
+
+  const uploadedUrls: string[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const ext = fileExtensionFromName(file.name);
+    const fileName = `${slug}-${toPaddedIndex(startIndex + i)}${ext ? `.${ext}` : ''}`;
+    const objectRef = storageRef(firebaseStorage, `wall-panels/${slug}/${fileName}`);
     await uploadBytes(objectRef, file);
     const url = await getDownloadURL(objectRef);
     uploadedUrls.push(url);
