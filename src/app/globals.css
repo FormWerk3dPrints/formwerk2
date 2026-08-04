@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@layer base {
+  /* Deterrente fraco contra cópia casual — não afeta inputs/textareas/contenteditable. */
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
 @layer components {
   .btn-hover-expand {
     @apply transition-transform duration-200 ease-out hover:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100;

@@ -4,6 +4,7 @@ import "./globals.css";
 import ScrollContext from "@/components/ScrollContext";
 import SiteLayoutWrapper from "@/components/SiteLayoutWrapper";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import InspectGuard from "@/components/InspectGuard";
 
 const geologica = Geologica({
   variable: "--font-geologica",
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body
         className={`${geologica.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
         <GoogleAnalytics />
+        <InspectGuard />
         <ScrollContext>
           <SiteLayoutWrapper>{children}</SiteLayoutWrapper>
         </ScrollContext>
