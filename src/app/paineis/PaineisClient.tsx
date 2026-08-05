@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import Image from 'next/image';
 import { onAuthStateChanged } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
@@ -28,6 +29,8 @@ const PANEL_MIN_HEIGHT_MM = 300;
 /** Limites de exibição — o quadro sempre encolhe pra caber dentro disso, qualquer que seja a proporção. */
 const PANEL_DISPLAY_MAX_WIDTH_PX = 672; // igual ao antigo max-w-2xl
 const PANEL_DISPLAY_MAX_HEIGHT_VH = 55;
+/** Espessura da borda tracejada (border-4). Fica FORA da área útil (content-box). */
+const PANEL_BORDER_PX = 4;
 
 function formatPrice(cents: number, currency: string): string {
   return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: currency || 'BRL' });
@@ -41,8 +44,27 @@ function clamp(value: number, min: number, max: number): number {
 export default function PaineisClient({ modules: initialModules }: { modules: WallPanelModule[] }) {
   const [modules, setModules] = useState<WallPanelModule[]>(initialModules);
   const [attachedIds, setAttachedIds] = useState<string[]>([]);
-  const [panelWidthMm, setPanelWidthMm] = useState(PANEL_MAX_WIDTH_MM);
-  const [panelHeightMm, setPanelHeightMm] = useState(PANEL_MAX_HEIGHT_MM);
+  // O input guarda exatamente o que foi digitado — inclusive valores inválidos,
+  // que ficam em vermelho. O desenho nunca usa esses valores crus.
+  const [panelWidthInput, setPanelWidthInput] = useState(String(PANEL_MAX_WIDTH_MM));
+  const [panelHeightInput, setPanelHeightInput] = useState(String(PANEL_MAX_HEIGHT_MM));
+
+  const rawWidthMm = Number(panelWidthInput);
+  const rawHeightMm = Number(panelHeightInput);
+
+  /* Dimensões efetivas do desenho: sempre dentro dos limites físicos do painel.
+     O excedente é simplesmente ignorado (300 vira o piso, 2850/1830 o teto).
+     O retângulo e TODOS os módulos derivam destes mesmos dois números, então a
+     proporção continua fiel — clampar não distorce nada, só limita. */
+  const displayWidthMm = clamp(rawWidthMm, PANEL_MIN_WIDTH_MM, PANEL_MAX_WIDTH_MM);
+  const displayHeightMm = clamp(rawHeightMm, PANEL_MIN_HEIGHT_MM, PANEL_MAX_HEIGHT_MM);
+
+  // Vermelho só quando há um número de fato fora da faixa — campo vazio é
+  // "em edição", não erro.
+  const widthInvalid =
+    panelWidthInput.trim() !== '' && Number.isFinite(rawWidthMm) && rawWidthMm !== displayWidthMm;
+  const heightInvalid =
+    panelHeightInput.trim() !== '' && Number.isFinite(rawHeightMm) && rawHeightMm !== displayHeightMm;
 
   useEffect(() => {
     const unsub = onAuthStateChanged(firebaseAuth, async (user) => {
@@ -72,6 +94,73 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
     [attachedIds, modules]
   );
 
+  // Medidos em JS (em vez de só CSS) para poder derivar uma escala px/mm única
+  // e exata — é ela que garante que nenhum módulo saia distorcido.
+  const panelWrapperRef = useRef<HTMLDivElement>(null);
+  const [containerWidthPx, setContainerWidthPx] = useState(0);
+  const [viewportHeightPx, setViewportHeightPx] = useState(0);
+
+  useEffect(() => {
+    function updateViewportHeight() {
+      setViewportHeightPx(window.innerHeight);
+    }
+    updateViewportHeight();
+    window.addEventListener('resize', updateViewportHeight);
+    return () => window.removeEventListener('resize', updateViewportHeight);
+  }, []);
+
+  useEffect(() => {
+    const el = panelWrapperRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setContainerWidthPx(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const panelRatio = displayWidthMm / displayHeightMm;
+  const hasMeasurements = containerWidthPx > 0 && viewportHeightPx > 0;
+
+  let panelStyle: CSSProperties;
+  let panelWidthPx = 0;
+  let panelHeightPx = 0;
+  if (hasMeasurements) {
+    // Desconta a borda: panelWidthPx/panelHeightPx são a ÁREA ÚTIL (content-box),
+    // então a escala px/mm vale exatamente onde os módulos são desenhados.
+    const availWidth = Math.min(containerWidthPx, PANEL_DISPLAY_MAX_WIDTH_PX) - 2 * PANEL_BORDER_PX;
+    const availHeight =
+      (viewportHeightPx * PANEL_DISPLAY_MAX_HEIGHT_VH) / 100 - 2 * PANEL_BORDER_PX;
+    // Encaixa o maior retângulo possível dentro de (availWidth x availHeight)
+    // mantendo panelRatio exato — sem piso por eixo, que quebraria a proporção.
+    let w = availWidth;
+    let h = w / panelRatio;
+    if (h > availHeight) {
+      h = availHeight;
+      w = h * panelRatio;
+    }
+    panelWidthPx = w;
+    panelHeightPx = h;
+    panelStyle = {
+      boxSizing: 'content-box',
+      width: `${panelWidthPx}px`,
+      height: `${panelHeightPx}px`,
+    };
+  } else {
+    // Antes da primeira medição (primeiro paint) — mesma fórmula de antes,
+    // sem o piso (evita flash de tamanho errado; a medição chega em seguida).
+    panelStyle = {
+      aspectRatio: `${displayWidthMm} / ${displayHeightMm}`,
+      width: `min(100%, ${PANEL_DISPLAY_MAX_WIDTH_PX}px, calc(${PANEL_DISPLAY_MAX_HEIGHT_VH}vh * ${displayWidthMm} / ${displayHeightMm}))`,
+    };
+  }
+
+  // Escala uniforme px por mm — a MESMA nos dois eixos, já que o quadro mantém
+  // panelRatio exato. É o que garante que um módulo de 400x400mm apareça
+  // quadrado e que 2 módulos de 600mm ocupem exatamente meio painel de 1200mm.
+  const moduleScale = hasMeasurements ? panelWidthPx / displayWidthMm : null;
+
   const totalCents = attachedModules.reduce((sum, m) => sum + (m.priceCents ?? 0), 0);
   const hasPrice = attachedModules.some((m) => typeof m.priceCents === 'number');
   const totalCurrency = attachedModules.find((m) => m.currency)?.currency ?? 'BRL';
@@ -89,89 +178,101 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
         <div className="mx-auto mb-6 max-w-2xl grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Largura do painel (mm, máx. {PANEL_MAX_WIDTH_MM})
+              Largura do painel (mm, {PANEL_MIN_WIDTH_MM}–{PANEL_MAX_WIDTH_MM})
             </label>
             <input
               type="number"
               min={PANEL_MIN_WIDTH_MM}
               max={PANEL_MAX_WIDTH_MM}
-              value={panelWidthMm}
-              onChange={(e) => {
-                const raw = e.target.value;
-                setPanelWidthMm(raw === '' ? 0 : Number(raw));
-              }}
-              onBlur={() =>
-                setPanelWidthMm((prev) => clamp(prev, PANEL_MIN_WIDTH_MM, PANEL_MAX_WIDTH_MM))
-              }
-              className="w-full border rounded-lg px-3 py-2 text-gray-900"
+              value={panelWidthInput}
+              onChange={(e) => setPanelWidthInput(e.target.value)}
+              aria-invalid={widthInvalid}
+              className={`w-full border rounded-lg px-3 py-2 ${
+                widthInvalid
+                  ? 'border-red-500 text-red-600 focus:outline-red-500'
+                  : 'border-gray-300 text-gray-900'
+              }`}
             />
+            {widthInvalid && (
+              <p className="mt-1 text-xs text-red-600">
+                Fora do limite — desenhando em {displayWidthMm} mm.
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Altura do painel (mm, máx. {PANEL_MAX_HEIGHT_MM})
+              Altura do painel (mm, {PANEL_MIN_HEIGHT_MM}–{PANEL_MAX_HEIGHT_MM})
             </label>
             <input
               type="number"
               min={PANEL_MIN_HEIGHT_MM}
               max={PANEL_MAX_HEIGHT_MM}
-              value={panelHeightMm}
-              onChange={(e) => {
-                const raw = e.target.value;
-                setPanelHeightMm(raw === '' ? 0 : Number(raw));
-              }}
-              onBlur={() =>
-                setPanelHeightMm((prev) => clamp(prev, PANEL_MIN_HEIGHT_MM, PANEL_MAX_HEIGHT_MM))
-              }
-              className="w-full border rounded-lg px-3 py-2 text-gray-900"
+              value={panelHeightInput}
+              onChange={(e) => setPanelHeightInput(e.target.value)}
+              aria-invalid={heightInvalid}
+              className={`w-full border rounded-lg px-3 py-2 ${
+                heightInvalid
+                  ? 'border-red-500 text-red-600 focus:outline-red-500'
+                  : 'border-gray-300 text-gray-900'
+              }`}
             />
+            {heightInvalid && (
+              <p className="mt-1 text-xs text-red-600">
+                Fora do limite — desenhando em {displayHeightMm} mm.
+              </p>
+            )}
           </div>
         </div>
 
         {/* Base do painel — cada módulo anexado é dimensionado proporcionalmente
-            ao tamanho real dele (widthMm/heightMm) relativo ao painel. A largura é o
-            menor entre: 100% do container, um teto em px, e o valor que faria a altura
-            bater exatamente com o teto em vh — assim o quadro sempre cabe inteiro na
-            tela, qualquer que seja a proporção largura/altura escolhida. */}
-        <div
-          className="mx-auto mb-6 rounded-xl border-4 border-dashed border-brand-200 bg-white shadow-inner overflow-hidden"
-          style={{
-            aspectRatio: `${panelWidthMm} / ${panelHeightMm}`,
-            width: `min(100%, ${PANEL_DISPLAY_MAX_WIDTH_PX}px, calc(${PANEL_DISPLAY_MAX_HEIGHT_VH}vh * ${panelWidthMm} / ${panelHeightMm}))`,
-          }}
-        >
-          {attachedModules.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-gray-400 text-center px-6">
-              Painel vazio — clique nos módulos abaixo para anexar.
-            </div>
-          ) : (
-            <div className="flex h-full w-full flex-wrap content-start gap-1 p-2 overflow-y-auto">
-              {attachedModules.map((m) => {
-                const widthPercent = clamp((m.widthMm / panelWidthMm) * 100, 0, 100);
-                const heightPercent = clamp((m.heightMm / panelHeightMm) * 100, 0, 100);
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => toggleAttach(m.id)}
-                    className="group relative overflow-hidden rounded-md bg-gray-100"
-                    style={{ width: `${widthPercent}%`, height: `${heightPercent}%` }}
-                    aria-label={`Remover ${m.name} do painel`}
-                  >
-                    <Image
-                      src={m.mainImageUrl || m.imageUrls[0] || ''}
-                      alt={m.name}
-                      fill
-                      sizes="200px"
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-opacity group-hover:bg-black/40 group-hover:opacity-100">
-                      <X className="h-5 w-5 text-white" />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+            ao tamanho real dele (widthMm/heightMm) relativo ao painel. panelStyle
+            já garante: cabe inteiro na tela (largura/altura calculadas a partir do
+            container e da viewport) e nunca fica menor que 300x300px. */}
+        <div ref={panelWrapperRef} className="mx-auto mb-6">
+          <div
+            className="mx-auto rounded-xl border-4 border-dashed border-brand-200 bg-white shadow-inner overflow-hidden"
+            style={panelStyle}
+          >
+            {attachedModules.length === 0 ? (
+              <div className="flex h-full items-center justify-center text-gray-400 text-center px-6">
+                Painel vazio — clique nos módulos abaixo para anexar.
+              </div>
+            ) : (
+              // Sem padding nem gap: qualquer folga aqui quebraria o encaixe real
+              // (ex.: dois módulos de 600mm têm que caber num painel de 1200mm).
+              <div className="flex h-full w-full flex-wrap content-start overflow-hidden">
+                {attachedModules.map((m) => {
+                  const moduleStyle: CSSProperties = moduleScale
+                    ? { width: `${m.widthMm * moduleScale}px`, height: `${m.heightMm * moduleScale}px` }
+                    : {
+                        width: `${clamp((m.widthMm / displayWidthMm) * 100, 0, 100)}%`,
+                        height: `${clamp((m.heightMm / displayHeightMm) * 100, 0, 100)}%`,
+                      };
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => toggleAttach(m.id)}
+                      className="group relative shrink-0 overflow-hidden bg-gray-100 ring-1 ring-white/60"
+                      style={moduleStyle}
+                      aria-label={`Remover ${m.name} do painel`}
+                    >
+                      <Image
+                        src={m.mainImageUrl || m.imageUrls[0] || ''}
+                        alt={m.name}
+                        fill
+                        sizes="200px"
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-opacity group-hover:bg-black/40 group-hover:opacity-100">
+                        <X className="h-5 w-5 text-white" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {attachedModules.length > 0 && (
