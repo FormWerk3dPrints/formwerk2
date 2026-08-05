@@ -5,7 +5,7 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import Image from 'next/image';
 import { onAuthStateChanged } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
-import { RotateCw, X } from 'lucide-react';
+import { Image as ImageIcon, RotateCw, X } from 'lucide-react';
 
 export interface WallPanelModule {
   id: string;
@@ -84,6 +84,21 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
   const [modules, setModules] = useState<WallPanelModule[]>(initialModules);
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+
+  /* Fundo do painel: fica só no navegador (object URL), nada sobe pro servidor.
+     `backgroundFit` deixa escolher entre preencher (pode cortar) e caber inteira. */
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
+  const [backgroundName, setBackgroundName] = useState<string | null>(null);
+  const [backgroundFit, setBackgroundFit] = useState<'cover' | 'contain'>('cover');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Guardado em ref pra poder revogar a URL antiga sem depender do render.
+  const backgroundUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (backgroundUrlRef.current) URL.revokeObjectURL(backgroundUrlRef.current);
+    };
+  }, []);
 
   // O input guarda exatamente o que foi digitado — inclusive valores inválidos,
   // que ficam em vermelho. O desenho nunca usa esses valores crus.
@@ -276,6 +291,32 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
     const t = setTimeout(() => setPlacementError(null), 4000);
     return () => clearTimeout(t);
   }, [placementError]);
+
+  const MAX_BACKGROUND_BYTES = 15 * 1024 * 1024;
+
+  function applyBackgroundFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      setPlacementError('Escolha um arquivo de imagem.');
+      return;
+    }
+    if (file.size > MAX_BACKGROUND_BYTES) {
+      setPlacementError('Imagem muito grande — use um arquivo de até 15 MB.');
+      return;
+    }
+    if (backgroundUrlRef.current) URL.revokeObjectURL(backgroundUrlRef.current);
+    const url = URL.createObjectURL(file);
+    backgroundUrlRef.current = url;
+    setBackgroundUrl(url);
+    setBackgroundName(file.name);
+  }
+
+  function clearBackground() {
+    if (backgroundUrlRef.current) URL.revokeObjectURL(backgroundUrlRef.current);
+    backgroundUrlRef.current = null;
+    setBackgroundUrl(null);
+    setBackgroundName(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
 
   function addModuleAtFreeSpot(moduleId: string) {
     const module = moduleByIdRef.current.get(moduleId);
@@ -711,6 +752,63 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
           </div>
         </div>
 
+        {/* Fundo do painel (imagem local) */}
+        <div className="mx-auto mb-4 max-w-2xl flex flex-wrap items-center gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) applyBackgroundFile(file);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <ImageIcon className="h-4 w-4" />
+            {backgroundUrl ? 'Trocar fundo' : 'Imagem de fundo'}
+          </button>
+
+          {backgroundUrl && (
+            <>
+              <span className="max-w-[12rem] truncate text-xs text-gray-500" title={backgroundName ?? ''}>
+                {backgroundName}
+              </span>
+              <div className="inline-flex overflow-hidden rounded-lg border border-gray-300 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setBackgroundFit('cover')}
+                  className={`px-2.5 py-1.5 ${
+                    backgroundFit === 'cover' ? 'bg-brand text-white' : 'bg-white text-gray-600'
+                  }`}
+                >
+                  Preencher
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBackgroundFit('contain')}
+                  className={`px-2.5 py-1.5 ${
+                    backgroundFit === 'contain' ? 'bg-brand text-white' : 'bg-white text-gray-600'
+                  }`}
+                >
+                  Caber inteira
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={clearBackground}
+                className="text-xs text-gray-500 underline hover:text-gray-700"
+              >
+                Remover fundo
+              </button>
+            </>
+          )}
+        </div>
+
         {/* Base do painel — posicionamento livre, com colisão entre módulos e
             contra a borda. panelStyle garante que o quadro cabe inteiro na tela
             e mantém a proporção real. */}
@@ -721,9 +819,29 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
             style={panelStyle}
             onPointerDown={() => setSelectedInstanceId(null)}
           >
+            {/* Fundo enviado pelo usuário — atrás de tudo, dentro do recorte. */}
+            {backgroundUrl && (
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={backgroundUrl}
+                  alt=""
+                  className="h-full w-full"
+                  style={{ objectFit: backgroundFit }}
+                  draggable={false}
+                />
+              </div>
+            )}
+
             {placedModules.length === 0 && (
-              <div className="pointer-events-none flex h-full items-center justify-center text-gray-400 text-center px-6">
-                Painel vazio — arraste um módulo de baixo para cá (ou toque nele).
+              <div className="pointer-events-none relative flex h-full items-center justify-center px-6 text-center">
+                <span
+                  className={`text-gray-400 ${
+                    backgroundUrl ? 'rounded-md bg-white/80 px-3 py-1.5 text-gray-600' : ''
+                  }`}
+                >
+                  Painel vazio — arraste um módulo de baixo para cá (ou toque nele).
+                </span>
               </div>
             )}
 
