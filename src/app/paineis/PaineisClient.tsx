@@ -5,7 +5,7 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import Image from 'next/image';
 import { onAuthStateChanged } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
-import { Image as ImageIcon, RotateCw, X } from 'lucide-react';
+import { Download, Image as ImageIcon, RotateCw, X } from 'lucide-react';
 
 export interface WallPanelModule {
   id: string;
@@ -32,6 +32,9 @@ const PANEL_DISPLAY_MAX_HEIGHT_VH = 55;
 /** Espessura da borda tracejada (border-4). Fica FORA da área útil (content-box). */
 const PANEL_BORDER_PX = 4;
 
+/** Base do painel: R$ 96,00 por m² (1000 × 1000 mm). Cobrada pela área real. */
+const PANEL_PRICE_PER_M2_CENTS = 9600;
+
 /** Toque: quanto tempo segurando um módulo do catálogo até "pegar" ele pra arrastar. */
 const LONG_PRESS_MS = 350;
 /** Movimento (px) que cancela o long-press — é rolagem de página, não arraste. */
@@ -53,6 +56,10 @@ interface Placement {
 
 function formatPrice(cents: number, currency: string): string {
   return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: currency || 'BRL' });
+}
+
+function formatArea(m2: number): string {
+  return m2.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -316,6 +323,177 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
     setBackgroundUrl(null);
     setBackgroundName(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  /* ---------------------------- Exportar em PNG ---------------------------- */
+
+  const [exporting, setExporting] = useState(false);
+
+  /** Resolução do PNG: teto de px pra não gerar arquivo gigante em painel grande. */
+  const EXPORT_MAX_WIDTH_PX = 2000;
+
+  /* As imagens dos módulos vêm do Firebase Storage (outra origem). Desenhar
+     direto no canvas o contaminaria e o toBlob falharia. Passando pelo
+     otimizador do Next (mesma origem) o canvas continua limpo.
+     `w` tem que ser um dos images.deviceSizes do next.config.ts ([640, 828,
+     1200, 1920]) e `q` uma qualidade permitida (75) — fora disso o otimizador
+     responde 400. */
+  function sameOriginImageUrl(src: string): string {
+    if (!src) return src;
+    if (src.startsWith('blob:') || src.startsWith('data:') || src.startsWith('/')) return src;
+    return `/_next/image?url=${encodeURIComponent(src)}&w=1200&q=75`;
+  }
+
+  function loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Falha ao carregar imagem: ${src}`));
+      img.src = src;
+    });
+  }
+
+  async function exportPanelPng() {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const pxPerMm = EXPORT_MAX_WIDTH_PX / displayWidthMm;
+      const panelW = Math.round(displayWidthMm * pxPerMm);
+      const panelH = Math.round(displayHeightMm * pxPerMm);
+
+      // Legenda: uma linha por módulo distinto, mais cabeçalho e total.
+      const counts = new Map<string, { module: WallPanelModule; count: number }>();
+      for (const { module } of placedModules) {
+        const entry = counts.get(module.id);
+        if (entry) entry.count += 1;
+        else counts.set(module.id, { module, count: 1 });
+      }
+      const legend = [...counts.values()];
+      const pad = 32;
+      const lineHeight = 34;
+      // Com preço são 3 linhas a mais: base do painel, módulos e total.
+      const priceLines = canSeePrices ? 3 : 0;
+      const legendHeight =
+        pad + 44 + legend.length * lineHeight + priceLines * lineHeight + (priceLines ? 16 : 0) + pad;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = panelW + pad * 2;
+      canvas.height = panelH + pad * 2 + legendHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas indisponível neste navegador.');
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const originX = pad;
+      const originY = pad;
+
+      // Fundo enviado pelo usuário, respeitando preencher/caber inteira.
+      if (backgroundUrl) {
+        const bg = await loadImage(backgroundUrl);
+        const scale =
+          backgroundFit === 'cover'
+            ? Math.max(panelW / bg.width, panelH / bg.height)
+            : Math.min(panelW / bg.width, panelH / bg.height);
+        const dw = bg.width * scale;
+        const dh = bg.height * scale;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(originX, originY, panelW, panelH);
+        ctx.clip();
+        ctx.drawImage(bg, originX + (panelW - dw) / 2, originY + (panelH - dh) / 2, dw, dh);
+        ctx.restore();
+      }
+
+      // Módulos: mesma matemática da tela — posição em mm × escala, girando
+      // em torno do centro da caixa.
+      for (const { placement, module } of placedModules) {
+        const src = module.mainImageUrl || module.imageUrls[0] || '';
+        if (!src) continue;
+        const img = await loadImage(sameOriginImageUrl(src));
+        const { w, h } = footprint(module, placement.rotation);
+        const cx = originX + (placement.xMm + w / 2) * pxPerMm;
+        const cy = originY + (placement.yMm + h / 2) * pxPerMm;
+        const drawW = module.widthMm * pxPerMm;
+        const drawH = module.heightMm * pxPerMm;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate((placement.rotation * Math.PI) / 180);
+        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+        ctx.restore();
+      }
+
+      // Contorno do painel
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(originX - 1.5, originY - 1.5, panelW + 3, panelH + 3);
+
+      // Legenda
+      const font = 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+      let y = originY + panelH + pad + 40;
+      ctx.fillStyle = '#111827';
+      ctx.font = `bold 30px ${font}`;
+      ctx.fillText(
+        `Painel ${displayWidthMm} × ${displayHeightMm} mm — ${formatArea(panelAreaM2)} m²`,
+        originX,
+        y
+      );
+      y += 44;
+
+      ctx.font = `24px ${font}`;
+      if (legend.length === 0) {
+        ctx.fillStyle = '#6b7280';
+        ctx.fillText('Nenhum módulo posicionado.', originX, y);
+        y += lineHeight;
+      } else {
+        for (const { module, count } of legend) {
+          ctx.fillStyle = '#374151';
+          ctx.fillText(
+            `${count}× ${module.name} (${module.widthMm} × ${module.heightMm} mm)`,
+            originX,
+            y
+          );
+          y += lineHeight;
+        }
+      }
+
+      if (canSeePrices) {
+        y += 16;
+        ctx.fillStyle = '#374151';
+        ctx.font = `24px ${font}`;
+        ctx.fillText(
+          `Base do painel (${formatPrice(PANEL_PRICE_PER_M2_CENTS, totalCurrency)}/m²): ${formatPrice(panelBaseCents, totalCurrency)}`,
+          originX,
+          y
+        );
+        y += lineHeight;
+        ctx.fillText(`Módulos: ${formatPrice(modulesCents, totalCurrency)}`, originX, y);
+        y += lineHeight;
+        ctx.fillStyle = '#111827';
+        ctx.font = `bold 26px ${font}`;
+        ctx.fillText(`Total: ${formatPrice(grandTotalCents, totalCurrency)}`, originX, y);
+      }
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/png')
+      );
+      if (!blob) throw new Error('Não foi possível gerar o PNG.');
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `painel-${displayWidthMm}x${displayHeightMm}mm.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      setPlacementError(
+        err instanceof Error ? `Erro ao exportar: ${err.message}` : 'Erro ao exportar o painel.'
+      );
+    } finally {
+      setExporting(false);
+    }
   }
 
   function addModuleAtFreeSpot(moduleId: string) {
@@ -684,9 +862,22 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
 
   const selectedPlaced = placedModules.find((x) => x.placement.instanceId === selectedInstanceId) ?? null;
 
-  const totalCents = placedModules.reduce((sum, x) => sum + (x.module.priceCents ?? 0), 0);
-  const hasPrice = placedModules.some((x) => typeof x.module.priceCents === 'number');
-  const totalCurrency = placedModules.find((x) => x.module.currency)?.module.currency ?? 'BRL';
+  const modulesCents = placedModules.reduce((sum, x) => sum + (x.module.priceCents ?? 0), 0);
+  const totalCurrency =
+    placedModules.find((x) => x.module.currency)?.module.currency ??
+    modules.find((m) => m.currency)?.currency ??
+    'BRL';
+
+  /* A API só devolve priceCents para usuário verified. Se algum módulo do
+     catálogo veio com preço, este visitante pode ver preços — inclusive o da
+     base do painel, que segue a mesma regra por coerência. */
+  const canSeePrices = modules.some((m) => typeof m.priceCents === 'number');
+
+  // Base do painel: cobrada por área real, recalculada a cada mudança de medida.
+  const panelAreaM2 = (displayWidthMm / 1000) * (displayHeightMm / 1000);
+  const panelBaseCents = Math.round(panelAreaM2 * PANEL_PRICE_PER_M2_CENTS);
+  const grandTotalCents = panelBaseCents + modulesCents;
+
   const ghostModule = ghost ? moduleById.get(ghost.moduleId) : null;
 
   return (
@@ -807,6 +998,16 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
               </button>
             </>
           )}
+
+          <button
+            type="button"
+            onClick={exportPanelPng}
+            disabled={exporting}
+            className="ml-auto inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+          >
+            <Download className="h-4 w-4" />
+            {exporting ? 'Exportando…' : 'Exportar PNG'}
+          </button>
         </div>
 
         {/* Base do painel — posicionamento livre, com colisão entre módulos e
@@ -958,12 +1159,12 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
           )}
         </p>
 
-        {placedModules.length > 0 && (
-          <div className="mx-auto mb-12 max-w-2xl rounded-lg border bg-white p-4 flex items-center justify-between">
+        <div className="mx-auto mb-12 max-w-2xl rounded-lg border bg-white p-4">
+          <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">
               {placedModules.length} módulo{placedModules.length !== 1 ? 's' : ''} no painel
             </span>
-            <div className="flex items-center gap-4">
+            {placedModules.length > 0 && (
               <button
                 type="button"
                 onClick={() => {
@@ -974,14 +1175,29 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
               >
                 Limpar
               </button>
-              {hasPrice && (
-                <span className="text-xl font-bold text-gray-900">
-                  {formatPrice(totalCents, totalCurrency)}
-                </span>
-              )}
-            </div>
+            )}
           </div>
-        )}
+
+          {canSeePrices && (
+            <dl className="mt-3 space-y-1 border-t pt-3 text-sm">
+              <div className="flex justify-between text-gray-600">
+                <dt>
+                  Base do painel · {formatArea(panelAreaM2)} m²
+                  <span className="text-gray-400"> ({formatPrice(PANEL_PRICE_PER_M2_CENTS, totalCurrency)}/m²)</span>
+                </dt>
+                <dd>{formatPrice(panelBaseCents, totalCurrency)}</dd>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <dt>Módulos</dt>
+                <dd>{formatPrice(modulesCents, totalCurrency)}</dd>
+              </div>
+              <div className="flex justify-between border-t pt-2 text-base font-bold text-gray-900">
+                <dt>Total</dt>
+                <dd>{formatPrice(grandTotalCents, totalCurrency)}</dd>
+              </div>
+            </dl>
+          )}
+        </div>
 
         </div>
 
