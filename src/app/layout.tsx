@@ -39,7 +39,6 @@ export default function RootLayout({
       <body
         className={`${geologica.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
         <GoogleAnalytics />
-        <InspectGuard />
         <ScrollContext>
           <SiteLayoutWrapper>{children}</SiteLayoutWrapper>
         </ScrollContext>
