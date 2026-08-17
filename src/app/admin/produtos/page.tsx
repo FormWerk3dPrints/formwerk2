@@ -595,12 +595,12 @@ export default function AdminProdutosPage() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           data-lenis-prevent
-          onClick={() => setShowForm(false)}
         >
+          {/* Sem onClick no fundo: clicar fora não fecha, pra não perder
+              o que foi preenchido por acidente. Fecha só no X ou em Cancelar. */}
           <div
             className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             data-lenis-prevent
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
