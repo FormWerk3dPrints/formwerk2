@@ -1,4 +1,4 @@
-import ProductCard from '@/components/ProductCard';
+import PricedProductGrid from '@/components/PricedProductGrid';
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
 import { searchProductsByTokens } from '@/lib/products/search';
@@ -84,20 +84,17 @@ export default async function CatalogoResultados({
               </h2>
 
               {nameMatches.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {nameMatches.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      description={product.description}
-                      price={''}
-                      image={product.mainImageUrl || product.imageUrls[0] || ''}
-                      categoryColor={product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ?? '#0D6AA7'}
-                      mobileLayout="side"
-                    />
-                  ))}
-                </div>
+                <PricedProductGrid
+                  items={nameMatches.map((product) => ({
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    image: product.mainImageUrl || product.imageUrls[0] || '',
+                    categoryColor:
+                      product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ??
+                      '#0D6AA7',
+                  }))}
+                />
               ) : (
                 <p className="text-gray-600">Nenhum resultado por nome.</p>
               )}
@@ -109,20 +106,17 @@ export default async function CatalogoResultados({
               </h2>
 
               {keywordMatches.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {keywordMatches.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      description={product.description}
-                      price={''}
-                      image={product.mainImageUrl || product.imageUrls[0] || ''}
-                      categoryColor={product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ?? '#0D6AA7'}
-                      mobileLayout="side"
-                    />
-                  ))}
-                </div>
+                <PricedProductGrid
+                  items={keywordMatches.map((product) => ({
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    image: product.mainImageUrl || product.imageUrls[0] || '',
+                    categoryColor:
+                      product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ??
+                      '#0D6AA7',
+                  }))}
+                />
               ) : (
                 <p className="text-gray-600">Nenhum resultado por palavra chave.</p>
               )}

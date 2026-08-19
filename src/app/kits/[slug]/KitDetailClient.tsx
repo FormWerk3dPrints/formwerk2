@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
+import { useProductPrices } from '@/hooks/useProductPrices';
 import { ArrowLeft } from 'lucide-react';
 
 export interface KitDetail {
@@ -13,8 +14,6 @@ export interface KitDetail {
   name: string;
   description: string;
   color: string;
-  priceCents: number;
-  currency: string;
   imageUrls: string[];
   mainImageUrl?: string;
 }
@@ -27,19 +26,24 @@ export interface KitProduct {
   mainImageUrl?: string;
 }
 
-type VerifiedState = 'loading' | 'unauthenticated' | 'unverified' | 'verified';
+/** Preço do kit: só chega ao navegador se o usuário for verified. */
+type KitPrice = { priceCents: number; currency: string };
 
-async function fetchVerified(user: User): Promise<boolean> {
+async function fetchKitPrice(user: User, slug: string): Promise<KitPrice | null> {
   try {
     const idToken = await user.getIdToken();
-    const res = await fetch('/api/user-profile/verified', {
+    const res = await fetch(`/api/kits/${encodeURIComponent(slug)}`, {
       headers: { Authorization: `Bearer ${idToken}` },
     });
-    if (!res.ok) return false;
-    const data = (await res.json()) as { verified?: boolean };
-    return data.verified === true;
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      kit?: { priceCents?: number; currency?: string };
+    };
+    // priceCents só vem no JSON quando a API reconhece o usuário como verified.
+    if (typeof data.kit?.priceCents !== 'number') return null;
+    return { priceCents: data.kit.priceCents, currency: data.kit.currency ?? 'BRL' };
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -57,20 +61,25 @@ export default function KitDetailClient({
   kit: KitDetail;
   products: KitProduct[];
 }) {
-  const [verifiedState, setVerifiedState] = useState<VerifiedState>('loading');
+  const [price, setPrice] = useState<KitPrice | null>(null);
+  const { priceLabel } = useProductPrices();
   const mainImage = kit.mainImageUrl || kit.imageUrls[0] || '';
 
   useEffect(() => {
+    let cancelled = false;
     const unsub = onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) {
-        setVerifiedState('unauthenticated');
+        if (!cancelled) setPrice(null);
         return;
       }
-      const isVerified = await fetchVerified(user);
-      setVerifiedState(isVerified ? 'verified' : 'unverified');
+      const loaded = await fetchKitPrice(user, kit.id);
+      if (!cancelled) setPrice(loaded);
     });
-    return () => unsub();
-  }, []);
+    return () => {
+      cancelled = true;
+      unsub();
+    };
+  }, [kit.id]);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -126,14 +135,14 @@ export default function KitDetailClient({
               style={{ backgroundColor: kit.color }}
             />
 
-            {verifiedState === 'verified' && (
+            {price && (
               <div>
                 <p className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-1">
                   Valor do kit
                 </p>
-                {kit.priceCents > 0 ? (
+                {price.priceCents > 0 ? (
                   <p className="text-3xl font-bold text-gray-900">
-                    {formatPrice(kit.priceCents, kit.currency)}
+                    {formatPrice(price.priceCents, price.currency)}
                   </p>
                 ) : (
                   <p className="text-xl text-gray-500 italic">Sob consulta</p>
@@ -169,7 +178,7 @@ export default function KitDetailClient({
                   id={product.id}
                   name={product.name}
                   description={product.description}
-                  price=""
+                  price={priceLabel(product.id)}
                   image={product.mainImageUrl || product.imageUrls[0] || ''}
                   categoryColor={kit.color}
                   mobileLayout="side"

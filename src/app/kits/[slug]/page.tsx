@@ -20,13 +20,13 @@ export default async function KitSlugPage({
 
   const productIds: string[] = Array.isArray(data.productIds) ? data.productIds : [];
 
+  // priceCents NÃO vai no payload: o preço é buscado pelo cliente em
+  // /api/kits/[slug], que só o devolve para usuário verified.
   const kit: KitDetail = {
     id: kitSnap.id,
     name: String(data.name ?? ''),
     description: String(data.description ?? ''),
     color: typeof data.color === 'string' && data.color ? data.color : '#0D6AA7',
-    priceCents: typeof data.priceCents === 'number' ? data.priceCents : 0,
-    currency: typeof data.currency === 'string' && data.currency ? data.currency : 'BRL',
     imageUrls: Array.isArray(data.imageUrls) ? (data.imageUrls as string[]).filter(Boolean) : [],
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
   };

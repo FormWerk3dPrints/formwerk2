@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
+import { useProductPrices } from '@/hooks/useProductPrices';
 
 export interface CatalogCategory {
   id: string;
@@ -34,6 +35,7 @@ export default function CatalogoClient({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { priceLabel } = useProductPrices();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const param = searchParams.get('categoria');
@@ -296,7 +298,7 @@ export default function CatalogoClient({
                 id={product.id}
                 name={product.name}
                 description={product.description}
-                price={''}
+                price={priceLabel(product.id)}
                 image={product.mainImageUrl || product.imageUrls[0] || ''}
                 categoryColor={selectedCategoryData?.color || '#0D6AA7'}
                 mobileLayout="side"

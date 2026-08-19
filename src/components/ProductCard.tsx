@@ -24,7 +24,9 @@ export default function ProductCard({
   mobileLayout = 'stack',
   href,
 }: ProductCardProps) {
-  void price;//PREÇO REMOVIDO
+  // String vazia = sem preço a mostrar (visitante não verificado, ou produto
+  // sem valor cadastrado). Nesse caso o badge simplesmente não existe.
+  const showPrice = typeof price === 'string' && price.trim() !== '';
 
   const isMobileSideLayout = mobileLayout === 'side';
 
@@ -64,14 +66,16 @@ export default function ProductCard({
             sizes="(max-width: 767px) 112px, (max-width: 1023px) calc(50vw - 40px), calc(33vw - 40px)"
             className="object-cover transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105 motion-reduce:transition-none"
           />
-          {/*PREÇO REMOVIDO
-          <div
-            className="absolute top-0 right-0 px-3 py-1 rounded-bl-lg text-white text-sm font-semibold"
-            style={{ backgroundColor: categoryColor }}
-          >
-            {price}
-          </div>
-          */}
+          {showPrice && (
+            <div
+              className={`absolute top-0 right-0 rounded-bl-lg font-semibold text-white shadow-sm ${
+                compact ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs'
+              }`}
+              style={{ backgroundColor: categoryColor }}
+            >
+              {price}
+            </div>
+          )}
         </div>
 
         {/* Content Container */}

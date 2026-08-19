@@ -21,6 +21,9 @@ import {
   tokenize,
 } from '@/lib/text/normalize';
 import { AdminShell } from '../_components/AdminShell';
+import InlinePriceCell from '../_components/InlinePriceCell';
+import { coercePriceToCents } from '@/lib/prices/coerceToCents';
+import { logAdminAction } from '@/lib/admin/auditLog';
 import {
   type Category,
   type Product,
@@ -112,7 +115,9 @@ export default function AdminProdutosPage() {
             keywords: Array.isArray(data.keywords) ? data.keywords : [],
             description: data.description ?? '',
             categoryIds: Array.isArray(data.categoryIds) ? data.categoryIds : ((data as any).categoryId ? [(data as any).categoryId] : []),
-            priceCents: typeof data.priceCents === 'number' ? data.priceCents : 0,
+            // Normaliza o legado (89.9 = R$ 89,90) — sem isso a célula de preço
+            // exibiria R$ 0,90 e, ao ser editada, gravaria o valor errado.
+            priceCents: coercePriceToCents(data.priceCents),
             currency: data.currency ?? 'BRL',
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
             mainImageUrl: data.mainImageUrl,
@@ -307,6 +312,7 @@ export default function AdminProdutosPage() {
         );
 
         await updateDoc(doc(firestoreDb, 'products', editing.id), sanitizedPayload);
+        void logAdminAction('produto', name || editing.name, 'alteracao');
 
         setShowForm(false);
         resetForm();
@@ -375,6 +381,7 @@ export default function AdminProdutosPage() {
           videoUrl,
           updatedAt: serverTimestamp(),
         });
+        void logAdminAction('produto', name, 'cadastro');
 
         setShowForm(false);
         resetForm();
@@ -473,11 +480,29 @@ export default function AdminProdutosPage() {
     setEditVideoUrl('');
   }
 
+  /**
+   * Grava só o preço, direto da tabela. Atualiza a lista em memória em vez de
+   * refazer o fetch inteiro — a edição é pontual e recarregar tudo faria a
+   * tabela piscar a cada alteração.
+   */
+  async function updateProductPrice(productId: string, nextCents: number) {
+    await updateDoc(doc(firestoreDb, 'products', productId), {
+      priceCents: nextCents,
+      updatedAt: serverTimestamp(),
+    });
+    const changed = products.find((p) => p.id === productId);
+    void logAdminAction('produto', changed?.name ?? productId, 'alteracao');
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, priceCents: nextCents } : p))
+    );
+  }
+
   async function handleDelete(prod: Product) {
     if (!window.confirm(`Excluir o produto "${prod.name}"?`)) return;
 
     try {
       await deleteDoc(doc(firestoreDb, 'products', prod.id));
+      void logAdminAction('produto', prod.name, 'delecao');
       await fetchData();
     } catch (e) {
       logAndAlertError('Erro ao excluir produto', e);
@@ -928,6 +953,9 @@ export default function AdminProdutosPage() {
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 hidden md:table-cell">
                     Imagens
                   </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                    Preço
+                  </th>
                   <th className="text-center py-3 px-4 text-sm font-medium text-gray-500">
                     Status
                   </th>
@@ -948,6 +976,14 @@ export default function AdminProdutosPage() {
                     </td>
                     <td className="py-3 px-4 text-gray-600 text-sm hidden md:table-cell">
                       {prod.imageUrls.length}
+                    </td>
+                    <td className="py-3 px-4">
+                      <InlinePriceCell
+                        valueCents={prod.priceCents}
+                        currency={prod.currency}
+                        label={prod.name}
+                        onSave={(nextCents) => updateProductPrice(prod.id, nextCents)}
+                      />
                     </td>
                     <td className="py-3 px-4 text-center">
                       {prod.active ? (

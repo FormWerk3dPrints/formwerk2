@@ -14,6 +14,7 @@ import {
 import { firestoreDb } from '@/lib/firebase/client';
 import { slugify } from '@/lib/text/normalize';
 import { AdminShell } from '../_components/AdminShell';
+import { logAdminAction } from '@/lib/admin/auditLog';
 import {
   type Category,
   findAvailableDocId,
@@ -119,6 +120,7 @@ export default function AdminCategoriasPage() {
           order: form.order,
           active: form.active,
         });
+        void logAdminAction('categoria', form.name.trim(), 'alteracao');
       } else {
         const baseId = slugify(form.name.trim());
         const id = await findAvailableDocId('categories', baseId);
@@ -129,6 +131,7 @@ export default function AdminCategoriasPage() {
           order: form.order,
           active: form.active,
         });
+        void logAdminAction('categoria', form.name.trim(), 'cadastro');
       }
 
       setShowForm(false);
@@ -147,6 +150,7 @@ export default function AdminCategoriasPage() {
 
     try {
       await deleteDoc(doc(firestoreDb, 'categories', cat.id));
+      void logAdminAction('categoria', cat.name, 'delecao');
       await fetchCategories();
     } catch (e) {
       logAndAlertError('Erro ao excluir categoria', e);

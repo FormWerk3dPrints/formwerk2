@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
+import { useProductPrices } from '@/hooks/useProductPrices';
 import { ProductCommentsSection } from '../../../components/ProductCommentsSection';
 
 export interface DetailsCategory {
@@ -20,6 +21,16 @@ export interface DetailsProduct {
   imageUrls: string[];
   mainImageUrl?: string;
   videoUrl?: string;
+}
+
+/** Preço do produto: só chega ao navegador se o usuário for verified. */
+type ProductPrice = { priceCents: number; currency: string };
+
+function formatPrice(priceCents: number, currency: string): string {
+  return (priceCents / 100).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: currency || 'BRL',
+  });
 }
 
 function hashStringToSeed(input: string): number {
@@ -73,6 +84,12 @@ export default function ProductDetailsClient({
   }, [product.imageUrls, product.mainImageUrl, product.videoUrl]);
 
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  /* Mesma lógica de kits/painéis: o preço não vem no HTML da página — vem da
+     API com o ID token, que só responde com valor para quem é verified. O mesmo
+     mapa alimenta o bloco de preço aqui e os badges dos cards sugeridos. */
+  const { prices, priceLabel } = useProductPrices();
+  const price: ProductPrice | null = prices[product.id] ?? null;
 
   const handlePrevMedia = () => {
     if (mediaItems.length) {
@@ -206,6 +223,27 @@ export default function ProductDetailsClient({
                 <h1 className="text-4xl font-bold text-gray-800 mb-4">{product.name}</h1>
               </div>
 
+              {/* Mesma barra da página do kit, aqui na cor da categoria. */}
+              <div
+                className="h-1 rounded-full w-16 mb-6"
+                style={{ backgroundColor: category?.color ?? '#0D6AA7' }}
+              />
+
+              {price && (
+                <div className="mb-8">
+                  <p className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-1">
+                    Valor do produto
+                  </p>
+                  {price.priceCents > 0 ? (
+                    <p className="text-3xl font-bold text-gray-900">
+                      {formatPrice(price.priceCents, price.currency)}
+                    </p>
+                  ) : (
+                    <p className="text-xl text-gray-500 italic">Sob consulta</p>
+                  )}
+                </div>
+              )}
+
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Descrição</h2>
                 <p className="text-gray-600 text-lg leading-relaxed">{product.description}</p>
@@ -226,7 +264,7 @@ export default function ProductDetailsClient({
                       id={p.id}
                       name={p.name}
                       description={p.description}
-                      price={''}
+                      price={priceLabel(p.id)}
                       image={p.mainImageUrl || p.imageUrls[0] || ''}
                       categoryColor={cat?.color || '#0D6AA7'}
                       compact

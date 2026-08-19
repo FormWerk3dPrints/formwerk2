@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
+import { useProductPrices } from '@/hooks/useProductPrices';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import AnimatedBackgroundMobile from '@/components/AnimatedBackgroundMobile';
 import ClientsSection from '@/components/ClientsSection';
@@ -73,6 +74,7 @@ function TestimonialCard({
 export default function Home() {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const { priceLabel } = useProductPrices();
   const [salesCount, setSalesCount] = useState<number | null>(null);
   const [animationStarted, setAnimationStarted] = useState(false);
   const [testimonialsExpanded, setTestimonialsExpanded] = useState(false);
@@ -224,7 +226,7 @@ export default function Home() {
                     id={product.id}
                     name={product.name}
                     description={product.description}
-                    price=""
+                    price={priceLabel(product.id)}
                     image={product.mainImageUrl || product.imageUrls[0] || '/images/placeholder.png'}
                     categoryColor={product.categoryColor}
                     compact

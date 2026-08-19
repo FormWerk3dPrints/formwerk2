@@ -16,6 +16,8 @@ import {
 import { firestoreDb } from '@/lib/firebase/client';
 import { slugify } from '@/lib/text/normalize';
 import { AdminShell } from '../_components/AdminShell';
+import InlinePriceCell from '../_components/InlinePriceCell';
+import { logAdminAction } from '@/lib/admin/auditLog';
 import {
   type Kit,
   type Product,
@@ -266,6 +268,7 @@ export default function AdminKitsPage() {
           mainImageUrl,
           updatedAt: serverTimestamp(),
         });
+        void logAdminAction('kit', name || editing.name, 'alteracao');
 
         setShowForm(false);
         resetForm();
@@ -316,6 +319,7 @@ export default function AdminKitsPage() {
           mainImageUrl: imageUrls[0] ?? '',
           updatedAt: serverTimestamp(),
         });
+        void logAdminAction('kit', name, 'cadastro');
 
         setShowForm(false);
         resetForm();
@@ -333,10 +337,26 @@ export default function AdminKitsPage() {
     }
   }
 
+  /**
+   * Grava só o preço, direto da tabela. Atualiza a lista em memória em vez de
+   * refazer o fetch inteiro — a edição é pontual e recarregar tudo faria a
+   * tabela piscar a cada alteração.
+   */
+  async function updateKitPrice(kitId: string, nextCents: number) {
+    await updateDoc(doc(firestoreDb, 'kits', kitId), {
+      priceCents: nextCents,
+      updatedAt: serverTimestamp(),
+    });
+    const changed = kits.find((k) => k.id === kitId);
+    void logAdminAction('kit', changed?.name ?? kitId, 'alteracao');
+    setKits((prev) => prev.map((k) => (k.id === kitId ? { ...k, priceCents: nextCents } : k)));
+  }
+
   async function handleDelete(kit: Kit) {
     if (!window.confirm(`Excluir o kit "${kit.name}"?`)) return;
     try {
       await deleteDoc(doc(firestoreDb, 'kits', kit.id));
+      void logAdminAction('kit', kit.name, 'delecao');
       await Promise.allSettled(kit.imageUrls.map((url) => deleteStorageObject(url)));
       await fetchData();
     } catch (e) {
@@ -705,13 +725,13 @@ export default function AdminKitsPage() {
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-gray-600 text-sm hidden md:table-cell">
-                    {kit.priceCents > 0
-                      ? (kit.priceCents / 100).toLocaleString('pt-BR', {
-                          style: 'currency',
-                          currency: kit.currency || 'BRL',
-                        })
-                      : '—'}
+                  <td className="py-3 px-4 hidden md:table-cell">
+                    <InlinePriceCell
+                      valueCents={kit.priceCents}
+                      currency={kit.currency}
+                      label={kit.name}
+                      onSave={(nextCents) => updateKitPrice(kit.id, nextCents)}
+                    />
                   </td>
                   <td className="py-3 px-4 text-center">
                     {kit.active ? (
