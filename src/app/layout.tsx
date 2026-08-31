@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FORMWERK - Materiais Educacionais 3D",
+  title: "FormWerk - Materiais Educacionais Concretos",
   description: "Criando materiais educacionais personalizados através de impressão 3D",
   icons: {
     icon: "/logo_colorida_vetorial.svg",
