@@ -21,7 +21,9 @@ import {
   logAndAlertError,
 } from '../_utils/helpers';
 import { useSmoothScroller } from '@/components/ScrollContext';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { AdminModal } from '../_components/AdminModal';
+import { AdminIconButton, StatusPill } from '../_components/AdminControls';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 type CategoryForm = {
   name: string;
@@ -172,28 +174,30 @@ export default function AdminCategoriasPage() {
 
       {/* Modal */}
       {showForm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          data-lenis-prevent
-        >
-          {/* Sem onClick no fundo: clicar fora não fecha, pra não perder
-              o que foi preenchido por acidente. Fecha só no X ou em Cancelar. */}
-          <div
-            className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
-            data-lenis-prevent
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                {editing ? 'Editar' : 'Nova'} Categoria
-              </h2>
+        // Sem fechar ao tocar fora: um toque acidental não pode descartar o
+        // que foi preenchido. Fecha só no X ou em Cancelar.
+        <AdminModal
+          title={`${editing ? 'Editar' : 'Nova'} Categoria`}
+          onClose={() => setShowForm(false)}
+          size="md"
+          footer={
+            <div className="flex gap-3">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 bg-black text-white py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 sm:py-2"
+              >
+                {saving ? 'Salvando…' : editing ? 'Atualizar' : 'Criar'}
+              </button>
               <button
                 onClick={() => setShowForm(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="px-6 py-2.5 border rounded-lg text-gray-600 hover:bg-gray-50 sm:py-2"
               >
-                <X className="h-5 w-5" />
+                Cancelar
               </button>
             </div>
-
+          }
+        >
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -265,24 +269,8 @@ export default function AdminCategoriasPage() {
                 <span className="text-sm text-gray-700">Ativa</span>
               </label>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 bg-black text-white py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {saving ? 'Salvando…' : editing ? 'Atualizar' : 'Criar'}
-                </button>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
 
       {/* Table */}
@@ -293,7 +281,35 @@ export default function AdminCategoriasPage() {
           ))}
         </div>
       ) : categories.length > 0 ? (
-        <div className="bg-white rounded-xl border overflow-hidden">
+        <>
+        {/* Celular: cartões com botões de 40px. */}
+        <ul className="space-y-3 sm:hidden">
+          {categories.map((cat) => (
+            <li key={cat.id} className="flex items-center gap-3 rounded-xl border bg-white p-4">
+              <span
+                className={`h-6 w-6 shrink-0 rounded border ${cat.color ? '' : 'border-dashed'}`}
+                style={cat.color ? { backgroundColor: cat.color } : undefined}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium text-gray-900">{cat.name}</div>
+                <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                  <StatusPill active={cat.active} activeLabel="Ativa" inactiveLabel="Inativa" />
+                  <span>Ordem {cat.order}</span>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center">
+                <AdminIconButton label="Editar" onClick={() => openEdit(cat)}>
+                  <Pencil className="h-4 w-4" />
+                </AdminIconButton>
+                <AdminIconButton label="Excluir" tone="danger" onClick={() => handleDelete(cat)}>
+                  <Trash2 className="h-4 w-4" />
+                </AdminIconButton>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="hidden bg-white rounded-xl border overflow-hidden sm:block">
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
@@ -372,6 +388,7 @@ export default function AdminCategoriasPage() {
             </tbody>
           </table>
         </div>
+        </>
       ) : (
         <div className="text-center py-12 text-gray-500">
           Nenhuma categoria cadastrada.

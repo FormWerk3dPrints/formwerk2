@@ -98,21 +98,21 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
           <div key={c.id} className="rounded border p-3 bg-white flex flex-col gap-2">
             {editingId === c.id ? (
               <>
-                <div className="flex flex-wrap gap-2 items-center">
+                <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center">
                   <input
-                    className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900"
+                    className="w-full border border-black/20 rounded px-3 py-2 text-sm text-gray-900 sm:w-auto sm:px-2 sm:py-1"
                     value={editData.name ?? ''}
                     onChange={e => setEditData(d => ({ ...d, name: e.target.value }))}
                     placeholder="Nome"
                   />
                   <input
-                    className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900"
+                    className="w-full border border-black/20 rounded px-3 py-2 text-sm text-gray-900 sm:w-auto sm:px-2 sm:py-1"
                     value={editData.role ?? ''}
                     onChange={e => setEditData(d => ({ ...d, role: e.target.value }))}
                     placeholder="Função"
                   />
                   <input
-                    className="border border-black/20 rounded px-2 py-1 text-sm text-gray-900"
+                    className="w-full border border-black/20 rounded px-3 py-2 text-sm text-gray-900 sm:w-auto sm:px-2 sm:py-1"
                     value={editData.profilePicture ?? ''}
                     onChange={e => setEditData(d => ({ ...d, profilePicture: e.target.value }))}
                     placeholder="URL da foto (opcional)"
@@ -128,7 +128,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
                 <div className="flex gap-2 mt-1">
                   <button
                     type="button"
-                    className="bg-black text-white rounded px-3 py-1 text-sm disabled:opacity-60"
+                    className="bg-black text-white rounded px-4 py-2 text-sm sm:px-3 sm:py-1 disabled:opacity-60"
                     onClick={handleSave}
                     disabled={saving}
                   >
@@ -136,7 +136,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
                   </button>
                   <button
                     type="button"
-                    className="border border-black/20 rounded px-3 py-1 text-sm text-gray-900"
+                    className="border border-black/20 rounded px-4 py-2 text-sm sm:px-3 sm:py-1 text-gray-900"
                     onClick={() => { setEditingId(null); setEditData({}); }}
                     disabled={saving}
                   >
@@ -158,7 +158,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
                 <div className="flex gap-2 mt-1">
                   <button
                     type="button"
-                    className="border border-black/20 rounded px-3 py-1 text-sm text-gray-900"
+                    className="border border-black/20 rounded px-4 py-2 text-sm sm:px-3 sm:py-1 text-gray-900"
                     onClick={() => beginEdit(c)}
                     disabled={saving}
                   >
@@ -166,7 +166,7 @@ export function AdminProductCommentsEditor({ productId }: AdminProductCommentsEd
                   </button>
                   <button
                     type="button"
-                    className="border rounded px-3 py-1 text-sm text-red-600"
+                    className="border rounded px-4 py-2 text-sm sm:px-3 sm:py-1 text-red-600"
                     onClick={() => handleDelete(c.id!)}
                     disabled={saving}
                   >

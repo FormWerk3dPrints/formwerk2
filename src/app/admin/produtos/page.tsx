@@ -35,7 +35,10 @@ import {
 } from '../_utils/helpers';
 import { AdminProductCommentsEditor } from '../AdminProductCommentsEditor';
 import { useSmoothScroller } from '@/components/ScrollContext';
-import { Plus, Pencil, Trash2, X, Eye, EyeOff, MessageSquare, ChevronUp, ChevronDown } from 'lucide-react';
+import { AdminModal } from '../_components/AdminModal';
+import { AdminIconButton, StatusPill } from '../_components/AdminControls';
+import { ImageOrderList } from '../_components/ImageOrderList';
+import { Plus, Pencil, Trash2, Eye, EyeOff, MessageSquare } from 'lucide-react';
 
 export default function AdminProdutosPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -544,37 +547,20 @@ export default function AdminProdutosPage() {
 
       {/* Comments modal */}
       {commentsProductId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          data-lenis-prevent
-          onClick={() => setCommentsProductId(null)}
+        <AdminModal
+          title="Comentários"
+          onClose={() => setCommentsProductId(null)}
+          closeOnBackdrop
         >
-          <div
-            className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            data-lenis-prevent
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                Comentários
-              </h2>
-              <button
-                onClick={() => setCommentsProductId(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <AdminProductCommentsEditor productId={commentsProductId} />
-          </div>
-        </div>
+          <AdminProductCommentsEditor productId={commentsProductId} />
+        </AdminModal>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Produtos</h1>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 bg-black text-white px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity sm:py-2"
         >
           <Plus className="h-4 w-4" />
           Novo Produto
@@ -588,12 +574,12 @@ export default function AdminProdutosPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Buscar por nome ou keywords…"
-          className="border rounded-lg px-3 py-2 text-sm text-gray-700 w-64"
+          className="border rounded-lg px-3 py-2 text-sm text-gray-700 w-full sm:w-64"
         />
         <select
           value={filterCategoryId}
           onChange={(e) => setFilterCategoryId(e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm text-gray-700"
+          className="border rounded-lg px-3 py-2 text-sm text-gray-700 min-w-0 flex-1 sm:flex-none"
         >
           <option value="">Todas as categorias</option>
           {categories.map((cat) => (
@@ -617,28 +603,29 @@ export default function AdminProdutosPage() {
 
       {/* Product Form Modal */}
       {showForm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          data-lenis-prevent
-        >
-          {/* Sem onClick no fundo: clicar fora não fecha, pra não perder
-              o que foi preenchido por acidente. Fecha só no X ou em Cancelar. */}
-          <div
-            className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            data-lenis-prevent
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                {editing ? 'Editar' : 'Novo'} Produto
-              </h2>
+        // Sem fechar ao tocar fora: um toque acidental não pode descartar o
+        // que foi preenchido. Fecha só no X ou em Cancelar.
+        <AdminModal
+          title={`${editing ? 'Editar' : 'Novo'} Produto`}
+          onClose={() => setShowForm(false)}
+          footer={
+            <div className="flex gap-3">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 bg-black text-white py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 sm:py-2"
+              >
+                {saving ? 'Salvando…' : editing ? 'Atualizar' : 'Criar'}
+              </button>
               <button
                 onClick={() => setShowForm(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="px-6 py-2.5 border rounded-lg text-gray-600 hover:bg-gray-50 sm:py-2"
               >
-                <X className="h-5 w-5" />
+                Cancelar
               </button>
             </div>
-
+          }
+        >
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -778,61 +765,12 @@ export default function AdminProdutosPage() {
               )}
 
               {/* Existing images (edit mode) */}
-              {editing && editImageUrls.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Imagens cadastradas ({editImageUrls.length})
-                  </label>
-                  <div className="grid gap-2 max-h-48 overflow-y-auto">
-                    {editImageUrls.map((url, idx) => (
-                      <div
-                        key={url}
-                        className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2"
-                      >
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            type="button"
-                            disabled={idx === 0}
-                            onClick={() => moveImage(idx, -1)}
-                            className="text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
-                            title="Mover para cima"
-                          >
-                            <ChevronUp className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            disabled={idx === editImageUrls.length - 1}
-                            onClick={() => moveImage(idx, 1)}
-                            className="text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
-                            title="Mover para baixo"
-                          >
-                            <ChevronDown className="h-4 w-4" />
-                          </button>
-                          <span className="text-xs text-gray-400 w-4">{idx + 1}</span>
-                        </div>
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={url} alt="" className="h-8 w-8 object-cover rounded shrink-0" />
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="max-w-[30ch] truncate text-xs underline text-gray-500"
-                          >
-                            {url}
-                          </a>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-red-500 hover:text-red-700 text-xs shrink-0"
-                          onClick={() => removeExistingImage(url)}
-                        >
-                          Remover
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {editing && (
+                <ImageOrderList
+                  urls={editImageUrls}
+                  onMove={(idx, direction) => void moveImage(idx, direction)}
+                  onRemove={(url) => void removeExistingImage(url)}
+                />
               )}
 
               {/* Upload images */}
@@ -911,24 +849,8 @@ export default function AdminProdutosPage() {
                 )}
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 bg-black text-white py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {saving ? 'Salvando…' : editing ? 'Atualizar' : 'Criar'}
-                </button>
-                <button
-                  onClick={() => setShowForm(false)}
-                  className="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
 
       {/* Products Table */}
@@ -939,8 +861,52 @@ export default function AdminProdutosPage() {
           ))}
         </div>
       ) : filteredProducts.length > 0 ? (
-        <div className="bg-white rounded-xl border overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="sm:bg-white sm:rounded-xl sm:border sm:overflow-hidden">
+          {/* Celular: cartões com botões de 40px. Na tabela, nome, preço,
+              status e três ações disputavam 343px de largura. */}
+          <ul className="space-y-3 sm:hidden">
+            {filteredProducts.map((prod) => (
+              <li key={prod.id} className="rounded-xl border bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-900">{prod.name}</div>
+                    <div className="truncate text-xs text-gray-400">{prod.id}</div>
+                    {prod.categoryIds.length > 0 && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        {prod.categoryIds.map((id) => getCategoryName(id)).join(', ')}
+                      </div>
+                    )}
+                  </div>
+                  <StatusPill active={prod.active} />
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-2 border-t pt-2">
+                  <InlinePriceCell
+                    valueCents={prod.priceCents}
+                    currency={prod.currency}
+                    label={prod.name}
+                    onSave={(nextCents) => updateProductPrice(prod.id, nextCents)}
+                  />
+                  <div className="flex shrink-0 items-center">
+                    <AdminIconButton
+                      label="Comentários"
+                      tone="info"
+                      onClick={() => setCommentsProductId(prod.id)}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                    </AdminIconButton>
+                    <AdminIconButton label="Editar" onClick={() => openEdit(prod)}>
+                      <Pencil className="h-4 w-4" />
+                    </AdminIconButton>
+                    <AdminIconButton label="Excluir" tone="danger" onClick={() => handleDelete(prod)}>
+                      <Trash2 className="h-4 w-4" />
+                    </AdminIconButton>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto sm:block">
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>

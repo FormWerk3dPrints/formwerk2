@@ -50,7 +50,7 @@ export function CommentProfileImagePicker({ value, onChange }: CommentProfileIma
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="border border-black rounded px-2 py-1 text-xs text-gray-900"
+          className="border border-black rounded px-3 py-2 text-sm text-gray-900 sm:px-2 sm:py-1 sm:text-xs"
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
         >
@@ -76,7 +76,7 @@ export function CommentProfileImagePicker({ value, onChange }: CommentProfileIma
             onClick={() => onChange(url)}
             style={{ background: value === url ? '#eee' : 'transparent' }}
           >
-            <img src={url} alt="Escolher" className="w-8 h-8 rounded-full object-cover" />
+            <img src={url} alt="Escolher" className="w-10 h-10 rounded-full object-cover sm:w-8 sm:h-8" />
           </button>
         ))}
       </div>

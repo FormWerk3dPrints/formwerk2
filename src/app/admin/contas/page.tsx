@@ -105,7 +105,7 @@ export default function AdminContasPage() {
 
   return (
     <AdminShell>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Contas de Usuários</h1>
         <button
           type="button"
@@ -133,7 +133,103 @@ export default function AdminContasPage() {
           Nenhuma conta cadastrada ainda.
         </div>
       ) : (
-        <div className="rounded-xl border bg-white overflow-hidden">
+        <>
+        {/* Celular: cartões. A tabela exigia nome, e-mail e o botão de
+            verificação lado a lado em 343px e estourava a largura da tela. */}
+        <ul className="space-y-3 sm:hidden">
+          {profiles.map((profile) => {
+            const isExpanded = expandedUid === profile.uid;
+            return (
+              <li key={profile.uid} className="rounded-xl border bg-white">
+                <button
+                  type="button"
+                  onClick={() => setExpandedUid(isExpanded ? null : profile.uid)}
+                  aria-expanded={isExpanded}
+                  className="flex w-full items-start gap-3 p-4 text-left"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-gray-900">
+                      {profile.fullName ?? <span className="text-gray-400 italic">—</span>}
+                    </div>
+                    <div className="truncate text-sm text-gray-600">{profile.email ?? '—'}</div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      <span>Cadastro {formatDate(profile.createdAt)}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 font-medium ${
+                          profile.lgpdAccepted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        LGPD {profile.lgpdAccepted ? 'aceita' : 'pendente'}
+                      </span>
+                    </div>
+                  </div>
+                  {isExpanded ? (
+                    <ChevronUp className="mt-1 h-4 w-4 shrink-0 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="mt-1 h-4 w-4 shrink-0 text-gray-400" />
+                  )}
+                </button>
+
+                <div className="flex items-center justify-between gap-3 border-t px-4 py-2">
+                  <span className="text-xs text-gray-500">Conta oficial</span>
+                  <button
+                    type="button"
+                    disabled={togglingUid === profile.uid}
+                    onClick={() => void handleToggleVerified(profile.uid, profile.verified)}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-colors disabled:opacity-50 ${
+                      profile.verified
+                        ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {profile.verified ? (
+                      <>
+                        <ShieldCheck className="h-3.5 w-3.5" />
+                        Verificada
+                      </>
+                    ) : (
+                      <>
+                        <ShieldOff className="h-3.5 w-3.5" />
+                        Não verificada
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {isExpanded && (
+                  <div className="grid grid-cols-1 gap-3 border-t bg-gray-50 px-4 py-4 text-sm">
+                    <Detail label="Telefone" value={profile.phone} />
+                    <Detail
+                      label={profile.documentType ? profile.documentType.toUpperCase() : 'Documento'}
+                      value={profile.document}
+                    />
+                    <Detail label="Cidade" value={profile.city} />
+                    <Detail label="Instituição de ensino" value={profile.educationInstitution} />
+                    <Detail
+                      label="Aniversário"
+                      value={
+                        profile.birthday
+                          ? new Date(profile.birthday + 'T12:00:00').toLocaleDateString('pt-BR')
+                          : null
+                      }
+                    />
+                    <Detail label="Última atualização" value={formatDate(profile.updatedAt)} />
+                    <Detail label="Consentimento LGPD em" value={formatDate(profile.lgpdAcceptedAt)} />
+                    <div className="break-all">
+                      <span className="text-gray-400 text-xs">UID: </span>
+                      <span className="text-gray-500 text-xs font-mono">{profile.uid}</span>
+                    </div>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+          <li className="px-1 text-xs text-gray-400">
+            {profiles.length} conta{profiles.length !== 1 ? 's' : ''} no total
+          </li>
+        </ul>
+
+        <div className="hidden rounded-xl border bg-white overflow-hidden sm:block">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr>
@@ -252,6 +348,7 @@ export default function AdminContasPage() {
             {profiles.length} conta{profiles.length !== 1 ? 's' : ''} no total
           </div>
         </div>
+        </>
       )}
     </AdminShell>
   );

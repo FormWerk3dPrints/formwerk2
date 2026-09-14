@@ -51,11 +51,11 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminShell>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Painel Administrativo</h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Link
           href="/admin/categorias"
           className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border"

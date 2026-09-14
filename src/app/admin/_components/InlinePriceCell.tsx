@@ -104,7 +104,7 @@ export default function InlinePriceCell({
           disabled={saving}
           inputMode="decimal"
           aria-label={`Preço de ${label} em reais`}
-          className="w-24 rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-black focus:outline-none disabled:opacity-60"
+          className="w-28 rounded border border-gray-300 px-2 py-2 text-sm text-gray-900 focus:border-black focus:outline-none disabled:opacity-60 sm:w-24 sm:py-1"
         />
         {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />}
         {error && <span className="text-xs text-red-600">{error}</span>}
@@ -119,7 +119,7 @@ export default function InlinePriceCell({
         onClick={startEditing}
         title="Clique para alterar o preço"
         aria-label={`Alterar preço de ${label}`}
-        className="rounded px-1.5 py-0.5 -mx-1.5 text-left text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30"
+        className="-mx-1.5 rounded px-1.5 py-2 text-left text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 sm:py-0.5"
       >
         {formatted}
       </button>

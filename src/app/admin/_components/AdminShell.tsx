@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -12,7 +10,7 @@ import {
 } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
 import { isAdminEmail } from '@/lib/firebase/admin';
-import { LogOut, LayoutDashboard, FolderOpen, Package, FileText, Users, BarChart2, Boxes, LayoutGrid, ScrollText } from 'lucide-react';
+import { AdminNav } from './AdminNav';
 
 const LOGIN_ASCII_ART = String.raw`
                                                                                             +++::::--                                   __    _      __    _ ____          __                  __              _ __     
@@ -82,7 +80,6 @@ interface AdminShellProps {
 }
 
 export function AdminShell({ children }: AdminShellProps) {
-  const pathname = usePathname();
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -175,65 +172,11 @@ export function AdminShell({ children }: AdminShellProps) {
     );
   }
 
-  const navLinks = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/categorias', label: 'Categorias', icon: FolderOpen },
-    { href: '/admin/produtos', label: 'Produtos', icon: Package },
-    { href: '/admin/kits', label: 'Kits', icon: Boxes },
-    { href: '/admin/paineis', label: 'Painéis', icon: LayoutGrid },
-    { href: '/admin/emissao', label: 'Emissão', icon: FileText },
-    { href: '/admin/contas', label: 'Contas', icon: Users },
-    { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
-    { href: '/admin/logs', label: 'Log', icon: ScrollText },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Admin Header */}
-      <div className="bg-white border-b sticky top-0 z-40">
-        <div className="container mx-auto px-6 md:px-8">
-          <div className="flex items-center justify-between h-14">
-            <nav className="flex items-center gap-1">
-              {navLinks.map(({ href, label, icon: Icon }) => {
-                const isActive =
-                  href === '/admin'
-                    ? pathname === '/admin'
-                    : pathname.startsWith(href);
+    <div className="admin-ui min-h-screen bg-gray-50">
+      <AdminNav email={authUser.email} onLogout={handleLogout} />
 
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-black text-white'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-400 hidden sm:inline">
-                {authUser.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 text-gray-500 hover:text-red-600 transition-colors text-sm"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sair</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 md:px-8 py-8">{children}</div>
+      <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 md:px-8">{children}</div>
     </div>
   );
 }

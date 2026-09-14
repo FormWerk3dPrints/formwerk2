@@ -71,7 +71,7 @@ export default function AdminLogsPage() {
 
   return (
     <AdminShell>
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Log de alterações</h1>
           <p className="text-sm text-gray-500">

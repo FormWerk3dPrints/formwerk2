@@ -24,7 +24,10 @@ import {
   uploadWallPanelImages,
 } from '../_utils/helpers';
 import { useSmoothScroller } from '@/components/ScrollContext';
-import { Plus, Pencil, Trash2, X, Eye, EyeOff, ChevronUp, ChevronDown } from 'lucide-react';
+import { AdminModal } from '../_components/AdminModal';
+import { AdminIconButton, StatusPill } from '../_components/AdminControls';
+import { ImageOrderList } from '../_components/ImageOrderList';
+import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminWallPanelsPage() {
   const [wallPanels, setWallPanels] = useState<WallPanel[]>([]);
@@ -340,11 +343,11 @@ export default function AdminWallPanelsPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Painéis de Parede</h1>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 bg-black text-white px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity sm:py-2"
         >
           <Plus className="h-4 w-4" />
           Novo Módulo
@@ -358,7 +361,7 @@ export default function AdminWallPanelsPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Buscar por nome…"
-          className="border rounded-lg px-3 py-2 text-sm text-gray-700 w-64"
+          className="border rounded-lg px-3 py-2 text-sm text-gray-700 min-w-0 flex-1 sm:flex-none sm:w-64"
         />
         {searchQuery && (
           <button
@@ -372,25 +375,31 @@ export default function AdminWallPanelsPage() {
 
       {/* Form Modal */}
       {showForm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          data-lenis-prevent
-        >
-          {/* Sem onClick no fundo: clicar fora não fecha, pra não perder
-              o que foi preenchido por acidente. Fecha só no X ou em Cancelar. */}
-          <div
-            className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            data-lenis-prevent
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                {editing ? 'Editar' : 'Novo'} Módulo
-              </h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="h-5 w-5" />
+        // Sem fechar ao tocar fora: um toque acidental não pode descartar o
+        // que foi preenchido. Fecha só no X ou em Cancelar.
+        <AdminModal
+          title={`${editing ? 'Editar' : 'Novo'} Módulo`}
+          onClose={() => setShowForm(false)}
+          footer={
+            <div className="flex gap-3 sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="flex-1 rounded-lg border px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 sm:flex-none sm:py-2"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleSave}
+                className="flex-1 rounded-lg bg-black px-4 py-2.5 text-sm text-white hover:opacity-90 disabled:opacity-50 sm:flex-none sm:py-2"
+              >
+                {saving ? 'Salvando…' : editing ? 'Salvar alterações' : 'Criar módulo'}
               </button>
             </div>
-
+          }
+        >
             <div className="space-y-4">
               {/* Nome */}
               <div>
@@ -407,7 +416,7 @@ export default function AdminWallPanelsPage() {
               </div>
 
               {/* Preço + Moeda + Ativo */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Preço (centavos)
@@ -428,7 +437,7 @@ export default function AdminWallPanelsPage() {
                     className="w-full border rounded-lg px-3 py-2 text-gray-900"
                   />
                 </div>
-                <div className="flex items-end pb-2">
+                <div className="col-span-2 flex items-end sm:col-span-1 sm:pb-2">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -442,7 +451,7 @@ export default function AdminWallPanelsPage() {
               </div>
 
               {/* Dimensões do módulo (mm) — usadas para escalar proporcionalmente no /paineis */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Largura (mm)
@@ -470,59 +479,12 @@ export default function AdminWallPanelsPage() {
               </div>
 
               {/* Imagens existentes (edit) */}
-              {editing && editImageUrls.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Imagens cadastradas ({editImageUrls.length})
-                  </label>
-                  <div className="grid gap-2 max-h-48 overflow-y-auto">
-                    {editImageUrls.map((url, idx) => (
-                      <div
-                        key={url}
-                        className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2"
-                      >
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            type="button"
-                            disabled={idx === 0}
-                            onClick={() => moveImage(idx, -1)}
-                            className="text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
-                          >
-                            <ChevronUp className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            disabled={idx === editImageUrls.length - 1}
-                            onClick={() => moveImage(idx, 1)}
-                            className="text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
-                          >
-                            <ChevronDown className="h-4 w-4" />
-                          </button>
-                          <span className="text-xs text-gray-400 w-4">{idx + 1}</span>
-                        </div>
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={url} alt="" className="h-8 w-8 object-cover rounded shrink-0" />
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="max-w-[30ch] truncate text-xs underline text-gray-500"
-                          >
-                            {url}
-                          </a>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-red-500 hover:text-red-700 text-xs shrink-0"
-                          onClick={() => removeExistingImage(url)}
-                        >
-                          Remover
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {editing && (
+                <ImageOrderList
+                  urls={editImageUrls}
+                  onMove={(idx, direction) => void moveImage(idx, direction)}
+                  onRemove={(url) => void removeExistingImage(url)}
+                />
               )}
 
               {/* Upload de novas imagens */}
@@ -548,25 +510,7 @@ export default function AdminWallPanelsPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="rounded-lg border px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={handleSave}
-                className="rounded-lg bg-black px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {saving ? 'Salvando…' : editing ? 'Salvar alterações' : 'Criar módulo'}
-              </button>
-            </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
 
       {/* Tabela */}
@@ -579,8 +523,45 @@ export default function AdminWallPanelsPage() {
           {searchQuery ? 'Nenhum módulo encontrado.' : 'Nenhum módulo cadastrado ainda.'}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border overflow-hidden">
-          <table className="w-full">
+        <div className="sm:bg-white sm:rounded-xl sm:border sm:overflow-hidden">
+          {/* Celular: cartões. A tabela escondia preço e dimensões abaixo de md. */}
+          <ul className="space-y-3 sm:hidden">
+            {filteredWallPanels.map((wallPanel) => (
+              <li key={wallPanel.id} className="rounded-xl border bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-900">{wallPanel.name}</div>
+                    <div className="truncate text-xs text-gray-400">{wallPanel.id}</div>
+                  </div>
+                  <StatusPill active={wallPanel.active} />
+                </div>
+                <div className="mt-3 flex items-center justify-between gap-2 border-t pt-2">
+                  <div className="min-w-0 text-sm text-gray-600">
+                    {wallPanel.priceCents > 0
+                      ? (wallPanel.priceCents / 100).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: wallPanel.currency || 'BRL',
+                        })
+                      : '—'}
+                    <span className="text-gray-300"> · </span>
+                    {wallPanel.widthMm > 0 && wallPanel.heightMm > 0
+                      ? `${wallPanel.widthMm} × ${wallPanel.heightMm} mm`
+                      : '—'}
+                  </div>
+                  <div className="flex shrink-0 items-center">
+                    <AdminIconButton label="Editar" onClick={() => openEdit(wallPanel)}>
+                      <Pencil className="h-4 w-4" />
+                    </AdminIconButton>
+                    <AdminIconButton label="Excluir" tone="danger" onClick={() => handleDelete(wallPanel)}>
+                      <Trash2 className="h-4 w-4" />
+                    </AdminIconButton>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <table className="hidden w-full sm:table">
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">Módulo</th>

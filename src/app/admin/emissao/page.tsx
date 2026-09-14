@@ -419,7 +419,7 @@ export default function EmissaoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-900">
+    <main className="admin-ui min-h-screen bg-gray-50 text-gray-900">
       {popup && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
