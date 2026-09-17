@@ -62,7 +62,7 @@ export default function QuemSomos() {
             <div className="flex items-center justify-center">
               <Image
                 src="/images/foto_gestores.jpg"
-                alt="FORMWERK - Gestores"
+                alt="Foto dos gestores da FORMWERK"
                 width={500}
                 height={400}
                 className="w-full max-w-[500px] rounded-xl object-cover"

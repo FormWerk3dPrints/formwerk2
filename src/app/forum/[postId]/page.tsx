@@ -506,7 +506,10 @@ export default function ForumPostPage() {
         >
           <img
             src={post.imageUrls[lightboxIdx]}
-            alt=""
+            alt={
+              post.imageAlts?.[post.imageUrls[lightboxIdx]] ||
+              `Imagem ${lightboxIdx + 1} do post de ${post.authorName}`
+            }
             className="max-w-full max-h-full object-contain"
           />
           <button
@@ -580,7 +583,7 @@ export default function ForumPostPage() {
                 >
                   <img
                     src={url}
-                    alt=""
+                    alt={post.imageAlts?.[url] || `Imagem ${i + 1} do post de ${post.authorName}`}
                     className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
                   />
                 </button>

@@ -287,6 +287,7 @@ export default function AdminCategoriasPage() {
           {categories.map((cat) => (
             <li key={cat.id} className="flex items-center gap-3 rounded-xl border bg-white p-4">
               <span
+                data-contrast-keep
                 className={`h-6 w-6 shrink-0 rounded border ${cat.color ? '' : 'border-dashed'}`}
                 style={cat.color ? { backgroundColor: cat.color } : undefined}
               />
@@ -347,6 +348,7 @@ export default function AdminCategoriasPage() {
                     {cat.color && (
                       <div className="flex items-center gap-2">
                         <div
+                          data-contrast-keep
                           className="w-6 h-6 rounded border"
                           style={{ backgroundColor: cat.color }}
                         />

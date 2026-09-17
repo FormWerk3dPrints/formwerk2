@@ -478,6 +478,8 @@ export default function ContaPage() {
                   <button
                     key={tab}
                     type="button"
+                    // Opção ativa para leitores de tela; no alto contraste fica amarela.
+                    aria-pressed={authTab === tab}
                     onClick={() => { setAuthTab(tab); setErrorMessage(null); }}
                     className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                       authTab === tab ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
@@ -551,6 +553,7 @@ export default function ContaPage() {
                         <button
                           key={mode}
                           type="button"
+                          aria-pressed={emailMode === mode}
                           onClick={() => { setEmailMode(mode); setErrorMessage(null); }}
                           className={`flex-1 py-1.5 px-3 rounded-md text-sm font-medium transition-colors ${
                             emailMode === mode ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'

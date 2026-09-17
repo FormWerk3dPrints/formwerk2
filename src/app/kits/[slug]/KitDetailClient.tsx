@@ -7,6 +7,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
 import { useProductPrices } from '@/hooks/useProductPrices';
+import { coverImageAlt, type ImageAlts } from '@/lib/images/imageAlt';
 import { ArrowLeft } from 'lucide-react';
 
 export interface KitDetail {
@@ -16,6 +17,7 @@ export interface KitDetail {
   color: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts?: ImageAlts;
 }
 
 export interface KitProduct {
@@ -24,6 +26,7 @@ export interface KitProduct {
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts?: ImageAlts;
 }
 
 /** Preço do kit: só chega ao navegador se o usuário for verified. */
@@ -111,7 +114,7 @@ export default function KitDetailClient({
               >
                 <Image
                   src={mainImage}
-                  alt={kit.name}
+                  alt={coverImageAlt(kit)}
                   fill
                   sizes="(max-width: 767px) 100vw, 50vw"
                   className="object-cover"
@@ -180,6 +183,7 @@ export default function KitDetailClient({
                   description={product.description}
                   price={priceLabel(product.id)}
                   image={product.mainImageUrl || product.imageUrls[0] || ''}
+                  imageAlt={coverImageAlt(product)}
                   categoryColor={kit.color}
                   mobileLayout="side"
                 />

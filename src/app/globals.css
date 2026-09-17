@@ -200,6 +200,125 @@ input[type="color"].color-picker-input::-moz-color-swatch {
   display: none;
 }
 
+/* Alto contraste.
+   Ligado pelo botão do cabeçalho (ou por prefers-contrast: more, quando o
+   visitante nunca escolheu), que marca <html data-contrast="high">.
+
+   O site tem muitas cores em style={{}} inline, por isso as regras usam
+   !important: é o único jeito de CSS vencer o atributo style.
+
+   Os fundos viram transparentes sobre o body preto, em vez de pretos um a um.
+   Assim imagens e vídeos que ficam atrás de outras camadas continuam
+   visíveis. A regra geral usa :where() para ter especificidade mínima e
+   deixar as exceções logo abaixo vencerem.
+
+   Elementos que são desenhados com cor de fundo (barras do ícone de menu,
+   amostras de cor) recebem data-contrast-keep e ficam fora da regra geral. */
+html[data-contrast="high"],
+html[data-contrast="high"] body {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+html[data-contrast="high"] :where(body *:not(img, video, canvas, iframe, svg, svg *, [data-contrast-keep])) {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Camadas que ficam por cima do conteúdo precisam de fundo opaco; senão o
+   texto de baixo aparece através delas ao rolar. */
+html[data-contrast="high"] header,
+html[data-contrast="high"] footer,
+html[data-contrast="high"] .fixed,
+html[data-contrast="high"] .sticky,
+html[data-contrast="high"] [role="dialog"],
+html[data-contrast="high"] select,
+html[data-contrast="high"] option {
+  background-color: #000 !important;
+}
+
+html[data-contrast="high"] a,
+html[data-contrast="high"] a :where(*:not(svg *)) {
+  color: #ff0 !important;
+}
+
+html[data-contrast="high"] a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}
+
+html[data-contrast="high"] button,
+html[data-contrast="high"] input,
+html[data-contrast="high"] select,
+html[data-contrast="high"] textarea {
+  border: 1px solid #fff !important;
+}
+
+/* Estados ativos: página atual na navegação e botões ligados. */
+html[data-contrast="high"] [aria-current="page"],
+html[data-contrast="high"] [aria-pressed="true"] {
+  background-color: #ff0 !important;
+  color: #000 !important;
+}
+
+html[data-contrast="high"] :is([aria-current="page"], [aria-pressed="true"]) :where(*:not(svg *)) {
+  color: #000 !important;
+}
+
+html[data-contrast="high"] input[type="checkbox"],
+html[data-contrast="high"] input[type="radio"] {
+  accent-color: #ff0;
+}
+
+html[data-contrast="high"] ::placeholder {
+  color: #bbb !important;
+  opacity: 1;
+}
+
+html[data-contrast="high"] :focus-visible {
+  outline: 3px solid #ff0 !important;
+  outline-offset: 2px !important;
+}
+
+/* Seções puramente visuais, cheias de cor e animação, que não funcionam no
+   alto contraste: marcadas com data-contrast-hide, somem por completo. */
+html[data-contrast="high"] [data-contrast-hide] {
+  display: none !important;
+}
+
+/* Selos sobre fotos (preço no canto do ProductCard): com o fundo transparente
+   da regra geral o texto se perderia na imagem, então ganham fundo preto e texto branco. */
+html[data-contrast="high"] [data-contrast-badge] {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Nossos Clientes: o letreiro para e vira uma grade centralizada, sem o
+   esmaecimento das bordas, com um contorno amarelo em cada logo. */
+html[data-contrast="high"] .clients-marquee {
+  animation: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  width: auto;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0.5rem 1rem;
+}
+
+html[data-contrast="high"] .clients-marquee-mask {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html[data-contrast="high"] .clients-marquee > a {
+  box-shadow: 0 0 0 3px #ff0 !important;
+}
+
 /* Students text slide */
 @keyframes students-text-slide {
   from { transform: translateX(110vw); }

@@ -124,6 +124,7 @@ export default function AdminProdutosPage() {
             currency: data.currency ?? 'BRL',
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
             mainImageUrl: data.mainImageUrl,
+            imageAlts: data.imageAlts && typeof data.imageAlts === 'object' ? data.imageAlts : {},
             videoUrl: typeof data.videoUrl === 'string' ? data.videoUrl : undefined,
             salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
             active: data.active ?? false,
@@ -770,6 +771,19 @@ export default function AdminProdutosPage() {
                   urls={editImageUrls}
                   onMove={(idx, direction) => void moveImage(idx, direction)}
                   onRemove={(url) => void removeExistingImage(url)}
+                  altEditor={{
+                    collection: 'products',
+                    docId: editing.id,
+                    itemName: formName.trim() || editing.name,
+                    alts: editing.imageAlts,
+                    onSaved: (next) => {
+                      setEditing((prev) => (prev ? { ...prev, imageAlts: next } : prev));
+                      setProducts((prev) =>
+                        prev.map((p) => (p.id === editing.id ? { ...p, imageAlts: next } : p))
+                      );
+                      void logAdminAction('produto', editing.name, 'alteracao');
+                    },
+                  }}
                 />
               )}
 

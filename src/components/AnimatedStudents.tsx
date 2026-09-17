@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
+import { imageAlt, readImageAlts } from '@/lib/images/imageAlt';
 
 interface Props {
   count?: number;
@@ -13,6 +14,8 @@ interface KitPreview {
   id: string;
   name: string;
   imageUrl: string;
+  /** Descrição da imagem de capa do kit. */
+  imageAlt: string;
 }
 
 const FALLBACK_PALETTE = [
@@ -134,10 +137,12 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
               typeof data.mainImageUrl === 'string' && data.mainImageUrl
                 ? data.mainImageUrl
                 : imageUrls[0] ?? '';
+            const name = typeof data.name === 'string' ? data.name : '';
             return {
               id: d.id,
-              name: typeof data.name === 'string' ? data.name : '',
+              name,
               imageUrl,
+              imageAlt: imageAlt(name, imageUrl, readImageAlts(data.imageAlts)),
             };
           })
           .filter((k) => k.imageUrl);
@@ -253,8 +258,15 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
       ref={sectionRef}
       className="relative bg-white overflow-hidden min-h-[420px] lg:h-[50dvh]"
     >
-      {/* Full-bleed canvas background */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+      {/* Full-bleed canvas background.
+          data-contrast-hide: no alto contraste a animação some e fica só o
+          fundo preto atrás dos textos. */}
+      <canvas
+        ref={canvasRef}
+        data-contrast-hide
+        className="absolute inset-0 w-full h-full block"
+        aria-hidden="true"
+      />
 
       {/* Edge fades — desktop only */}
       <div
@@ -329,7 +341,7 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={kit.imageUrl}
-                      alt={kit.name}
+                      alt={kit.imageAlt}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   </div>
@@ -442,7 +454,7 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={kit.imageUrl}
-                      alt={kit.name}
+                      alt={kit.imageAlt}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   </div>
@@ -478,8 +490,10 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
             </div>
           </div>
 
+          {/* Castor aviador. data-contrast-hide: some no alto contraste. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            data-contrast-hide
             src="/images/assets/apontando.png"
             alt=""
             className="pointer-events-none select-none absolute -bottom-2 -left-22 w-28 z-30 drop-shadow-xl"

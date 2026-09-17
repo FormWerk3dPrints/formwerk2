@@ -1,6 +1,7 @@
 'use client';
 
 import ProductCard from '@/components/ProductCard';
+import { coverImageAlt, type ImageAlts } from '@/lib/images/imageAlt';
 
 export interface CatalogKit {
   id: string;
@@ -9,6 +10,7 @@ export interface CatalogKit {
   color: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts?: ImageAlts;
 }
 
 export default function KitsClient({ kits }: { kits: CatalogKit[] }) {
@@ -39,6 +41,7 @@ export default function KitsClient({ kits }: { kits: CatalogKit[] }) {
               description={kit.description}
               price=""
               image={kit.mainImageUrl || kit.imageUrls[0] || ''}
+              imageAlt={coverImageAlt(kit)}
               categoryColor={kit.color}
               href={`/kits/${kit.id}`}
               mobileLayout="side"

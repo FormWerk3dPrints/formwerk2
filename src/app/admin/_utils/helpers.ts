@@ -35,6 +35,8 @@ export type Product = {
   currency: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  /** Descrição de cada imagem, por URL (ver src/lib/images/imageAlt.ts). */
+  imageAlts: Record<string, string>;
   videoUrl?: string;
   salesCount: number;
   active: boolean;
@@ -53,6 +55,8 @@ export type Kit = {
   color: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  /** Descrição de cada imagem, por URL (ver src/lib/images/imageAlt.ts). */
+  imageAlts: Record<string, string>;
   active: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
@@ -69,6 +73,8 @@ export type WallPanel = {
   heightMm: number;
   imageUrls: string[];
   mainImageUrl?: string;
+  /** Descrição de cada imagem, por URL (ver src/lib/images/imageAlt.ts). */
+  imageAlts: Record<string, string>;
   active: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;

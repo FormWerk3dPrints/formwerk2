@@ -11,7 +11,7 @@ const clientsBase = [
   { name: 'SESI', src: '/images/clients/sesiescola.png', href: 'https://www.escolasesisc.com.br/' },
   { name: 'APAS', src: '/images/clients/APAS.png', href: 'https://www.instagram.com/apas.lages/' },
   { name: 'APAE', src: '/images/clients/APAE.png', href: 'https://www.apaelages.org.br/'},
-  { name: 'CISAMURES', src: '/images/clients/cisamures.jpeg', href: 'https://cisamures.sc.gov.br'},
+  { name: 'CISAMURES', src: '/images/clients/cisamures.png', href: 'https://cisamures.sc.gov.br'},
   //{ name: 'SION', src: '/images/clients/SION.png', href: 'https://sioncuritiba.com.br'},
 ];
 // Repetir 6x garante preenchimento em ultrawide (36 itens, duplicados no JSX = 72)
@@ -26,13 +26,18 @@ export default function ClientsSection() {
         </h2>
       </div>
 
-      {/* Full-bleed marquee (goes edge-to-edge) */}
+      {/* Full-bleed marquee (goes edge-to-edge).
+          No alto contraste vira uma grade parada (globals.css): as cópias do
+          loop levam data-contrast-hide, e cada cliente aparece uma vez só.
+          data-contrast-keep mantém o fundo branco atrás dos logos. */}
       <div className="relative left-1/2 w-screen -translate-x-1/2">
         <div className="clients-marquee-mask overflow-hidden">
           <div className="clients-marquee gap-10">
             {[...clients, ...clients].map((client, index) => (
               <a
                 key={`${client.name}-${index}`}
+                data-contrast-hide={index >= clientsBase.length || undefined}
+                data-contrast-keep
                 href={client.href}
                 target="_blank"
                 rel="noopener noreferrer"

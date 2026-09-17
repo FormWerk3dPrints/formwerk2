@@ -6,6 +6,7 @@ import {
   type EncryptedBlob,
 } from '@/lib/security/userProfileCrypto';
 import type { ForumPost, ForumTag } from '@/lib/forum/types';
+import { readImageAlts, sanitizeImageAlts } from '@/lib/images/imageAlt';
 
 function getBearerToken(req: Request): string | null {
   const h = req.headers.get('authorization');
@@ -26,6 +27,7 @@ function mapPost(id: string, data: DocumentData): ForumPost & { _createdAtMs: nu
     title: String(data.title ?? ''),
     body: String(data.body ?? ''),
     imageUrls: Array.isArray(data.imageUrls) ? (data.imageUrls as string[]) : [],
+    imageAlts: readImageAlts(data.imageAlts),
     videoUrl: typeof data.videoUrl === 'string' && data.videoUrl ? data.videoUrl : null,
     tags: Array.isArray(data.tags) ? (data.tags as ForumTag[]) : [],
     tagKeys: Array.isArray(data.tagKeys) ? (data.tagKeys as string[]) : [],
@@ -156,6 +158,8 @@ export async function POST(req: Request) {
     : [];
   const videoUrl: string | null =
     typeof payload.videoUrl === 'string' && payload.videoUrl ? payload.videoUrl : null;
+  // Só aceita descrições das imagens deste post, com tamanho limitado.
+  const imageAlts = sanitizeImageAlts(payload.imageAlts, imageUrls);
 
   if (!title) return NextResponse.json({ error: 'Título é obrigatório.' }, { status: 400 });
   if (!postBody)
@@ -174,6 +178,7 @@ export async function POST(req: Request) {
     title,
     body: postBody,
     imageUrls,
+    imageAlts,
     videoUrl,
     tags,
     tagKeys,

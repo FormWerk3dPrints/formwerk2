@@ -1,5 +1,6 @@
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
+import { readImageAlts } from '@/lib/images/imageAlt';
 import KitsClient, { type CatalogKit } from './KitsClient';
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +25,7 @@ export default async function KitsPage() {
       color: typeof data.color === 'string' && data.color ? data.color : '#0D6AA7',
       imageUrls,
       mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+      imageAlts: readImageAlts(data.imageAlts),
     };
   });
 

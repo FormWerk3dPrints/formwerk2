@@ -1,4 +1,5 @@
 import PricedProductGrid from '@/components/PricedProductGrid';
+import { coverImageAlt } from '@/lib/images/imageAlt';
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
 import { searchProductsByTokens } from '@/lib/products/search';
@@ -90,6 +91,7 @@ export default async function CatalogoResultados({
                     name: product.name,
                     description: product.description,
                     image: product.mainImageUrl || product.imageUrls[0] || '',
+                    imageAlt: coverImageAlt(product),
                     categoryColor:
                       product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ??
                       '#0D6AA7',
@@ -112,6 +114,7 @@ export default async function CatalogoResultados({
                     name: product.name,
                     description: product.description,
                     image: product.mainImageUrl || product.imageUrls[0] || '',
+                    imageAlt: coverImageAlt(product),
                     categoryColor:
                       product.categoryIds.map((id) => categoryColorById.get(id)).find(Boolean) ??
                       '#0D6AA7',

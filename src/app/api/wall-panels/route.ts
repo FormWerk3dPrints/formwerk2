@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { firebaseAdminAuth, firebaseAdminDb } from '@/lib/firebase/adminServer';
+import { readImageAlts } from '@/lib/images/imageAlt';
 
 function getBearerToken(req: Request): string | null {
   const authHeader = req.headers.get('authorization');
@@ -49,6 +50,7 @@ export async function GET(req: Request) {
             ? (data.imageUrls as string[]).filter(Boolean)
             : [],
           mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+          imageAlts: readImageAlts(data.imageAlts),
           active: data.active !== false,
           _createdAtMs: createdAtMs,
         };

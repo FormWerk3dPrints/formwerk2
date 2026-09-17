@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
+import { readImageAlts } from '@/lib/images/imageAlt';
 import CatalogoClient, {
   type CatalogCategory,
   type CatalogProduct,
@@ -52,6 +53,7 @@ export default async function Catalogo() {
       description: String(data.description ?? ''),
       imageUrls,
       mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+      imageAlts: readImageAlts(data.imageAlts),
     };
   });
 

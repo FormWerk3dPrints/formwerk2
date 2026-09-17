@@ -401,6 +401,6 @@ export default function AnimatedSales2({ salesCount }: AnimatedSales2Props) {
   }, [salesCount]);
 
   return (
-    <canvas ref={canvasRef} className="w-full h-full rounded-2xl" />
+    <canvas ref={canvasRef} className="w-full h-full rounded-2xl" aria-hidden="true" />
   );
 }

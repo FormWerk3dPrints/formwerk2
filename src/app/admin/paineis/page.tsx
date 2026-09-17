@@ -82,6 +82,7 @@ export default function AdminWallPanelsPage() {
             heightMm: typeof data.heightMm === 'number' ? data.heightMm : 0,
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
             mainImageUrl: data.mainImageUrl,
+            imageAlts: data.imageAlts && typeof data.imageAlts === 'object' ? data.imageAlts : {},
             active: data.active ?? false,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
@@ -484,6 +485,18 @@ export default function AdminWallPanelsPage() {
                   urls={editImageUrls}
                   onMove={(idx, direction) => void moveImage(idx, direction)}
                   onRemove={(url) => void removeExistingImage(url)}
+                  altEditor={{
+                    collection: 'wall-panels',
+                    docId: editing.id,
+                    itemName: formName.trim() || editing.name,
+                    alts: editing.imageAlts,
+                    onSaved: (next) => {
+                      setEditing((prev) => (prev ? { ...prev, imageAlts: next } : prev));
+                      setWallPanels((prev) =>
+                        prev.map((w) => (w.id === editing.id ? { ...w, imageAlts: next } : w))
+                      );
+                    },
+                  }}
                 />
               )}
 

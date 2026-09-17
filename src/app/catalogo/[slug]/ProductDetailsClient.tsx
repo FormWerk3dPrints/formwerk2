@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { ProductCommentsSection } from '../../../components/ProductCommentsSection';
+import { coverImageAlt, imageAlt, type ImageAlts } from '@/lib/images/imageAlt';
 
 export interface DetailsCategory {
   id: string;
@@ -20,6 +21,7 @@ export interface DetailsProduct {
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts?: ImageAlts;
   videoUrl?: string;
 }
 
@@ -64,11 +66,11 @@ export default function ProductDetailsClient({
 }) {
   // Mídias: vídeo primeiro (se existir), depois imagens
   const mediaItems = useMemo(() => {
-    const items: { type: 'video' | 'image'; url: string }[] = [];
+    const items: { type: 'video' | 'image'; url: string; alt: string }[] = [];
 
     // Vídeo como primeiro item
     if (product.videoUrl) {
-      items.push({ type: 'video', url: product.videoUrl });
+      items.push({ type: 'video', url: product.videoUrl, alt: `Vídeo de ${product.name}` });
     }
 
     // Imagens
@@ -76,12 +78,16 @@ export default function ProductDetailsClient({
     const main = typeof product.mainImageUrl === 'string' ? product.mainImageUrl : '';
     const merged = [main, ...urls].filter(Boolean);
     const uniqueImages = Array.from(new Set(merged));
-    for (const url of uniqueImages) {
-      items.push({ type: 'image', url });
-    }
+    uniqueImages.forEach((url, index) => {
+      items.push({
+        type: 'image',
+        url,
+        alt: imageAlt(product.name, url, product.imageAlts, { index, total: uniqueImages.length }),
+      });
+    });
 
     return items;
-  }, [product.imageUrls, product.mainImageUrl, product.videoUrl]);
+  }, [product.imageAlts, product.imageUrls, product.mainImageUrl, product.name, product.videoUrl]);
 
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
@@ -136,12 +142,13 @@ export default function ProductDetailsClient({
                       controls
                       disablePictureInPicture
                       controlsList="nodownload noplaybackrate"
+                      aria-label={currentMedia.alt}
                       className="absolute inset-0 w-full h-full object-contain bg-black product-media"
                     />
                   ) : (
                     <Image
                       src={currentMedia.url}
-                      alt={`${product.name} - ${safeMediaIndex + 1}`}
+                      alt={currentMedia.alt}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
@@ -173,8 +180,17 @@ export default function ProductDetailsClient({
                 )}
 
                 {mediaItems.length > 0 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                    {safeMediaIndex + 1} / {mediaItems.length}
+                  // aria-live: ao trocar de mídia, o leitor de tela anuncia a posição.
+                  <div
+                    aria-live="polite"
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm"
+                  >
+                    <span aria-hidden="true">
+                      {safeMediaIndex + 1} / {mediaItems.length}
+                    </span>
+                    <span className="sr-only">
+                      Mídia {safeMediaIndex + 1} de {mediaItems.length}
+                    </span>
                   </div>
                 )}
               </div>
@@ -185,6 +201,8 @@ export default function ProductDetailsClient({
                     <button
                       key={media.url}
                       onClick={() => setCurrentMediaIndex(index)}
+                      aria-label={`Mostrar ${media.alt}`}
+                      aria-pressed={safeMediaIndex === index}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors btn-hover-expand ${
                         safeMediaIndex === index ? 'border-blue-500' : 'border-gray-200'
                       }`}
@@ -196,7 +214,7 @@ export default function ProductDetailsClient({
                       ) : (
                         <Image
                           src={media.url}
-                          alt={`Thumbnail ${index + 1}`}
+                          alt=""
                           width={80}
                           height={80}
                           sizes="80px"
@@ -266,6 +284,7 @@ export default function ProductDetailsClient({
                       description={p.description}
                       price={priceLabel(p.id)}
                       image={p.mainImageUrl || p.imageUrls[0] || ''}
+                      imageAlt={coverImageAlt(p)}
                       categoryColor={cat?.color || '#0D6AA7'}
                       compact
                     />

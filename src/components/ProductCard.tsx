@@ -7,6 +7,8 @@ interface ProductCardProps {
   description: string;
   price: string;
   image: string;
+  /** Descrição da imagem para leitores de tela. Sem ela, usa o nome. */
+  imageAlt?: string;
   categoryColor: string;
   compact?: boolean;
   mobileLayout?: 'stack' | 'side';
@@ -19,6 +21,7 @@ export default function ProductCard({
   description,
   price,
   image,
+  imageAlt,
   categoryColor,
   compact = false,
   mobileLayout = 'stack',
@@ -60,14 +63,17 @@ export default function ProductCard({
         >
           <Image
             src={image}
-            alt={name}
+            alt={imageAlt || name}
             fill
             // sizes="(max-width: 768px) 112px, 250px" -> consome menos de images transfomations no deploy
             sizes="(max-width: 767px) 112px, (max-width: 1023px) calc(50vw - 40px), calc(33vw - 40px)"
             className="object-cover transition-transform duration-300 group-hover:scale-105 group-focus-within:scale-105 motion-reduce:transition-none"
           />
+          {/* data-contrast-badge: no alto contraste o selo fica com fundo preto
+              e valor branco, para não se perder na foto. */}
           {showPrice && (
             <div
+              data-contrast-badge
               className={`absolute top-0 right-0 rounded-bl-lg font-semibold text-white shadow-sm ${
                 compact ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs'
               }`}

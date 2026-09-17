@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { UserRound } from 'lucide-react';
+import ContrastToggle from './ContrastToggle';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,17 +63,21 @@ export default function Header() {
           >
             Contato
           </a>
-          <Link
-            href="/conta"
-            className="text-white hover:text-blue-100 transition-colors"
-            aria-label="Minha Conta"
-          >
-            <UserRound size={22} />
-          </Link>
+          <div className="flex items-center gap-4">
+            <ContrastToggle className="rounded-md p-1 text-white hover:text-blue-100 transition-colors" />
+            <Link
+              href="/conta"
+              className="text-white hover:text-blue-100 transition-colors"
+              aria-label="Minha Conta"
+            >
+              <UserRound size={22} />
+            </Link>
+          </div>
         </div>
 
-        {/* Mobile: ícone de conta (sempre visível) + botão hamburger */}
+        {/* Mobile: alto contraste e conta (sempre visíveis) + botão hamburger */}
         <div className="md:hidden flex items-center gap-1">
+          <ContrastToggle className="rounded-md p-2 text-white hover:text-blue-100 transition-colors" />
           <Link
             href="/conta"
             className="text-white hover:text-blue-100 transition-colors p-2"
@@ -87,17 +92,22 @@ export default function Header() {
           aria-expanded={isMobileMenuOpen}
           aria-label="Menu de navegação"
           >
+            {/* data-contrast-keep: as barras são desenhadas com cor de fundo, e
+                o alto contraste zera fundos — sem isso o ícone sumiria. */}
             <span
+              data-contrast-keep
               className={`block w-6 h-0.5 bg-white transition-all duration-300 ${
                 isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''
               }`}
             />
             <span
+              data-contrast-keep
               className={`block w-6 h-0.5 bg-white my-1 transition-all duration-300 ${
                 isMobileMenuOpen ? 'opacity-0' : ''
               }`}
             />
             <span
+              data-contrast-keep
               className={`block w-6 h-0.5 bg-white transition-all duration-300 ${
                 isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
               }`}

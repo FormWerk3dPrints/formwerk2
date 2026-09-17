@@ -1,3 +1,5 @@
+import type { ImageAlts } from '@/lib/images/imageAlt';
+
 export type ForumTagType = 'geral' | 'product' | 'category' | 'kit';
 
 export interface ForumTag {
@@ -15,6 +17,8 @@ export interface ForumPost {
   title: string;
   body: string;
   imageUrls: string[];
+  /** Descrição de cada imagem escrita por quem publicou, por URL. */
+  imageAlts: ImageAlts;
   videoUrl: string | null;
   tags: ForumTag[];
   tagKeys: string[];  // e.g. ['geral', 'product:slug', 'category:id']

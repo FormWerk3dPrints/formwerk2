@@ -378,7 +378,7 @@ export default function AnimatedSales3Mobile({ salesCount, started = true }: Ani
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div ref={containerRef} className="w-full h-full" />
+      <div ref={containerRef} className="w-full h-full" aria-hidden="true" />
     </div>
   );
 }

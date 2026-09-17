@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { firebaseAdminAuth, firebaseAdminDb } from '@/lib/firebase/adminServer';
 import type { ForumPost, ForumTag } from '@/lib/forum/types';
+import { readImageAlts } from '@/lib/images/imageAlt';
 
 function getBearerToken(req: Request): string | null {
   const h = req.headers.get('authorization');
@@ -31,6 +32,7 @@ export async function GET(
       title: String(data.title ?? ''),
       body: String(data.body ?? ''),
       imageUrls: Array.isArray(data.imageUrls) ? (data.imageUrls as string[]) : [],
+      imageAlts: readImageAlts(data.imageAlts),
       videoUrl: typeof data.videoUrl === 'string' && data.videoUrl ? data.videoUrl : null,
       tags: Array.isArray(data.tags) ? (data.tags as ForumTag[]) : [],
       tagKeys: Array.isArray(data.tagKeys) ? (data.tagKeys as string[]) : [],

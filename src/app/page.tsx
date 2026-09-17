@@ -15,6 +15,7 @@ import AnimatedStudents from '@/components/AnimatedStudents';
 import AnimatedSales3 from '@/components/AnimatedSales3';
 import AnimatedSales3Mobile from '@/components/AnimatedSales3Mobile';
 import { getGlobalStats } from '@/lib/stats/getGlobalStats';
+import { coverImageAlt, readImageAlts, type ImageAlts } from '@/lib/images/imageAlt';
 
 interface TopProduct {
   id: string;
@@ -24,6 +25,7 @@ interface TopProduct {
   categoryColor: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts: ImageAlts;
   salesCount: number;
   createdAt: Date;
 }
@@ -142,6 +144,7 @@ export default function Home() {
             categoryColor: category?.color ?? '#0D6AA7',
             imageUrls,
             mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+            imageAlts: readImageAlts(data.imageAlts),
             salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
             createdAt: data.createdAt?.toDate?.() ?? new Date(0),
           };
@@ -173,8 +176,8 @@ export default function Home() {
         {/* Estudantes Impactados */}
         <AnimatedStudents count={1250} />
 
-        {/* Plane flyover */}
-        <section className="relative overflow-hidden h-[80px] bg-white">
+        {/* Plane flyover. data-contrast-hide: avião e faixa somem no alto contraste. */}
+        <section data-contrast-hide className="relative overflow-hidden h-[80px] bg-white">
           <div className="plane-flyover absolute top-1/2 left-0 flex items-center whitespace-nowrap">
             <Image
               src="/images/assets/aviao.gif"
@@ -228,6 +231,7 @@ export default function Home() {
                     description={product.description}
                     price={priceLabel(product.id)}
                     image={product.mainImageUrl || product.imageUrls[0] || '/images/placeholder.png'}
+                    imageAlt={coverImageAlt(product)}
                     categoryColor={product.categoryColor}
                     compact
                   />

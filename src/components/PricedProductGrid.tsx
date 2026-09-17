@@ -8,6 +8,8 @@ export type PricedGridItem = {
   name: string;
   description: string;
   image: string;
+  /** Descrição da imagem para leitores de tela. Sem ela, o card usa o nome. */
+  imageAlt?: string;
   categoryColor: string;
 };
 
@@ -37,6 +39,7 @@ export default function PricedProductGrid({
           description={item.description}
           price={priceLabel(item.id)}
           image={item.image}
+          imageAlt={item.imageAlt}
           categoryColor={item.categoryColor}
           mobileLayout={mobileLayout}
         />

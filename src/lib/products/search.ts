@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
 import { tokenize } from '@/lib/text/normalize';
+import { readImageAlts, type ImageAlts } from '@/lib/images/imageAlt';
 
 export interface ProductSearchResult {
   id: string; // slug
@@ -18,6 +19,7 @@ export interface ProductSearchResult {
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts: ImageAlts;
   nameTokens: string[];
   keywords: string[];
   active: boolean;
@@ -48,6 +50,7 @@ function mapProductDoc(id: string, data: DocumentData): ProductSearchResult {
     description: typeof data.description === 'string' ? data.description : '',
     imageUrls,
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+    imageAlts: readImageAlts(data.imageAlts),
     nameTokens: asStringArray(data.nameTokens),
     keywords: asStringArray(data.keywords),
     active: data.active !== false,

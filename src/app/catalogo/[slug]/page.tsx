@@ -1,5 +1,6 @@
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
+import { readImageAlts } from '@/lib/images/imageAlt';
 import ProductDetailsClient, {
   type DetailsCategory,
   type DetailsProduct,
@@ -41,6 +42,7 @@ export default async function ProductPage({
     description: String(data.description ?? ''),
     imageUrls,
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+    imageAlts: readImageAlts(data.imageAlts),
     videoUrl: typeof data.videoUrl === 'string' && data.videoUrl ? data.videoUrl : undefined,
   };
 

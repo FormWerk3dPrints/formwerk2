@@ -6,10 +6,24 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { firebaseAuth, firebaseStorage } from '@/lib/firebase/client';
 import type { ForumTag } from '@/lib/forum/types';
+import { IMAGE_ALT_MAX_LENGTH } from '@/lib/images/imageAlt';
 
 type RefItem = { id: string; name: string };
 
 // ── helpers ────────────────────────────────────────────────────────────────
+
+// Uma URL de pré-visualização por arquivo. Criar a URL no render gerava uma
+// nova a cada tecla digitada na descrição, e a miniatura recarregava.
+const previewUrls = new WeakMap<File, string>();
+
+function previewUrl(file: File): string {
+  let url = previewUrls.get(file);
+  if (!url) {
+    url = URL.createObjectURL(file);
+    previewUrls.set(file, url);
+  }
+  return url;
+}
 
 async function uploadFile(file: File, uid: string): Promise<string> {
   const ext = file.name.split('.').pop() ?? 'bin';
@@ -35,6 +49,8 @@ export default function NovoPostPage() {
   const [body, setBody] = useState('');
   const [tags, setTags] = useState<ForumTag[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  // Descrição de cada imagem, na mesma ordem de imageFiles.
+  const [imageDescriptions, setImageDescriptions] = useState<string[]>([]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
@@ -102,6 +118,13 @@ export default function NovoPostPage() {
     try {
       // Upload images
       const imageUrls = await Promise.all(imageFiles.map((f) => uploadFile(f, authUser.uid)));
+      // Descrições por URL. Imagem sem texto fica de fora e recebe a descrição
+      // automática na hora de exibir.
+      const imageAlts = Object.fromEntries(
+        imageUrls
+          .map((url, i) => [url, (imageDescriptions[i] ?? '').trim()] as const)
+          .filter(([, text]) => text)
+      );
 
       // Upload video
       let videoUrl: string | null = null;
@@ -116,7 +139,14 @@ export default function NovoPostPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title: title.trim(), body: body.trim(), tags, imageUrls, videoUrl }),
+        body: JSON.stringify({
+          title: title.trim(),
+          body: body.trim(),
+          tags,
+          imageUrls,
+          imageAlts,
+          videoUrl,
+        }),
       });
 
       if (!res.ok) {
@@ -334,24 +364,55 @@ export default function NovoPostPage() {
               onChange={handleImagesChange}
             />
             {imageFiles.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <ul className="mt-3 space-y-3">
                 {imageFiles.map((f, i) => (
-                  <div key={i} className="relative group">
+                  <li key={i} className="flex items-start gap-3">
                     <img
-                      src={URL.createObjectURL(f)}
-                      alt={f.name}
-                      className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                      src={previewUrl(f)}
+                      alt=""
+                      className="w-20 h-20 shrink-0 object-cover rounded-lg border border-gray-200"
                     />
+                    <div className="min-w-0 flex-1">
+                      <label
+                        htmlFor={`forum-image-alt-${i}`}
+                        className="block text-xs font-medium text-gray-600 mb-1"
+                      >
+                        Descrição da imagem {i + 1}{' '}
+                        <span className="font-normal text-gray-400">(opcional)</span>
+                      </label>
+                      <input
+                        id={`forum-image-alt-${i}`}
+                        type="text"
+                        value={imageDescriptions[i] ?? ''}
+                        maxLength={IMAGE_ALT_MAX_LENGTH}
+                        onChange={(e) => {
+                          const text = e.target.value;
+                          setImageDescriptions((prev) => {
+                            const next = [...prev];
+                            next[i] = text;
+                            return next;
+                          });
+                        }}
+                        placeholder="O que a imagem mostra, para quem usa leitor de tela"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900"
+                      />
+                    </div>
+                    {/* Botão sempre visível: antes só aparecia no hover do mouse,
+                        o que o deixava inalcançável no toque e pelo teclado. */}
                     <button
                       type="button"
-                      onClick={() => removeImage(i)}
-                      className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => {
+                        removeImage(i);
+                        setImageDescriptions((prev) => prev.filter((_, j) => j !== i));
+                      }}
+                      aria-label={`Remover imagem ${i + 1}`}
+                      className="shrink-0 rounded-lg px-2 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
-                      ×
+                      Remover
                     </button>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </div>
 

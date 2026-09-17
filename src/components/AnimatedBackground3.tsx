@@ -288,6 +288,6 @@ export default function AnimatedBackground3() {
   }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none" />
+    <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true" />
   );
 }

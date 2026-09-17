@@ -164,6 +164,12 @@ O endpoint é `GET /api/admin/analytics`, protegido por `Authorization: Bearer
 `GA4_PROPERTY_ID` ou sem as credenciais do Admin SDK ele responde
 `503 not-configured` e a página exibe o guia de configuração no lugar dos gráficos.
 
+## Acessibilidade
+
+- **VLibras.** Tradutor oficial de Português para Libras do Governo Federal, carregado em `src/app/layout.tsx` a partir de `https://vlibras.gov.br/app/vlibras-plugin.js`. O script cria sozinho o botão flutuante à direita e só baixa o avatar quando alguém clica nele.
+- **Alto contraste.** Botão no cabeçalho (`src/components/ContrastToggle.tsx`). A escolha fica no `localStorage` (`formwerk:contrast`) e um script no `<head>` a aplica antes da primeira pintura; sem escolha salva, segue `prefers-contrast: more` do sistema. As regras ficam no fim de `src/app/globals.css`, sob `html[data-contrast="high"]`. Elementos desenhados só com cor de fundo, como as barras do ícone de menu e amostras de cor, precisam do atributo `data-contrast-keep` para não sumirem. Selos sobre fotos, como o preço no canto do `ProductCard`, levam `data-contrast-badge` e ficam com fundo preto e texto branco. Botões de alternância, como as disciplinas em `/catalogo` e as opções de login em `/conta` (Google ou e-mail, entrar ou criar conta), usam `aria-pressed` e ficam amarelos com texto preto quando selecionados. Elementos puramente visuais que não funcionam no alto contraste levam `data-contrast-hide` e ficam ocultos enquanto ele está ligado; hoje são a animação de fundo da primeira seção da home (que fica só com fundo preto atrás dos textos), o castor aviador ao lado do cartão de kits e a faixa com o avião logo abaixo. O letreiro de "Nossos Clientes" para e vira uma grade com cada cliente uma vez só e contorno amarelo nos logos (regras em `.clients-marquee`, no mesmo bloco).
+- **Descrição de imagens.** Produtos, kits, painéis e posts do fórum guardam `imageAlts`, um mapa `{ [urlDaImagem]: descrição }` ao lado de `imageUrls`. A chave é a URL, então reordenar ou remover imagens não desalinha as descrições. No admin, cada imagem cadastrada tem um campo de descrição que grava ao sair do campo. No fórum, quem publica pode descrever cada imagem. Sem descrição escrita, o texto alternativo é gerado a partir do nome e da posição (`src/lib/images/imageAlt.ts`).
+
 ## Deploy
 
 O projeto faz deploy automático na Vercel a cada push no branch `main`.

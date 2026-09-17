@@ -389,7 +389,7 @@ export default function AnimatedSales3({ salesCount, started = true }: AnimatedS
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div ref={containerRef} className="w-full h-full" />
+      <div ref={containerRef} className="w-full h-full" aria-hidden="true" />
     </div>
   );
 }

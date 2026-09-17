@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { onAuthStateChanged } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
 import { Download, Image as ImageIcon, RotateCw, X } from 'lucide-react';
+import { coverImageAlt, type ImageAlts } from '@/lib/images/imageAlt';
 
 export interface WallPanelModule {
   id: string;
@@ -16,6 +17,7 @@ export interface WallPanelModule {
   heightMm: number;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts?: ImageAlts;
   /** Only present when the viewer is a verified user (gated by /api/wall-panels). */
   priceCents?: number;
   currency?: string;
@@ -1095,7 +1097,7 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
                   >
                     <Image
                       src={module.mainImageUrl || module.imageUrls[0] || ''}
-                      alt={module.name}
+                      alt={coverImageAlt(module)}
                       fill
                       sizes="240px"
                       className="object-cover pointer-events-none"
@@ -1221,7 +1223,7 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
                   <div className="relative aspect-square bg-gray-100">
                     <Image
                       src={m.mainImageUrl || m.imageUrls[0] || ''}
-                      alt={m.name}
+                      alt={coverImageAlt(m)}
                       fill
                       sizes="(max-width: 767px) 50vw, (max-width: 1023px) 25vw, 180px"
                       className="object-cover"

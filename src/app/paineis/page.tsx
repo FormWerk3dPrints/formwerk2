@@ -1,5 +1,6 @@
 import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
+import { readImageAlts } from '@/lib/images/imageAlt';
 import PaineisClient, { type WallPanelModule } from './PaineisClient';
 
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,7 @@ export default async function PaineisPage() {
       heightMm: typeof data.heightMm === 'number' ? data.heightMm : 0,
       imageUrls,
       mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+      imageAlts: readImageAlts(data.imageAlts),
     };
   });
 

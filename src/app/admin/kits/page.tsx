@@ -94,6 +94,7 @@ export default function AdminKitsPage() {
             currency: data.currency ?? 'BRL',
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
             mainImageUrl: data.mainImageUrl,
+            imageAlts: data.imageAlts && typeof data.imageAlts === 'object' ? data.imageAlts : {},
             videoUrl: typeof data.videoUrl === 'string' ? data.videoUrl : undefined,
             salesCount: typeof data.salesCount === 'number' ? data.salesCount : 0,
             active: data.active ?? false,
@@ -116,6 +117,7 @@ export default function AdminKitsPage() {
             currency: data.currency ?? 'BRL',
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : [],
             mainImageUrl: data.mainImageUrl,
+            imageAlts: data.imageAlts && typeof data.imageAlts === 'object' ? data.imageAlts : {},
             color: typeof data.color === 'string' ? data.color : '#0D6AA7',
             active: data.active ?? false,
             createdAt: data.createdAt,
@@ -595,6 +597,19 @@ export default function AdminKitsPage() {
                   urls={editImageUrls}
                   onMove={(idx, direction) => void moveImage(idx, direction)}
                   onRemove={(url) => void removeExistingImage(url)}
+                  altEditor={{
+                    collection: 'kits',
+                    docId: editing.id,
+                    itemName: formName.trim() || editing.name,
+                    alts: editing.imageAlts,
+                    onSaved: (next) => {
+                      setEditing((prev) => (prev ? { ...prev, imageAlts: next } : prev));
+                      setKits((prev) =>
+                        prev.map((k) => (k.id === editing.id ? { ...k, imageAlts: next } : k))
+                      );
+                      void logAdminAction('kit', editing.name, 'alteracao');
+                    },
+                  }}
                 />
               )}
 

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { collection, doc, getDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { firestoreServerDb } from '@/lib/firebase/server';
+import { readImageAlts } from '@/lib/images/imageAlt';
 import KitDetailClient, { type KitDetail, type KitProduct } from './KitDetailClient';
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +30,7 @@ export default async function KitSlugPage({
     color: typeof data.color === 'string' && data.color ? data.color : '#0D6AA7',
     imageUrls: Array.isArray(data.imageUrls) ? (data.imageUrls as string[]).filter(Boolean) : [],
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,
+    imageAlts: readImageAlts(data.imageAlts),
   };
 
   let products: KitProduct[] = [];
@@ -54,6 +56,7 @@ export default async function KitSlugPage({
           description: String(p.description ?? ''),
           imageUrls,
           mainImageUrl: typeof p.mainImageUrl === 'string' ? p.mainImageUrl : undefined,
+          imageAlts: readImageAlts(p.imageAlts),
         };
       })
       .sort((a, b) => productIds.indexOf(a.id) - productIds.indexOf(b.id));

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 import { useProductPrices } from '@/hooks/useProductPrices';
+import { coverImageAlt, type ImageAlts } from '@/lib/images/imageAlt';
 
 export interface CatalogCategory {
   id: string;
@@ -19,6 +20,7 @@ export interface CatalogProduct {
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
+  imageAlts?: ImageAlts;
 }
 
 type ProductSuggestion = {
@@ -263,6 +265,9 @@ export default function CatalogoClient({
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
+                // Informa a disciplina selecionada a leitores de tela; no alto
+                // contraste, aria-pressed também pinta o botão de amarelo.
+                aria-pressed={selectedCategory === category.id}
                 className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-all text-sm md:text-base btn-hover-expand ${
                   selectedCategory === category.id
                     ? 'text-white shadow-lg'
@@ -300,6 +305,7 @@ export default function CatalogoClient({
                 description={product.description}
                 price={priceLabel(product.id)}
                 image={product.mainImageUrl || product.imageUrls[0] || ''}
+                imageAlt={coverImageAlt(product)}
                 categoryColor={selectedCategoryData?.color || '#0D6AA7'}
                 mobileLayout="side"
               />
