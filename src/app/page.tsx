@@ -463,7 +463,7 @@ export default function Home() {
               />
 
               <TestimonialCard
-                initials="RL"
+                imageUrl="/images/educadores/rosane.jpeg"
                 name="Rosane Longhi"
                 role="Coordenadora Pedagógica da APAS"
                 quote={`O estudante surdo compreende o mundo por meio do canal visual espacial, imagens e textos criam mapas mentais mais duradouros que explicações puramente textuais. Conteúdos complexos tornam-se compreensíveis por meio da experimentação prática. O material concreto, o jogo, conecta o objeto real ao sinal em libras e a palavra escrita em português. Os jogos e materiais adaptados nivelam o aprendizado permitindo que surdos e ouvintes joguem e estudem juntos!`}
