@@ -274,10 +274,43 @@ export default function AnimatedBackground3() {
       frameRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    // O rodapé existe em todas as páginas e quase sempre está fora da tela.
+    // Sem isto, a cena seguia sendo renderizada a página inteira.
+    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let naTela = false;
+
+    const retomar = () => {
+      if (frameRef.current || !naTela || document.hidden || semMovimento.matches) return;
+      clock.getDelta(); // descarta o tempo parado, senão o primeiro quadro dá um salto
+      frameRef.current = requestAnimationFrame(animate);
+    };
+
+    const parar = () => {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      frameRef.current = undefined;
+    };
+
+    renderer.render(scene, camera);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        naTela = entry.isIntersecting;
+        if (naTela) retomar();
+        else parar();
+      },
+      { threshold: 0 },
+    );
+    io.observe(container);
+
+    const aoTrocarAba = () => (document.hidden ? parar() : retomar());
+    document.addEventListener("visibilitychange", aoTrocarAba);
+    semMovimento.addEventListener("change", aoTrocarAba);
 
     return () => {
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      parar();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", aoTrocarAba);
+      semMovimento.removeEventListener("change", aoTrocarAba);
       window.removeEventListener("scroll", onScroll);
       ro.disconnect();
       renderer.dispose();

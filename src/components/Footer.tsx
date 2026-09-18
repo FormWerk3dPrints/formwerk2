@@ -1,4 +1,4 @@
-import AnimatedBackground from "./AnimatedBackground3";
+import FooterBackground from "./FooterBackground";
 import { Mail, Phone } from "lucide-react";
 import { siInstagram, siWhatsapp } from "simple-icons/icons";
 
@@ -35,9 +35,7 @@ export default function Footer() {
       className="relative overflow-hidden bg-gray-900 text-white pt-4 pb-4 mt-0 font-normal border-t-0"
       style={{ fontFamily: 'var(--font-geist-sans, Arial, sans-serif)', borderTop: 'none' }}
     >
-      <div className="absolute inset-0 z-0 pointer-events-none scale-75 md:scale-100 origin-center">
-        <AnimatedBackground />
-      </div>
+      <FooterBackground />
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 gap-4 mb-4">
 

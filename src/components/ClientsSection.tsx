@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 // Clientes reais - apenas 4 por enquanto
 const clientsBase = [
@@ -15,12 +16,44 @@ const clientsBase = [
   { name: 'Santa Rosa', src: '/images/clients/santarosa.png', href: 'https://www.eusousantarosa.com.br/'},
   //{ name: 'SION', src: '/images/clients/SION.png', href: 'https://sioncuritiba.com.br'},
 ];
-// Repetir 6x garante preenchimento em ultrawide (36 itens, duplicados no JSX = 72)
-const clients = Array(6).fill(clientsBase).flat();
+// Largura de cada logo no letreiro: 64px da imagem + 40px de gap-10.
+const LOGO_SLOT = 104;
 
 export default function ClientsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  // Quantas vezes a lista se repete. O letreiro desliza metade da faixa, então
+  // cada metade precisa ser ao menos tão larga quanto a tela. Antes eram 6
+  // cópias fixas (84 elementos no DOM) para dar conta de ultrawide; agora a
+  // conta é feita pela largura real, e numa tela comum ficam bem menos.
+  const [copias, setCopias] = useState(3);
+  const [foraDaTela, setForaDaTela] = useState(false);
+
+  useEffect(() => {
+    const calcular = () => {
+      const larguraDaLista = clientsBase.length * LOGO_SLOT;
+      setCopias(Math.max(2, Math.ceil(window.innerWidth / larguraDaLista) + 1));
+    };
+    calcular();
+    window.addEventListener('resize', calcular);
+    return () => window.removeEventListener('resize', calcular);
+  }, []);
+
+  // Fora da tela a animação para: senão o navegador segue compondo uma camada
+  // de vários milhares de pixels de largura durante a página inteira.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setForaDaTela(!entry.isIntersecting), {
+      threshold: 0,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const clients = useMemo(() => Array(copias).fill(clientsBase).flat(), [copias]);
+
   return (
-    <section className="py-12 bg-white">
+    <section ref={sectionRef} className="py-12 bg-white">
       <div className="container mx-auto max-w-6xl px-4">
         <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
           Nossos Clientes:
@@ -33,27 +66,35 @@ export default function ClientsSection() {
           data-contrast-keep mantém o fundo branco atrás dos logos. */}
       <div className="relative left-1/2 w-screen -translate-x-1/2">
         <div className="clients-marquee-mask overflow-hidden">
-          <div className="clients-marquee gap-10">
-            {[...clients, ...clients].map((client, index) => (
-              <a
-                key={`${client.name}-${index}`}
-                data-contrast-hide={index >= clientsBase.length || undefined}
-                data-contrast-keep
-                href={client.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center rounded-xl overflow-hidden bg-white ring-1 ring-gray-200"
-              >
-                <Image
-                  src={client.src}
-                  alt={client.name}
-                  width={80}
-                  height={80}
-                  unoptimized
-                  className="block"
-                />
-              </a>
-            ))}
+          <div className={`clients-marquee gap-10 ${foraDaTela ? 'is-paused' : ''}`}>
+            {[...clients, ...clients].map((client, index) => {
+              // Só a primeira volta da lista é real; o resto existe para o
+              // efeito contínuo e fica fora do teclado e do leitor de tela.
+              const repetido = index >= clientsBase.length;
+              return (
+                <a
+                  key={`${client.name}-${index}`}
+                  data-contrast-hide={repetido || undefined}
+                  data-contrast-keep
+                  href={client.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-hidden={repetido || undefined}
+                  tabIndex={repetido ? -1 : undefined}
+                  className="flex items-center justify-center rounded-xl overflow-hidden bg-white ring-1 ring-gray-200"
+                >
+                  {/* Sem unoptimized: os arquivos originais chegam a 121 KB
+                      para um logo exibido a 64px. */}
+                  <Image
+                    src={client.src}
+                    alt={client.name}
+                    width={80}
+                    height={80}
+                    className="block"
+                  />
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>

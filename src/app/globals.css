@@ -361,6 +361,11 @@ html[data-contrast="high"] .clients-marquee > a {
   backface-visibility: hidden;
 }
 
+/* Fora da tela o letreiro para: a classe vem de ClientsSection. */
+.clients-marquee.is-paused {
+  animation-play-state: paused;
+}
+
 /* Fade edges so items feel like they come from outside the screen */
 .clients-marquee-mask {
   -webkit-mask-image: linear-gradient(

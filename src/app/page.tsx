@@ -4,18 +4,23 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Recycle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { firestoreDb } from '@/lib/firebase/client';
 import ProductCard from '@/components/ProductCard';
 import { useProductPrices } from '@/hooks/useProductPrices';
-import AnimatedBackground from '@/components/AnimatedBackground';
-import AnimatedBackgroundMobile from '@/components/AnimatedBackgroundMobile';
 import ClientsSection from '@/components/ClientsSection';
 import AnimatedStudents from '@/components/AnimatedStudents';
 import AnimatedSales3 from '@/components/AnimatedSales3';
 import AnimatedSales3Mobile from '@/components/AnimatedSales3Mobile';
 import { getGlobalStats } from '@/lib/stats/getGlobalStats';
 import { coverImageAlt, readImageAlts, type ImageAlts } from '@/lib/images/imageAlt';
+
+// O icosaedro do carregamento traz junto o Three.js (126 KB comprimidos), por
+// isso é carregado à parte, só quando a tela de carregamento aparece.
+const AnimatedBackground = dynamic(() => import('@/components/AnimatedBackground'), {
+  ssr: false,
+});
 
 interface TopProduct {
   id: string;
@@ -242,12 +247,7 @@ export default function Home() {
             <div className="container mx-auto max-w-6xl">
               <div className="flex flex-col items-center justify-end py-8 md:min-h-[497px]">
                 <div className="relative w-48 h-96 md:w-72 md:h-[28rem] -mb-4">
-                  <div className="md:hidden absolute inset-0">
-                    <AnimatedBackgroundMobile />
-                  </div>
-                  <div className="hidden md:block absolute inset-0">
-                    <AnimatedBackground />
-                  </div>
+                  <AnimatedBackground />
                 </div>
                 <p className="text-xl text-gray-700 font-bold">Carregando produtos...</p>
               </div>
@@ -379,12 +379,11 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
               <span className="md:whitespace-nowrap">Por que Escolher a</span>
               <Image
-                src="/logo_colorida_vetorial.svg"
+                src="/images/logo-formwerk-600.png"
                 alt="FormWerk"
                 width={35}
-                height={35}
+                height={41}
                 className="hidden md:inline-block"
-                unoptimized
               />
               <span className="md:whitespace-nowrap">FormWerk?</span>
             </h2>

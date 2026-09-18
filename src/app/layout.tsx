@@ -26,9 +26,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FormWerk - Materiais Educacionais Concretos",
   description: "Criando materiais educacionais personalizados através de impressão 3D",
-  icons: {
-    icon: "/logo_colorida_vetorial.svg",
-  },
+  // Sem icons aqui de propósito: o Next usa src/app/favicon.ico sozinho.
+  // Antes isto apontava para logo_colorida_vetorial.svg, um arquivo de 10,7 MB
+  // com 2.484 caminhos, baixado em toda página só para o ícone da aba.
 };
 
 export default function RootLayout({

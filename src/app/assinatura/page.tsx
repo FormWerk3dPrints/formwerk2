@@ -78,13 +78,12 @@ export default function Assinatura() {
             {/* Imagem */}
             <div className="flex items-center justify-center">
               <Image
-                src="/logo_colorida_vetorial.svg"
+                src="/images/logo-formwerk-600.png"
                 alt="logo - FormWerk"
                 width={300}
-                height={300}
-                className="w-full max-w-[300px] rounded-lg"
+                height={355}
+                className="w-full h-auto max-w-[300px] rounded-lg"
                 priority
-                unoptimized
               />
             </div>
           </div>

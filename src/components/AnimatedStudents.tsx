@@ -86,6 +86,8 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
   const colsRef = useRef(0);
   const rowsRef = useRef(0);
   const avatarImgRef = useRef<HTMLImageElement | null>(null);
+  // Preenchida pelo efeito do canvas; redesenha a faixa pré-renderizada.
+  const rebuildTileRef = useRef<() => void>(() => {});
   const [started, setStarted] = useState(false);
   const [kits, setKits] = useState<KitPreview[]>([]);
   const [activeKit, setActiveKit] = useState(0);
@@ -119,6 +121,7 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
     img.onload = () => {
       avatarImgRef.current = img;
       URL.revokeObjectURL(url);
+      rebuildTileRef.current();
     };
     img.src = url;
   }, []);
@@ -173,13 +176,23 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
               rowsRef.current,
               colors.length,
             );
+            rebuildTileRef.current();
           }
         }
       })
       .catch(() => {});
   }, []);
 
-  // Canvas animation — rows computed dynamically from canvas height
+  // Canvas animation — rows computed dynamically from canvas height.
+  //
+  // A faixa de avatares não muda com o tempo: ela apenas desliza. Por isso é
+  // desenhada UMA vez num canvas fora da tela e, a cada quadro, só copiada
+  // duas vezes com deslocamento. Antes cada quadro redesenhava célula a célula
+  // e criava um gradiente por célula (cerca de 94 mil por segundo), o que
+  // custava ~9 ms de um orçamento de 16,7 ms por quadro.
+  //
+  // O laço também para quando a seção sai da tela, quando a aba vai para
+  // segundo plano e quando o sistema pede menos animação.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -187,67 +200,128 @@ export default function AnimatedStudents({ count = 1250 }: Props) {
     if (!ctx) return;
 
     const state = stateRef.current;
-    state.running = true;
+    state.running = false;
     state.offset = 0;
 
-    let rafId: number;
+    const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let rafId = 0;
     let cssW = 0;
     let cssH = 0;
-    let colsPerTile = 0;
-    let rowsCount = 0;
     let tileWidth = 0;
+    let tileHeight = 0;
+    let tile: HTMLCanvasElement | null = null;
+    let naTela = false;
+
+    const buildTile = (cols: number, rows: number, dpr: number) => {
+      const off = document.createElement('canvas');
+      off.width = Math.max(1, Math.round(cols * STRIDE * dpr));
+      off.height = Math.max(1, Math.round(rows * STRIDE * dpr));
+      const offCtx = off.getContext('2d');
+      if (!offCtx) return null;
+      offCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const palette = paletteRef.current;
+      const grid = colorGridRef.current;
+      for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < rows; row++) {
+          const colorIdx = grid[col * rows + row] ?? 0;
+          drawAvatar(
+            offCtx,
+            col * STRIDE,
+            row * STRIDE,
+            palette[colorIdx % palette.length],
+            avatarImgRef.current,
+          );
+        }
+      }
+      return off;
+    };
+
+    const paint = () => {
+      if (!tile) return;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cssW, cssH);
+      ctx.drawImage(tile, -state.offset, 0, tileWidth, tileHeight);
+      ctx.drawImage(tile, tileWidth - state.offset, 0, tileWidth, tileHeight);
+    };
 
     const syncSize = () => {
       cssW = canvas.offsetWidth;
       cssH = canvas.offsetHeight;
       if (cssW === 0 || cssH === 0) return;
-      const dpr = window.devicePixelRatio || 1;
+      // Fundo decorativo: limitar a densidade evita pintar 9x a área numa
+      // tela 3x, sem diferença visível.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.round(cssW * dpr);
       canvas.height = Math.round(cssH * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      colsPerTile = Math.ceil(cssW / STRIDE) + 2;
-      rowsCount = Math.ceil(cssH / STRIDE) + 1;
+
+      const colsPerTile = Math.ceil(cssW / STRIDE) + 2;
+      const rowsCount = Math.ceil(cssH / STRIDE) + 1;
       tileWidth = colsPerTile * STRIDE;
+      tileHeight = rowsCount * STRIDE;
       colsRef.current = colsPerTile;
       rowsRef.current = rowsCount;
       colorGridRef.current = buildColorGrid(colsPerTile, rowsCount, paletteRef.current.length);
+      tile = buildTile(colsPerTile, rowsCount, dpr);
+      paint();
     };
 
     const draw = () => {
-      if (!state.running) return;
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, cssW, cssH);
-
-      for (let tile = 0; tile < 2; tile++) {
-        for (let col = 0; col < colsPerTile; col++) {
-          const x = tile * tileWidth + col * STRIDE - state.offset;
-          if (x + CELL < 0 || x > cssW) continue;
-
-          for (let row = 0; row < rowsCount; row++) {
-            const palette = paletteRef.current;
-            const colorIdx = colorGridRef.current[col * rowsCount + row] ?? 0;
-            const y = row * STRIDE;
-            drawAvatar(ctx, x, y, palette[colorIdx % palette.length], avatarImgRef.current);
-          }
-        }
-      }
-
       state.offset += SPEED;
       if (state.offset >= tileWidth) state.offset -= tileWidth;
+      paint();
       rafId = requestAnimationFrame(draw);
     };
 
+    const retomar = () => {
+      if (rafId || !naTela || document.hidden || semMovimento.matches) return;
+      state.running = true;
+      rafId = requestAnimationFrame(draw);
+    };
+
+    const parar = () => {
+      state.running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
+
+    // Refaz a faixa quando o ícone do avatar carrega ou quando as cores das
+    // categorias chegam do Firestore, já que agora ela é desenhada uma vez só.
+    rebuildTileRef.current = () => {
+      if (cssW === 0 || cssH === 0) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      tile = buildTile(colsRef.current, rowsRef.current, dpr);
+      paint();
+    };
+
     syncSize();
-    draw();
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        naTela = entry.isIntersecting;
+        if (naTela) retomar();
+        else parar();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
 
     const ro = new ResizeObserver(() => syncSize());
     ro.observe(canvas);
 
+    const aoTrocarAba = () => (document.hidden ? parar() : retomar());
+    document.addEventListener('visibilitychange', aoTrocarAba);
+    semMovimento.addEventListener('change', aoTrocarAba);
+
     return () => {
-      state.running = false;
-      cancelAnimationFrame(rafId);
+      parar();
+      io.disconnect();
       ro.disconnect();
+      document.removeEventListener('visibilitychange', aoTrocarAba);
+      semMovimento.removeEventListener('change', aoTrocarAba);
+      rebuildTileRef.current = () => {};
     };
   }, []);
 
