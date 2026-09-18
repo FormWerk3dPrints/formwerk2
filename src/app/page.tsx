@@ -35,23 +35,60 @@ interface Category {
   color: string;
 }
 
+/** Card de depoimento. Fica numa faixa lateral e abre ao ser clicado:
+ *  fechado mostra as primeiras linhas, aberto mostra o depoimento inteiro
+ *  e alarga o card, para o texto não virar uma coluna estreita e comprida. */
 function TestimonialCard({
   imageUrl,
   initials,
   name,
   role,
   quote,
-  expanded,
 }: {
   imageUrl?: string;
   initials?: string;
   name: string;
   role: string;
   quote: string;
-  expanded: boolean;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const cardRef = useRef<HTMLButtonElement>(null);
+  const isFirstRender = useRef(true);
+
+  // Ao clicar, a faixa desliza sozinha até o card. Como ele muda de largura em
+  // 300ms, alinha de novo quando a animação termina; block 'nearest' evita
+  // mexer na rolagem vertical da página quando o card já está visível.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const card = cardRef.current;
+    if (!card) return;
+
+    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? 'auto'
+      : 'smooth';
+    const alignar = () => card.scrollIntoView({ behavior, block: 'nearest', inline: 'center' });
+
+    alignar();
+    const aoTerminar = (event: TransitionEvent) => {
+      if (event.propertyName === 'width') alignar();
+    };
+    card.addEventListener('transitionend', aoTerminar);
+    return () => card.removeEventListener('transitionend', aoTerminar);
+  }, [expanded]);
+
   return (
-    <div className="p-5 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow bg-white border border-gray-100 flex flex-col items-center">
+    <button
+      ref={cardRef}
+      type="button"
+      onClick={() => setExpanded((prev) => !prev)}
+      aria-expanded={expanded}
+      className={`snap-start shrink-0 p-5 rounded-lg shadow-lg text-center hover:shadow-xl transition-[width,box-shadow] duration-300 ease-out motion-reduce:transition-none bg-white border border-gray-100 flex flex-col items-center cursor-pointer ${
+        expanded ? 'w-[85vw] max-w-[34rem] md:w-[34rem]' : 'w-[78vw] max-w-xs md:w-64'
+      }`}
+    >
       {imageUrl ? (
         <div className="w-16 h-16 rounded-full mb-3 flex-shrink-0 border-4 border-blue-100 overflow-hidden relative">
           <Image src={imageUrl} alt={name} fill className="object-cover" />
@@ -69,7 +106,10 @@ function TestimonialCard({
       <p className={`text-gray-600 text-sm leading-relaxed whitespace-pre-line ${expanded ? '' : 'line-clamp-4'}`}>
         &ldquo;{quote}&rdquo;
       </p>
-    </div>
+      <span className="mt-3 text-xs font-semibold" style={{ color: '#0D6AA7' }}>
+        {expanded ? 'Ler menos' : 'Ler mais'}
+      </span>
+    </button>
   );
 }
 
@@ -79,7 +119,6 @@ export default function Home() {
   const { priceLabel } = useProductPrices();
   const [salesCount, setSalesCount] = useState<number | null>(null);
   const [animationStarted, setAnimationStarted] = useState(false);
-  const [testimonialsExpanded, setTestimonialsExpanded] = useState(false);
   const salesSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -406,19 +445,30 @@ export default function Home() {
 
         {/* Depoimentos de Educadores */}
         <section className="py-16 px-4 bg-white">
-          <div className="container mx-auto max-w-4xl">
-            <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+          <div className="container mx-auto max-w-6xl">
+            <h2 className="text-3xl font-bold text-center mb-3 text-gray-800">
               O que educadores dizem sobre a FormWerk
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <p className="text-center text-sm text-gray-500 mb-10">
+              Arraste para o lado para ver todos e clique em um depoimento para lê-lo por inteiro.
+            </p>
+            {/* Faixa lateral: os cards ficam sempre lado a lado, em qualquer
+                largura de tela, e a faixa rola na horizontal com deslize por
+                card. items-start deixa o card aberto crescer sozinho. */}
+            <div className="flex items-start gap-6 overflow-x-auto snap-x snap-mandatory pb-4 px-1">
               <TestimonialCard
                 imageUrl="/images/educadores/Claiane.jpeg"
                 name="Claiane Pereira"
                 role="Supervisora de Inclusão, Acolhimento e Bibliotecas da Escola SESI de Referência."
                 quote="Utilizei os materiais pedagógicos em minhas avaliações diagnósticas com estudantes atípicos. Os materiais são muitos bons, com cores vivas, atraentes, confecção durável, pensados com detalhes em texturas que causam conforto tátil. Vi que os estudantes se conectaram mais com às propostas, resultado do conjunto de qualidades das peças. Fiquei muito satisfeita com a aquisição feita pela Escola SESI e já estamos tramitando os próximos projetos em parceria, que preciso registra, tendem a trazer mais benefícios às nossas práticas pedagógicas."
-                expanded={testimonialsExpanded}
               />
 
+              <TestimonialCard
+                initials="RL"
+                name="Rosane Longhi"
+                role="Coordenadora Pedagógica da APAS"
+                quote={`O estudante surdo compreende o mundo por meio do canal visual espacial, imagens e textos criam mapas mentais mais duradouros que explicações puramente textuais. Conteúdos complexos tornam-se compreensíveis por meio da experimentação prática. O material concreto, o jogo, conecta o objeto real ao sinal em libras e a palavra escrita em português. Os jogos e materiais adaptados nivelam o aprendizado permitindo que surdos e ouvintes joguem e estudem juntos!`}
+              />
               <TestimonialCard
                 initials="GLSA"
                 name="Glaucia Laurentino Sousa de Araujo"
@@ -426,7 +476,6 @@ export default function Home() {
                 quote={`Utilizei os blocos geométricos durante as avaliações diagnósticas com estudantes com Transtorno do Espectro Autista  e Deficiência Intelectual, obtendo resultados muito positivos. O material favoreceu o reconhecimento de cores e formas, a coordenação motora fina, a atenção, a concentração e o raciocínio lógico.
 As diferentes texturas proporcionaram conforto tátil e maior engajamento nas atividades, enquanto o sistema de encaixe estimulou a coordenação, a paciência e a resolução de problemas. Nas propostas em duplas, foi possível trabalhar a troca de turnos, a cooperação e a interação social. Trata-se de um material atrativo, resistente e inclusivo, que contribui significativamente para o processo de aprendizagem.
 Fiquei muito satisfeita com a aquisição realizada pela Escola SESI. Já estamos planejando novas parcerias e projetos, que certamente contribuirão para fortalecer nossas práticas pedagógicas e ampliar as possibilidades de aprendizagem dos nossos estudantes.`}
-                expanded={testimonialsExpanded}
               />
 
               <TestimonialCard
@@ -436,18 +485,7 @@ Fiquei muito satisfeita com a aquisição realizada pela Escola SESI. Já estamo
                 quote={`Utilizei o material de ângulos. Foi um recurso pedagógico de grande importância durante as aulas. Por ser concreto, resistente e de fácil manuseio, possibilitou que os estudantes visualizassem e compreendessem melhor os conceitos relacionados aos ângulos, tornando a aprendizagem mais significativa e dinâmica.
 A utilização desse material despertou o interesse e a participação da turma, facilitando a identificação, comparação e medição dos diferentes tipos de ângulos. Além disso, contribuiu para que os alunos desenvolvessem o raciocínio geométrico de forma prática e interativa.
 Foi um recurso que enriqueceu as aulas de Matemática e auxiliou significativamente no processo de ensino e aprendizagem, favorecendo a compreensão dos conteúdos e proporcionando maior envolvimento dos estudantes.`}
-                expanded={testimonialsExpanded}
               />
-            </div>
-            <div className="text-center mt-8">
-              <button
-                type="button"
-                onClick={() => setTestimonialsExpanded((prev) => !prev)}
-                className="inline-block font-semibold py-2 px-6 rounded-lg border-2 hover:opacity-90 transition-opacity"
-                style={{ color: '#0D6AA7', borderColor: '#0D6AA7' }}
-              >
-                {testimonialsExpanded ? 'Ler menos' : 'Ler mais'}
-              </button>
             </div>
           </div>
         </section>

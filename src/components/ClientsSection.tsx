@@ -12,6 +12,7 @@ const clientsBase = [
   { name: 'APAS', src: '/images/clients/APAS.png', href: 'https://www.instagram.com/apas.lages/' },
   { name: 'APAE', src: '/images/clients/APAE.png', href: 'https://www.apaelages.org.br/'},
   { name: 'CISAMURES', src: '/images/clients/cisamures.png', href: 'https://cisamures.sc.gov.br'},
+  { name: 'Santa Rosa', src: '/images/clients/santarosa.png', href: 'https://www.eusousantarosa.com.br/'},
   //{ name: 'SION', src: '/images/clients/SION.png', href: 'https://sioncuritiba.com.br'},
 ];
 // Repetir 6x garante preenchimento em ultrawide (36 itens, duplicados no JSX = 72)
