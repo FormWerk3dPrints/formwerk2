@@ -14,6 +14,7 @@ const clientsBase = [
   { name: 'APAE', src: '/images/clients/APAE.png', href: 'https://www.apaelages.org.br/'},
   { name: 'CISAMURES', src: '/images/clients/cisamures.png', href: 'https://cisamures.sc.gov.br'},
   { name: 'Santa Rosa', src: '/images/clients/santarosa.png', href: 'https://www.eusousantarosa.com.br/'},
+  { name: 'Aprender Brincando', src: '/images/clients/aprender_brincando.jpg', href: 'https://aprenderbrincando.com.br/'},
   //{ name: 'SION', src: '/images/clients/SION.png', href: 'https://sioncuritiba.com.br'},
 ];
 // Largura de cada logo no letreiro: 64px da imagem + 40px de gap-10.
