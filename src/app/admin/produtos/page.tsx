@@ -23,6 +23,11 @@ import {
 import { AdminShell } from '../_components/AdminShell';
 import InlinePriceCell from '../_components/InlinePriceCell';
 import { coercePriceToCents } from '@/lib/prices/coerceToCents';
+import {
+  findProductCodeOwner,
+  nextProductCode,
+  normalizeProductCode,
+} from '@/lib/products/code';
 import { logAdminAction } from '@/lib/admin/auditLog';
 import {
   type Category,
@@ -51,6 +56,7 @@ export default function AdminProdutosPage() {
   const [saving, setSaving] = useState(false);
 
   // Form fields
+  const [formCode, setFormCode] = useState('');
   const [formName, setFormName] = useState('');
   const [formPluralName, setFormPluralName] = useState('');
   const [formDescription, setFormDescription] = useState('');
@@ -80,7 +86,9 @@ export default function AdminProdutosPage() {
   // Validation popup
   const [validationPopup, setValidationPopup] = useState<{
     title: string;
-    missingFields: string[];
+    missingFields?: string[];
+    /** Alternativa à lista de campos: texto livre (ex.: código repetido). */
+    message?: string;
   } | null>(null);
   const lenisRef = useSmoothScroller();
 
@@ -111,6 +119,7 @@ export default function AdminProdutosPage() {
           return {
             id: d.id,
             slug: data.slug ?? d.id,
+            code: typeof data.code === 'string' ? data.code : '',
             name: data.name ?? '',
             pluralName: typeof data.pluralName === 'string' ? data.pluralName.trim() : '',
             nameNormalized: data.nameNormalized ?? '',
@@ -168,8 +177,19 @@ export default function AdminProdutosPage() {
       new Set([...tokenize(searchQuery), ...splitKeywords(searchQuery)])
     );
 
+    // Busca por código: "7", "fw-0007" e "FW-00" encontram o produto.
+    const queryUpper = searchQuery.trim().toUpperCase();
+    const queryAsCode = normalizeProductCode(searchQuery);
+
     const scored = list
       .map((p) => {
+        const code = (p.code ?? '').toUpperCase();
+        const codeHit =
+          code &&
+          ((queryAsCode && code === queryAsCode) ||
+            (queryUpper.length >= 2 && code.includes(queryUpper)))
+            ? 1
+            : 0;
         const normalizedName = normalizeText(p.name);
         const nameIncludes = normalizedName.includes(queryNormalized) ? 3 : 0;
         const nameTokens = Array.isArray(p.nameTokens) ? p.nameTokens : [];
@@ -184,11 +204,13 @@ export default function AdminProdutosPage() {
         );
         const scoreName = nameIncludes + tokenNameHits * 2;
         const scoreKeywords = tokenKeywordHits;
-        return { product: p, scoreName, scoreKeywords };
+        return { product: p, scoreName, scoreKeywords, codeHit };
       })
-      .filter((x) => x.scoreName > 0 || x.scoreKeywords > 0);
+      .filter((x) => x.codeHit > 0 || x.scoreName > 0 || x.scoreKeywords > 0);
 
     scored.sort((a, b) => {
+      // Quem bate pelo código vem primeiro: é busca exata, não aproximada.
+      if (a.codeHit !== b.codeHit) return b.codeHit - a.codeHit;
       const aHasName = a.scoreName > 0;
       const bHasName = b.scoreName > 0;
       if (aHasName !== bHasName) return aHasName ? -1 : 1;
@@ -205,6 +227,7 @@ export default function AdminProdutosPage() {
   }
 
   function resetForm() {
+    setFormCode('');
     setFormName('');
     setFormPluralName('');
     setFormDescription('');
@@ -226,11 +249,14 @@ export default function AdminProdutosPage() {
   function openCreate() {
     setEditing(null);
     resetForm();
+    // Sugere o próximo código livre; dá para trocar antes de salvar.
+    setFormCode(nextProductCode(products.map((p) => p.code)));
     setShowForm(true);
   }
 
   function openEdit(p: Product) {
     setEditing(p);
+    setFormCode(p.code ?? '');
     setFormName(p.name);
     setFormPluralName(p.pluralName);
     setFormDescription(p.description);
@@ -256,6 +282,27 @@ export default function AdminProdutosPage() {
     const name = formName.trim();
     const pluralName = formPluralName.trim();
     const categoryIds = formCategoryIds;
+
+    // Código FW-0001. Vazio é permitido: os produtos antigos ficam sem até
+    // serem preenchidos pela planilha.
+    const code = normalizeProductCode(formCode);
+    if (code === null) {
+      setValidationPopup({
+        title: 'Código inválido.',
+        message:
+          'Use o formato FW-0001. Pode digitar só o número, que ele é completado sozinho.',
+      });
+      return;
+    }
+
+    const codeOwner = findProductCodeOwner(code, products, editing?.id);
+    if (codeOwner) {
+      setValidationPopup({
+        title: 'Esse código já está em uso.',
+        message: `${code} pertence a "${codeOwner.name}". Cada produto precisa de um código próprio.`,
+      });
+      return;
+    }
 
     if (editing) {
       // Edit mode
@@ -295,6 +342,7 @@ export default function AdminProdutosPage() {
         }
 
         const updatePayload: Record<string, unknown> = {
+          code,
           name,
           pluralName,
           nameNormalized,
@@ -355,6 +403,7 @@ export default function AdminProdutosPage() {
       try {
         await setDoc(doc(firestoreDb, 'products', slug), {
           slug,
+          code,
           name,
           pluralName,
           nameNormalized,
@@ -527,12 +576,18 @@ export default function AdminProdutosPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-lg font-bold text-gray-900">{validationPopup.title}</div>
-            <div className="mt-2 text-sm text-gray-500">Campos faltando:</div>
-            <ul className="mt-2 list-disc pl-5 text-sm text-gray-700">
-              {validationPopup.missingFields.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
+            {validationPopup.message ? (
+              <p className="mt-2 text-sm text-gray-700">{validationPopup.message}</p>
+            ) : (
+              <>
+                <div className="mt-2 text-sm text-gray-500">Campos faltando:</div>
+                <ul className="mt-2 list-disc pl-5 text-sm text-gray-700">
+                  {(validationPopup.missingFields ?? []).map((f) => (
+                    <li key={f}>{f}</li>
+                  ))}
+                </ul>
+              </>
+            )}
             <div className="mt-4 flex justify-end">
               <button
                 type="button"
@@ -628,6 +683,30 @@ export default function AdminProdutosPage() {
           }
         >
             <div className="space-y-4">
+              <div className="sm:max-w-[14rem]">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Código
+                  </label>
+                  <input
+                    type="text"
+                    value={formCode}
+                    onChange={(e) => setFormCode(e.target.value)}
+                    // Ao sair do campo já mostra como vai ficar: 7 vira FW-0007.
+                    onBlur={() => {
+                      const normalizado = normalizeProductCode(formCode);
+                      if (normalizado !== null) setFormCode(normalizado);
+                    }}
+                    placeholder="FW-0001"
+                    inputMode="text"
+                    className="w-full border rounded-lg px-3 py-2 text-gray-900 font-mono"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    {editing
+                      ? 'Pode digitar só o número. Deixe vazio se ainda não tiver código.'
+                      : 'Sugerido automaticamente; troque se precisar.'}
+                  </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -883,6 +962,7 @@ export default function AdminProdutosPage() {
               <li key={prod.id} className="rounded-xl border bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
+                    <ProductCodeTag code={prod.code} />
                     <div className="font-medium text-gray-900">{prod.name}</div>
                     <div className="truncate text-xs text-gray-400">{prod.id}</div>
                     {prod.categoryIds.length > 0 && (
@@ -948,6 +1028,7 @@ export default function AdminProdutosPage() {
                 {filteredProducts.map((prod) => (
                   <tr key={prod.id} className="hover:bg-gray-50">
                     <td className="py-3 px-4">
+                      <ProductCodeTag code={prod.code} />
                       <div className="font-medium text-gray-900">{prod.name}</div>
                       <div className="text-xs text-gray-400">{prod.id}</div>
                     </td>
@@ -1012,4 +1093,15 @@ export default function AdminProdutosPage() {
       )}
     </AdminShell>
   );
+}
+
+/**
+ * Etiqueta do código na lista. Sem código, mostra um aviso discreto — ajuda a
+ * achar o que ainda falta preencher enquanto os antigos são numerados.
+ */
+function ProductCodeTag({ code }: { code?: string }) {
+  if (!code) {
+    return <div className="text-xs font-medium text-amber-600">sem código</div>;
+  }
+  return <div className="font-mono text-xs text-gray-500">{code}</div>;
 }

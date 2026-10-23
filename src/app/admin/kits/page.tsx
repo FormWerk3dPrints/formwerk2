@@ -83,6 +83,7 @@ export default function AdminKitsPage() {
           return {
             id: d.id,
             slug: data.slug ?? d.id,
+            code: typeof data.code === 'string' ? data.code : '',
             name: data.name ?? '',
             pluralName: data.pluralName ?? '',
             nameNormalized: data.nameNormalized ?? '',

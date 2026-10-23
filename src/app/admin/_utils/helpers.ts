@@ -24,6 +24,8 @@ export type Category = {
 export type Product = {
   id: string; // slug
   slug: string;
+  /** Código interno FW-0001 (ver src/lib/products/code.ts). Vazio = ainda sem código. */
+  code: string;
   name: string;
   pluralName: string;
   nameNormalized: string;
