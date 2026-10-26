@@ -24,6 +24,7 @@ import { AdminShell } from '../_components/AdminShell';
 import InlinePriceCell from '../_components/InlinePriceCell';
 import { coercePriceToCents } from '@/lib/prices/coerceToCents';
 import {
+  canonicalProductCode,
   findProductCodeOwner,
   nextProductCode,
   normalizeProductCode,
@@ -177,16 +178,16 @@ export default function AdminProdutosPage() {
       new Set([...tokenize(searchQuery), ...splitKeywords(searchQuery)])
     );
 
-    // Busca por código: "7", "fw-0007" e "FW-00" encontram o produto.
+    // Busca por código: "7", "fw-0007", "KT" e "003" encontram o produto.
     const queryUpper = searchQuery.trim().toUpperCase();
-    const queryAsCode = normalizeProductCode(searchQuery);
+    const queryAsCode = canonicalProductCode(searchQuery);
 
     const scored = list
       .map((p) => {
         const code = (p.code ?? '').toUpperCase();
         const codeHit =
           code &&
-          ((queryAsCode && code === queryAsCode) ||
+          ((queryAsCode && canonicalProductCode(code) === queryAsCode) ||
             (queryUpper.length >= 2 && code.includes(queryUpper)))
             ? 1
             : 0;
@@ -283,23 +284,26 @@ export default function AdminProdutosPage() {
     const pluralName = formPluralName.trim();
     const categoryIds = formCategoryIds;
 
-    // Código FW-0001. Vazio é permitido: os produtos antigos ficam sem até
-    // serem preenchidos pela planilha.
+    // Código do produto (FW-0007, KT-12, PN-003). Vazio é permitido: os
+    // produtos antigos ficam sem até serem preenchidos pela planilha.
     const code = normalizeProductCode(formCode);
     if (code === null) {
       setValidationPopup({
         title: 'Código inválido.',
         message:
-          'Use o formato FW-0001. Pode digitar só o número, que ele é completado sozinho.',
+          'Use letras e número, como FW-0007, KT-12 ou PN-003. Digitando só o número, o prefixo FW entra sozinho.',
       });
       return;
     }
 
     const codeOwner = findProductCodeOwner(code, products, editing?.id);
     if (codeOwner) {
+      const mesmaGrafia = codeOwner.code === code;
       setValidationPopup({
         title: 'Esse código já está em uso.',
-        message: `${code} pertence a "${codeOwner.name}". Cada produto precisa de um código próprio.`,
+        message: mesmaGrafia
+          ? `${code} pertence a "${codeOwner.name}". Cada produto precisa de um código próprio.`
+          : `${code} é o mesmo código que ${codeOwner.code}, de "${codeOwner.name}" — zeros à esquerda não contam como diferença.`,
       });
       return;
     }
@@ -702,8 +706,8 @@ export default function AdminProdutosPage() {
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     {editing
-                      ? 'Pode digitar só o número. Deixe vazio se ainda não tiver código.'
-                      : 'Sugerido automaticamente; troque se precisar.'}
+                      ? 'FW-0007, KT-12, PN-003. Fica gravado como você digitar. Vazio = sem código.'
+                      : 'Sugestão do próximo FW livre; troque por outro prefixo se precisar.'}
                   </p>
               </div>
 
