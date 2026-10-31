@@ -39,3 +39,34 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# impeccable-ignore-start
+# Saída efêmera, estado de execução e preferências de cada dev.
+# Ficam versionados, de propósito: PRODUCT.md, DESIGN.md e, dentro de
+# .impeccable/, config.json, live/config.json, design.json, surfaces/*.md
+# e critique/*.md — são os artefatos compartilhados pela equipe.
+**/.impeccable/config.local.json
+**/.impeccable/hook.cache.json
+**/.impeccable/hook.pending.json
+**/.impeccable/*.png
+**/.impeccable/live/*.png
+**/.impeccable/review/
+**/.impeccable/questions/
+**/.impeccable/live/server.json
+**/.impeccable/live/sessions/
+**/.impeccable/live/previews/
+**/.impeccable/live/annotations/
+**/.impeccable/live/cache/
+**/.impeccable/manual-edit-apply-transaction.json
+**/.impeccable/manual-edit-events.jsonl
+**/.impeccable/manual-edit-evidence/
+**/.impeccable/pending-manual-edits.json
+**/.impeccable/deferred-svelte-component-accepts.json
+
+# Motor compilado do Impeccable: ~20 MB por plataforma, reinstalável com
+# `npx impeccable install`. Fora do git.
+.claude/skills/impeccable/scripts/bin/
+
+# Hooks e ajustes locais do Claude Code (por máquina, não por projeto).
+.claude/settings.local.json
+# impeccable-ignore-end
