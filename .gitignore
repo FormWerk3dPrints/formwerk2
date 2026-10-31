@@ -70,3 +70,5 @@ next-env.d.ts
 # Hooks e ajustes locais do Claude Code (por máquina, não por projeto).
 .claude/settings.local.json
 # impeccable-ignore-end
+.claude/agents/impeccable-asset-producer.md
+/.claude
