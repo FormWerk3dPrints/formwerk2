@@ -7,6 +7,7 @@ import SiteLayoutWrapper from "@/components/SiteLayoutWrapper";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import InspectGuard from "@/components/InspectGuard";
 import { CONTRAST_INIT_SCRIPT } from "@/lib/a11y/contrast";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const geologica = Geologica({
   variable: "--font-geologica",
@@ -48,6 +49,9 @@ export default function RootLayout({
         <GoogleAnalytics />
         <ScrollContext>
           <SiteLayoutWrapper>{children}</SiteLayoutWrapper>
+          {/* A gaveta do orçamento fica no layout para abrir em qualquer
+              página; o estado dela mora em lib/cart/store.ts. */}
+          <CartDrawer />
         </ScrollContext>
         {/* VLibras, tradutor de Português para Libras do Governo Federal.
             O script oficial cria sozinho o botão flutuante (num shadow DOM,

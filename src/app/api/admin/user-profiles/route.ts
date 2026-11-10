@@ -38,6 +38,7 @@ type DecryptedProfile = {
   phone: string | null;
   documentType: string | null;
   document: string | null;
+  cnpj: string | null;
   city: string | null;
   educationInstitution: string | null;
   birthday: string | null;
@@ -53,12 +54,13 @@ function safeDecrypt(encryptedProfile: EncryptedBlob): DecryptedProfile {
       phone: str(d.phone),
       documentType: str(d.documentType),
       document: str(d.document),
+      cnpj: str(d.cnpj),
       city: str(d.city),
       educationInstitution: str(d.educationInstitution),
       birthday: str(d.birthday),
     };
   } catch {
-    return { email: null, fullName: null, phone: null, documentType: null, document: null, city: null, educationInstitution: null, birthday: null };
+    return { email: null, fullName: null, phone: null, documentType: null, document: null, cnpj: null, city: null, educationInstitution: null, birthday: null };
   }
 }
 
@@ -77,7 +79,7 @@ export async function GET(req: Request) {
       const data = doc.data() as RawProfileDoc;
       const decrypted = data.encryptedProfile
         ? safeDecrypt(data.encryptedProfile)
-        : { email: null, fullName: null, phone: null, documentType: null, document: null, city: null, educationInstitution: null, birthday: null };
+        : { email: null, fullName: null, phone: null, documentType: null, document: null, cnpj: null, city: null, educationInstitution: null, birthday: null };
 
       return {
         uid: doc.id,

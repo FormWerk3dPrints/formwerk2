@@ -7,6 +7,7 @@ import ProductCard from '@/components/ProductCard';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { ProductCommentsSection } from '../../../components/ProductCommentsSection';
 import { coverImageAlt, imageAlt, type ImageAlts } from '@/lib/images/imageAlt';
+import AddToCartButton from '@/components/cart/AddToCartButton';
 
 export interface DetailsCategory {
   id: string;
@@ -18,6 +19,8 @@ export interface DetailsProduct {
   id: string; // slug
   categoryIds: string[];
   name: string;
+  /** Usado no orçamento quando a quantidade passa de 1. */
+  pluralName?: string;
   description: string;
   imageUrls: string[];
   mainImageUrl?: string;
@@ -261,6 +264,15 @@ export default function ProductDetailsClient({
                   )}
                 </div>
               )}
+
+              <AddToCartButton
+                kind="produto"
+                id={product.id}
+                name={product.name}
+                pluralName={product.pluralName}
+                imageUrl={product.mainImageUrl || product.imageUrls[0]}
+                className="mb-8"
+              />
 
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Descrição</h2>

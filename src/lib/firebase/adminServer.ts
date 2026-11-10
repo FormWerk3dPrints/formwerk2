@@ -1,6 +1,7 @@
 import { cert, getApp, getApps, initializeApp, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 
 function getPrivateKeyFromEnv(): string | undefined {
   const value = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
@@ -34,3 +35,15 @@ const firebaseAdminApp = getFirebaseAdminApp();
 
 export const firebaseAdminAuth = getAuth(firebaseAdminApp);
 export const firebaseAdminDb = getFirestore(firebaseAdminApp);
+
+/**
+ * Bucket do Storage pelo lado do servidor (usado para guardar o PDF dos
+ * orçamentos). O nome vem da mesma variável que o SDK do navegador usa.
+ */
+export function firebaseAdminBucket() {
+  const nome = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  if (!nome) {
+    throw new Error('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET não definido.');
+  }
+  return getStorage(firebaseAdminApp).bucket(nome);
+}

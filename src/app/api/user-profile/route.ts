@@ -13,6 +13,8 @@ type UserProfilePayload = {
   phone: string;
   documentType: 'cpf' | 'cnpj';
   document: string;
+  /** CNPJ da instituição, opcional: usado nos orçamentos em nome dela. */
+  cnpj?: string;
   city: string;
   educationInstitution?: string;
   birthday?: string;
@@ -25,6 +27,7 @@ type DecryptedUserProfile = {
   email: string;
   documentType: string;
   document: string;
+  cnpj: string;
   city: string;
   educationInstitution: string;
   birthday: string;
@@ -71,6 +74,9 @@ function validatePayload(payload: unknown):
   const phone = sanitizePhone(source.phone);
   const documentType = source.documentType === 'cnpj' ? 'cnpj' : 'cpf';
   const document = sanitizeDocument(source.document);
+  // Opcional: quem compra em nome de uma instituição guarda o CNPJ dela aqui,
+  // sem abrir mão do próprio CPF.
+  const cnpj = sanitizeDocument(source.cnpj);
   const city = sanitizeText(source.city);
   const educationInstitution = sanitizeText(source.educationInstitution);
   const birthday = sanitizeBirthday(source.birthday);
@@ -91,6 +97,7 @@ function validatePayload(payload: unknown):
       phone,
       documentType,
       document,
+      cnpj,
       city,
       educationInstitution,
       birthday,

@@ -9,6 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import { useProductPrices } from '@/hooks/useProductPrices';
 import { coverImageAlt, type ImageAlts } from '@/lib/images/imageAlt';
 import { ArrowLeft } from 'lucide-react';
+import AddToCartButton from '@/components/cart/AddToCartButton';
 
 export interface KitDetail {
   id: string;
@@ -152,6 +153,13 @@ export default function KitDetailClient({
                 )}
               </div>
             )}
+
+            <AddToCartButton
+              kind="kit"
+              id={kit.id}
+              name={kit.name}
+              imageUrl={mainImage || undefined}
+            />
 
             <div>
               <p className="text-sm text-gray-500 font-medium uppercase tracking-wide mb-1">

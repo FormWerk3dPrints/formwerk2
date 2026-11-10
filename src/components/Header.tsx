@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { UserRound } from 'lucide-react';
 import ContrastToggle from './ContrastToggle';
+import CartButton from './cart/CartButton';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -65,6 +66,7 @@ export default function Header() {
           </a>
           <div className="flex items-center gap-4">
             <ContrastToggle className="rounded-md p-1 text-white hover:text-blue-100 transition-colors" />
+            <CartButton />
             <Link
               href="/conta"
               className="text-white hover:text-blue-100 transition-colors"
@@ -78,6 +80,7 @@ export default function Header() {
         {/* Mobile: alto contraste e conta (sempre visíveis) + botão hamburger */}
         <div className="md:hidden flex items-center gap-1">
           <ContrastToggle className="rounded-md p-2 text-white hover:text-blue-100 transition-colors" />
+          <CartButton className="p-2" />
           <Link
             href="/conta"
             className="text-white hover:text-blue-100 transition-colors p-2"

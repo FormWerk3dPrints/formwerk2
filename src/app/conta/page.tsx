@@ -19,12 +19,15 @@ import {
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { firebaseAuth, firebaseStorage } from '@/lib/firebase/client';
 import { processAvatarImage } from '@/lib/image/processAvatar';
+import MeusOrcamentos from '@/components/conta/MeusOrcamentos';
 
 type ProfileFormState = {
   fullName: string;
   phone: string;
   documentType: 'cpf' | 'cnpj';
   document: string;
+  /** CNPJ da instituição, opcional e independente do documento principal. */
+  cnpj: string;
   city: string;
   educationInstitution: string;
   birthday: string;
@@ -42,6 +45,7 @@ const INITIAL_FORM: ProfileFormState = {
   phone: '',
   documentType: 'cpf',
   document: '',
+  cnpj: '',
   city: '',
   educationInstitution: '',
   birthday: '',
@@ -159,6 +163,7 @@ export default function ContaPage() {
           phone: body.profile?.phone || '',
           documentType: (body.profile?.documentType as 'cpf' | 'cnpj') || 'cpf',
           document: body.profile?.document || '',
+          cnpj: body.profile?.cnpj || '',
           city: body.profile?.city || '',
           educationInstitution: body.profile?.educationInstitution || '',
           birthday: body.profile?.birthday || '',
@@ -839,6 +844,25 @@ export default function ContaPage() {
                 />
               </div>
 
+              {/* CNPJ à parte: quem tem CPF no documento principal e compra em
+                  nome de uma instituição guarda o CNPJ dela aqui, e o
+                  orçamento em nome da instituição já sai preenchido. */}
+              <div>
+                <label htmlFor="cnpj" className="block text-sm font-medium text-gray-800 mb-1">
+                  CNPJ da instituição (opcional)
+                </label>
+                <input
+                  id="cnpj"
+                  value={form.cnpj}
+                  onChange={(e) => setForm((prev) => ({ ...prev, cnpj: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/20 text-black"
+                  placeholder="00.000.000/0000-00"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Preencha para pedir orçamentos em nome da instituição.
+                </p>
+              </div>
+
               <div>
                 <label htmlFor="city" className="block text-sm font-medium text-gray-800 mb-1">
                   Cidade *
@@ -963,6 +987,16 @@ export default function ContaPage() {
                 </div>
               )}
             </form>
+
+            {/* Histórico de orçamentos: o registro dos itens é permanente, o
+                PDF vale 30 dias. */}
+            <div className="mt-10 pt-8 border-t border-gray-200">
+              <h2 className="text-lg font-bold text-gray-900 mb-1">Meus orçamentos</h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Tudo que você pediu pelo carrinho, com o PDF enquanto estiver válido.
+              </p>
+              <MeusOrcamentos />
+            </div>
           </>
         )}
       </section>

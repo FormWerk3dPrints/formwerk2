@@ -39,6 +39,7 @@ export default async function ProductPage({
       ? data.categoryIds
       : (typeof data.categoryId === 'string' && data.categoryId ? [data.categoryId] : []),
     name: String(data.name ?? ''),
+    pluralName: typeof data.pluralName === 'string' && data.pluralName ? data.pluralName : undefined,
     description: String(data.description ?? ''),
     imageUrls,
     mainImageUrl: typeof data.mainImageUrl === 'string' ? data.mainImageUrl : undefined,

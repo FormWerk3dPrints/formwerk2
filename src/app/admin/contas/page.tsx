@@ -13,6 +13,7 @@ type UserProfileRow = {
   phone: string | null;
   documentType: string | null;
   document: string | null;
+  cnpj: string | null;
   city: string | null;
   educationInstitution: string | null;
   birthday: string | null;
@@ -203,6 +204,7 @@ export default function AdminContasPage() {
                       label={profile.documentType ? profile.documentType.toUpperCase() : 'Documento'}
                       value={profile.document}
                     />
+                    <Detail label="CNPJ da instituição" value={profile.cnpj} />
                     <Detail label="Cidade" value={profile.city} />
                     <Detail label="Instituição de ensino" value={profile.educationInstitution} />
                     <Detail
@@ -316,6 +318,7 @@ export default function AdminContasPage() {
                               label={profile.documentType ? profile.documentType.toUpperCase() : 'Documento'}
                               value={profile.document}
                             />
+                            <Detail label="CNPJ da instituição" value={profile.cnpj} />
                             <Detail label="Cidade" value={profile.city} />
                             <Detail label="Instituição de ensino" value={profile.educationInstitution} />
                             <Detail

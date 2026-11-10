@@ -5,8 +5,9 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import Image from 'next/image';
 import { onAuthStateChanged } from 'firebase/auth';
 import { firebaseAuth } from '@/lib/firebase/client';
-import { Download, Image as ImageIcon, RotateCw, X } from 'lucide-react';
+import { Download, Image as ImageIcon, RotateCw, ShoppingCart, X } from 'lucide-react';
 import { coverImageAlt, type ImageAlts } from '@/lib/images/imageAlt';
+import { useCart } from '@/lib/cart/useCart';
 
 export interface WallPanelModule {
   id: string;
@@ -90,6 +91,7 @@ function overlaps(
 }
 
 export default function PaineisClient({ modules: initialModules }: { modules: WallPanelModule[] }) {
+  const { addItem } = useCart();
   const [modules, setModules] = useState<WallPanelModule[]>(initialModules);
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
@@ -865,6 +867,27 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
   const selectedPlaced = placedModules.find((x) => x.placement.instanceId === selectedInstanceId) ?? null;
 
   const modulesCents = placedModules.reduce((sum, x) => sum + (x.module.priceCents ?? 0), 0);
+
+  /** Joga os módulos montados no orçamento, agrupados por quantidade. */
+  function adicionarPainelAoOrcamento() {
+    const porModulo = new Map<string, { module: WallPanelModule; quantidade: number }>();
+    for (const { module } of placedModules) {
+      const atual = porModulo.get(module.id);
+      if (atual) atual.quantidade += 1;
+      else porModulo.set(module.id, { module, quantidade: 1 });
+    }
+    for (const { module, quantidade } of porModulo.values()) {
+      addItem(
+        {
+          kind: 'painel',
+          id: module.id,
+          name: module.name,
+          imageUrl: module.mainImageUrl || module.imageUrls[0],
+        },
+        quantidade,
+      );
+    }
+  }
   const totalCurrency =
     placedModules.find((x) => x.module.currency)?.module.currency ??
     modules.find((m) => m.currency)?.currency ??
@@ -1001,11 +1024,23 @@ export default function PaineisClient({ modules: initialModules }: { modules: Wa
             </>
           )}
 
+          {/* Manda para o orçamento cada módulo do painel, com a quantidade
+              que ele aparece na montagem. */}
+          <button
+            type="button"
+            onClick={adicionarPainelAoOrcamento}
+            disabled={placedModules.length === 0}
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-brand px-3 py-2 text-sm font-medium text-brand hover:bg-brand-50 disabled:opacity-40"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            Adicionar ao orçamento
+          </button>
+
           <button
             type="button"
             onClick={exportPanelPng}
             disabled={exporting}
-            className="ml-auto inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
           >
             <Download className="h-4 w-4" />
             {exporting ? 'Exportando…' : 'Exportar PNG'}

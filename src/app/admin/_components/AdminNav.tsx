@@ -13,6 +13,7 @@ import {
   LogOut,
   Package,
   ScrollText,
+  ShoppingCart,
   Users,
 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ const NAV_LINKS = [
   { href: '/admin/kits', label: 'Kits', icon: Boxes },
   { href: '/admin/paineis', label: 'Painéis', icon: LayoutGrid },
   { href: '/admin/emissao', label: 'Emissão', icon: FileText },
+  { href: '/admin/orcamentos', label: 'Orçamentos', icon: ShoppingCart },
   { href: '/admin/contas', label: 'Contas', icon: Users },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/admin/logs', label: 'Log', icon: ScrollText },
