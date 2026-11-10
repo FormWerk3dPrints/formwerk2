@@ -63,12 +63,12 @@ next-env.d.ts
 **/.impeccable/pending-manual-edits.json
 **/.impeccable/deferred-svelte-component-accepts.json
 
-# Motor compilado do Impeccable: ~20 MB por plataforma, reinstalável com
-# `npx impeccable install`. Fora do git.
-.claude/skills/impeccable/scripts/bin/
-
-# Hooks e ajustes locais do Claude Code (por máquina, não por projeto).
-.claude/settings.local.json
 # impeccable-ignore-end
+
+# A pasta .claude inteira fica fora do git (regra /.claude, logo abaixo): a
+# skill do Impeccable, o motor compilado, os subagentes e os hooks locais são
+# gerados por `npx impeccable install` e voltam com um comando.
+# .claude/launch.json é a exceção, e segue versionado por já estar no índice.
+# Para versionar algo novo dentro de .claude, use uma linha de exceção (!).
 .claude/agents/impeccable-asset-producer.md
 /.claude
