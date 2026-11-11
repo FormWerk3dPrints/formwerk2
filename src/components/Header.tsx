@@ -35,6 +35,12 @@ export default function Header() {
             Catálogo
           </Link>
           <Link
+            href="/kits"
+            className="text-white hover:text-blue-100 transition-colors font-medium"
+          >
+            Kits
+          </Link>
+          <Link
             href="/paineis"
             className="text-white hover:text-blue-100 transition-colors font-medium"
           >
@@ -133,6 +139,13 @@ export default function Header() {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Catálogo
+          </Link>
+          <Link
+            href="/kits"
+            className="text-white hover:text-blue-100 transition-colors font-medium py-2 border-t border-white/20"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Kits
           </Link>
           <Link
             href="/paineis"
