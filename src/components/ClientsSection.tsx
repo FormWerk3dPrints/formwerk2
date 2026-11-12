@@ -15,7 +15,10 @@ const clientsBase = [
   { name: 'CISAMURES', src: '/images/clients/cisamures.png', href: 'https://cisamures.sc.gov.br'},
   { name: 'Santa Rosa', src: '/images/clients/santarosa.png', href: 'https://www.eusousantarosa.com.br/'},
   { name: 'Aprender Brincando', src: '/images/clients/aprender_brincando.jpg', href: 'https://aprenderbrincando.com.br/'},
-  //{ name: 'SION', src: '/images/clients/SION.png', href: 'https://sioncuritiba.com.br'},
+  { name: 'SION', src: '/images/clients/SION.png', href: 'https://sioncuritiba.com.br'},
+  { name: 'UNESP', src: '/images/clients/UNESP.png', href: 'https://www2.unesp.br/'},
+  { name: 'Escola Municipal de Educação Básica Ondina Neves Bleyer', src: '/images/clients/ONB.png', href: 'https://www.instagram.com/emebondinanevesbleyer/'},
+  { name: 'EEB Prof. Egídio Baraúna', src: '/images/clients/EgidioBarauna.png', href: 'https://www.instagram.com/eeb.egidiobarauna/'},
 ];
 // Largura de cada logo no letreiro: 64px da imagem + 40px de gap-10.
 const LOGO_SLOT = 104;
