@@ -66,7 +66,7 @@ export default function Footer() {
                 <span>(55) 49 99159142</span>
               </a>
               <a
-                href="https://www.instagram.com/formwerklages/"
+                href="https://www.instagram.com/formwerk_educacao/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 hover:text-white transition-colors whitespace-nowrap"
