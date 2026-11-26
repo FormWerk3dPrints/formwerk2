@@ -74,7 +74,7 @@ export default function Footer() {
               >
                 <SimpleIcon icon={siInstagram} className="h-4 w-4 shrink-0 text-current" />
                 <span className="font-semibold">Instagram:</span>
-                <span>@formwerklages</span>
+                <span>@formwerk_educacao</span>
               </a>
               <a
                 href="mailto:formwerklages@gmail.com"
